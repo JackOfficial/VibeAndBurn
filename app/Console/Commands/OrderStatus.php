@@ -20,9 +20,10 @@ class OrderStatus extends Command
         ];
 
         foreach ($sources as $sourceId => $providerName) {
-            // ONLY fetch orders not in a final state (Completed=1, Canceled=2, Partial=5)
+            // 1. Skip rows where orderId is NULL or an empty string
             $query = order::whereNotIn('status', [1, 2, 5])
-                          ->whereNotNull('orderId');
+                          ->whereNotNull('orderId')
+                          ->where('orderId', '!=', '');
 
             if ($sourceId === 'default') {
                 $query->whereNotIn('source_id', [3, 4, 5]);
@@ -30,7 +31,6 @@ class OrderStatus extends Command
                 $query->where('source_id', $sourceId);
             }
 
-            // Most APIs limit to 100 per batch
             $orders = $query->limit(100)->get();
 
             if ($orders->isEmpty()) continue;
@@ -40,49 +40,52 @@ class OrderStatus extends Command
     }
 
     private function processProviderBatch($providerName, $orders)
-{
-    $controllerClass = "App\\Http\\Controllers\\apis\\{$providerName}Controller";
-    
-    if (!class_exists($controllerClass)) {
-        $this->error("Controller $controllerClass not found!");
-        return;
-    }
+    {
+        $controllerClass = "App\\Http\\Controllers\\apis\\{$providerName}Controller";
+        
+        if (!class_exists($controllerClass)) {
+            $this->error("Controller $controllerClass not found!");
+            return;
+        }
 
-    $api = new $controllerClass();
-    $externalIds = $orders->pluck('orderId')->toArray();
+        $api = new $controllerClass();
+        $externalIds = $orders->pluck('orderId')->toArray();
 
-    try {
-        // Bulkmedya returns an object: { "123": { "status": "Completed", ... } }
-        $response = $api->multiStatus($externalIds);
+        try {
+            $response = $api->multiStatus($externalIds);
 
-        if ($response) {
-            foreach ($orders as $order) {
-                $id = $order->orderId;
+            if ($response) {
+                foreach ($orders as $order) {
+                    $id = $order->orderId;
 
-                // Check if the orderId exists as a property in the object
-                if (isset($response->{$id})) {
-                    $data = $response->{$id};
+                    if (isset($response->{$id})) {
+                        $data = $response->{$id};
 
-                    // Map string (e.g. "Completed") to your DB integer (e.g. 1)
-                    $newStatus = $this->mapStatus($data->status);
+                        // 2. Validate that data is an object and has a 'status' property
+                        // This prevents the "Undefined property: stdClass::$status" error
+                        if (is_object($data) && isset($data->status)) {
+                            $newStatus = $this->mapStatus($data->status);
 
-                    // Update the database record
-                    $order->update([
-                        'status'      => $newStatus,
-                        'start_count' => $data->start_count ?? $order->start_count,
-                        'remains'     => $data->remains ?? $order->remains,
-                    ]);
+                            $order->update([
+                                'status'      => $newStatus,
+                                'start_count' => $data->start_count ?? $order->start_count,
+                                'remains'     => $data->remains ?? $order->remains,
+                            ]);
 
-                    $this->info("Order #{$order->id} (API ID: $id) updated to $newStatus ({$data->status})");
-                } else {
-                    $this->warn("Order ID $id not found in {$providerName} response.");
+                            $this->info("Order #{$order->id} (API ID: $id) updated to $newStatus ({$data->status})");
+                        } else {
+                            // API returned the ID but likely with an error message instead of status
+                            $this->warn("Order ID $id returned invalid data format from $providerName.");
+                        }
+                    } else {
+                        $this->warn("Order ID $id not found in {$providerName} response.");
+                    }
                 }
             }
+        } catch (\Exception $e) {
+            $this->error("API Error with {$providerName}: " . $e->getMessage());
         }
-    } catch (\Exception $e) {
-        $this->error("API Error with {$providerName}: " . $e->getMessage());
     }
-}
 
     private function mapStatus($statusName)
     {
