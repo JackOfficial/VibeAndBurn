@@ -39,23 +39,22 @@ class OrderController extends Controller
         $service = Service::with('category')->findOrFail($request->service);
         $user = Auth::user();
         
-        // Ensure charge is handled as a clean float
         $chargeAmount = (float) str_replace(['$', ','], '', $request->charge);
 
         return DB::transaction(function () use ($request, $user, $service, $chargeAmount) {
-            // Lock the wallet for update to prevent race conditions
             $userWallet = Wallet::where('user_id', $user->id)->lockForUpdate()->first();
 
             if (!$userWallet || (float)$userWallet->money < $chargeAmount) {
-                // Throwing exception inside transaction triggers rollback
                 throw new \Exception('Insufficient funds.');
             }
 
             $userWallet->decrement('money', $chargeAmount);
 
+            // UPDATED: Added source_id here to save the provider at the moment of order
             $order = Order::create([
                 'user_id'    => $user->id,
                 'service_id' => $service->id,
+                'source_id'  => $service->source_id, // Link provider to this order
                 'link'       => $request->link,
                 'quantity'   => $request->quantity ?? 0,
                 'comment'    => in_array((int)$service->category_id, self::CUSTOM_COMMENT_CATS) ? $request->comment : null,
@@ -68,9 +67,9 @@ class OrderController extends Controller
                     $apiResponse = $this->sendApiOrder($service, $request);
 
                     if ($apiResponse && isset($apiResponse->order)) {
+                        // Correctly update the provider's external order ID
                         $order->update(['orderId' => $apiResponse->order]);
                         
-                        // Wrap Mail in try-catch so SMTP errors don't kill the order
                         try {
                             Mail::to("onesphoren8@gmail.com")->send(new confirmOrderMail(
                                 $user->name, $user->email, $service->service, $request->link, $request->quantity, $chargeAmount
@@ -82,16 +81,14 @@ class OrderController extends Controller
                         return redirect()->back()->with('addOrderSuccess', "Thank you {$user->name}! Order submitted.");
                     }
 
-                    // API logic failed (e.g. "Incorrect Service ID")
                     $errorReason = $apiResponse->error ?? $apiResponse->message ?? "Provider rejected request.";
                     Log::error("SMM API Failure", ['service_id' => $service->serviceId, 'response' => $apiResponse]);
                     
-                    // Rollback manually by throwing exception
                     throw new \Exception("Provider API Error: " . $errorReason);
 
                 } catch (\Exception $e) {
                     Log::error("API Exception: " . $e->getMessage());
-                    throw $e; // Re-throw to trigger DB rollback
+                    throw $e; 
                 }
             }
 
@@ -115,6 +112,7 @@ class OrderController extends Controller
             $params['quantity'] = (int) $request->quantity;
         }
 
+        // Logic uses the source_id from the service model to pick the correct API controller
         return match ((int)$service->source_id) {
             3 => (new AmazingController())->order($params),
             4 => (new BulkmedyaController())->order($params),
