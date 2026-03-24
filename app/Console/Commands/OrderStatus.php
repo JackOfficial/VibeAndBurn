@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Order;
+use App\Models\order;
 
 class OrderStatus extends Command
 {
@@ -21,7 +21,7 @@ class OrderStatus extends Command
 
         foreach ($sources as $sourceId => $providerName) {
             // ONLY fetch orders not in a final state (Completed=1, Canceled=2, Partial=5)
-            $query = Order::whereNotIn('status', [1, 2, 5])
+            $query = order::whereNotIn('status', [1, 2, 5])
                           ->whereNotNull('orderId');
 
             if ($sourceId === 'default') {
