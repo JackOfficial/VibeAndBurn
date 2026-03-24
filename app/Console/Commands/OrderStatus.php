@@ -8,7 +8,7 @@ use App\Models\order;
 class OrderStatus extends Command
 {
     protected $signature = 'update:status';
-    protected $description = 'Batch update order statuses using Multi-Status API calls';
+    protected $description = 'Batch update order statuses and auto-cancel invalid IDs';
 
     public function handle()
     {
@@ -20,10 +20,11 @@ class OrderStatus extends Command
         ];
 
         foreach ($sources as $sourceId => $providerName) {
-            // 1. Skip rows where orderId is NULL or an empty string
+            // Filter: Active orders only, with valid IDs, created in the last 30 days
             $query = order::whereNotIn('status', [1, 2, 5])
                           ->whereNotNull('orderId')
-                          ->where('orderId', '!=', '');
+                          ->where('orderId', '!=', '')
+                          ->where('created_at', '>', now()->subDays(30));
 
             if ($sourceId === 'default') {
                 $query->whereNotIn('source_id', [3, 4, 5]);
@@ -61,8 +62,7 @@ class OrderStatus extends Command
                     if (isset($response->{$id})) {
                         $data = $response->{$id};
 
-                        // 2. Validate that data is an object and has a 'status' property
-                        // This prevents the "Undefined property: stdClass::$status" error
+                        // Check if data is valid and contains a status
                         if (is_object($data) && isset($data->status)) {
                             $newStatus = $this->mapStatus($data->status);
 
@@ -74,8 +74,14 @@ class OrderStatus extends Command
 
                             $this->info("Order #{$order->id} (API ID: $id) updated to $newStatus ({$data->status})");
                         } else {
-                            // API returned the ID but likely with an error message instead of status
-                            $this->warn("Order ID $id returned invalid data format from $providerName." . json_encode($data));
+                            $this->warn("Order ID $id returned invalid data: " . json_encode($data));
+                            
+                            // If the provider explicitly says the ID is wrong, mark as Canceled (2) 
+                            // to stop checking it in future cron runs.
+                            if (isset($data->error) && $data->error === 'Incorrect order ID') {
+                                $order->update(['status' => 2]);
+                                $this->error("Order #{$order->id} auto-canceled: Incorrect API ID.");
+                            }
                         }
                     } else {
                         $this->warn("Order ID $id not found in {$providerName} response.");
