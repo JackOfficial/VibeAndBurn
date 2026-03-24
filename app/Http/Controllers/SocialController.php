@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Validator,Redirect,Response,File;
-use Socialite;
-use Auth;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Http\Controllers\Session;
 
@@ -20,7 +20,7 @@ public function redirect()
 public function callback()
 {
     try {
-            $user = Socialite::driver('google')->user();
+            $user = Socialite::driver('google')->stateless()->user();
             $user = User::where('google_id', $user->getId())->first();
 
             if($user){
@@ -53,7 +53,7 @@ public function callback()
                 return redirect('/home');
                 
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dd($e->getMessage());
         }
    }
