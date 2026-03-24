@@ -1,0 +1,3 @@
+time="2025-12-12T22:56:13-05:00" level=warning msg="Failed to get user home directory: $HOME is not defined"
+time="2025-12-12T22:56:13-05:00" level=info msg="Starting AutoSSL process..."
+time="2025-12-12T22:56:13-05:00" level=info msg="AutoSSL process completed."
