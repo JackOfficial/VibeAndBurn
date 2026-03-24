@@ -75,7 +75,7 @@ class OrderStatus extends Command
                             $this->info("Order #{$order->id} (API ID: $id) updated to $newStatus ({$data->status})");
                         } else {
                             // API returned the ID but likely with an error message instead of status
-                            $this->warn("Order ID $id returned invalid data format from $providerName.");
+                            $this->warn("Order ID $id returned invalid data format from $providerName." . json_encode($data));
                         }
                     } else {
                         $this->warn("Order ID $id not found in {$providerName} response.");
