@@ -40,49 +40,49 @@ class OrderStatus extends Command
     }
 
     private function processProviderBatch($providerName, $orders)
-    {
-        // Using double backslashes for the namespace string
-        $controllerClass = "App\\Http\\Controllers\\apis\\{$providerName}Controller";
-        
-        if (!class_exists($controllerClass)) {
-            $this->error("Controller $controllerClass not found!");
-            return;
-        }
-
-        $api = new $controllerClass();
-        $externalIds = $orders->pluck('orderId')->toArray();
-
-        try {
-            $response = $api->multiStatus($externalIds);
-
-            // Cast to object to ensure the ->{$id} syntax works regardless of API return type
-            $responseObj = (object)$response;
-
-            if ($responseObj) {
-                foreach ($orders as $order) {
-                    $id = $order->orderId;
-                    
-                    // Accessing dynamic property names like $response->{"12345"}
-                    if (isset($responseObj->{$id})) {
-                        $data = $responseObj->{$id};
-                        
-                        if (isset($data->status)) {
-                            $newStatus = $this->mapStatus($data->status);
-
-                            $order->update([
-                                'status'      => $newStatus,
-                                'start_count' => $data->start_count ?? $order->start_count,
-                                'remains'     => $data->remains ?? $order->remains,
-                            ]);
-                        }
-                    }
-                }
-                $this->info("Processed batch for {$providerName}");
-            }
-        } catch (\Exception $e) {
-            $this->error("API Error with {$providerName}: " . $e->getMessage());
-        }
+{
+    $controllerClass = "App\\Http\\Controllers\\apis\\{$providerName}Controller";
+    
+    if (!class_exists($controllerClass)) {
+        $this->error("Controller $controllerClass not found!");
+        return;
     }
+
+    $api = new $controllerClass();
+    $externalIds = $orders->pluck('orderId')->toArray();
+
+    try {
+        // Bulkmedya returns an object: { "123": { "status": "Completed", ... } }
+        $response = $api->multiStatus($externalIds);
+
+        if ($response) {
+            foreach ($orders as $order) {
+                $id = $order->orderId;
+
+                // Check if the orderId exists as a property in the object
+                if (isset($response->{$id})) {
+                    $data = $response->{$id};
+
+                    // Map string (e.g. "Completed") to your DB integer (e.g. 1)
+                    $newStatus = $this->mapStatus($data->status);
+
+                    // Update the database record
+                    $order->update([
+                        'status'      => $newStatus,
+                        'start_count' => $data->start_count ?? $order->start_count,
+                        'remains'     => $data->remains ?? $order->remains,
+                    ]);
+
+                    $this->info("Order #{$order->id} (API ID: $id) updated to $newStatus ({$data->status})");
+                } else {
+                    $this->warn("Order ID $id not found in {$providerName} response.");
+                }
+            }
+        }
+    } catch (\Exception $e) {
+        $this->error("API Error with {$providerName}: " . $e->getMessage());
+    }
+}
 
     private function mapStatus($statusName)
     {
