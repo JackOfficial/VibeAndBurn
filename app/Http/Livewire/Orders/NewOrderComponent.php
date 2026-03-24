@@ -179,7 +179,7 @@ public function render()
 
     foreach($spendings as $spending)
     {
-        $accountSpending += $spending->charge;
+        $accountSpending += (float) $spending->charge;
     }
     
     if(Auth::check()){
