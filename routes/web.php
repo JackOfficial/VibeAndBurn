@@ -123,7 +123,7 @@ Route::middleware(['auth'])->group(function () {
 //---------------------------- ADMIN --------------------------------
 
 Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('admin-iwange', AdminController::class);
+    Route::resource('index', AdminController::class)->name('index');
 });
 
 Route::get('/admin/fund', [pagesController::class, 'fund']);
