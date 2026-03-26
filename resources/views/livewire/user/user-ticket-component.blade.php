@@ -1,4 +1,5 @@
 <div class="nk-block">
+    {{-- Header Section --}}
     <div class="nk-block-head nk-block-head-sm">
         <div class="nk-block-between">
             <div class="nk-block-head-content">
@@ -16,7 +17,6 @@
         </div>
     </div>
 
-    {{-- Success Message --}}
     @if(session()->has('success'))
         <div class="alert alert-pro alert-success alert-icon mb-4">
             <em class="icon ni ni-check-circle"></em> <strong>Success!</strong> {{ session('success') }}
@@ -28,23 +28,12 @@
             <div class="card-inner">
                 <form wire:submit.prevent="createTicket">
                     <div class="row g-gs">
-                        {{-- Subject --}}
-                        <div class="col-md-6">
+                        {{-- Category Selection (First) --}}
+                        <div class="col-md-12">
                             <div class="form-group">
-                                <label class="form-label" for="subject">Subject</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" wire:model="subject" class="form-control" id="subject" placeholder="e.g., Order not delivered">
-                                </div>
-                                @error('subject') <span class="text-danger small">{{ $message }}</span> @enderror
-                            </div>
-                        </div>
-
-                        {{-- Category - Standard BS4 for Visibility --}}
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label" for="category">Category</label>
-                                <select wire:model="category_id" class="form-control" id="category">
-                                    <option value="">Select Category</option>
+                                <label class="form-label" for="category">Select Ticket Category</label>
+                                <select wire:model.live="category_id" class="form-control" id="category">
+                                    <option value="">Choose a category...</option>
                                     @foreach($categories as $cat)
                                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                     @endforeach
@@ -53,39 +42,76 @@
                             </div>
                         </div>
 
-                        {{-- Order ID --}}
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label class="form-label" for="order_id">Order ID (Optional)</label>
-                                <div class="form-control-wrap">
-                                    <div class="form-icon form-icon-left"><em class="icon ni ni-cart"></em></div>
-                                    <input type="text" wire:model="order_id" class="form-control" id="order_id" placeholder="Input Order ID">
+                        {{-- Dynamic Fields based on Category --}}
+                        @if($category_id)
+                            {{-- Common Field: Subject --}}
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="subject">Subject</label>
+                                    <div class="form-control-wrap">
+                                        <input type="text" wire:model="subject" class="form-control" id="subject" placeholder="Summary of your issue">
+                                    </div>
+                                    @error('subject') <span class="text-danger small">{{ $message }}</span> @enderror
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- Message --}}
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label class="form-label" for="message">Message</label>
-                                <div class="form-control-wrap">
-                                    <textarea wire:model="message" class="form-control form-control-simple no-resize" id="message" rows="5" placeholder="Describe your issue in detail..."></textarea>
+                            {{-- Dynamic: Order ID (Show for 'Order' categories) --}}
+                            @php
+                                $selectedCategoryName = optional($categories->find($category_id))->name;
+                            @endphp
+
+                            @if(Str::contains(strtolower($selectedCategoryName), ['order', 'refill', 'cancel']))
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-label" for="order_id">Order ID</label>
+                                        <div class="form-control-wrap">
+                                            <div class="form-icon form-icon-left"><em class="icon ni ni-cart"></em></div>
+                                            <input type="text" wire:model="order_id" class="form-control" id="order_id" placeholder="Enter your Order ID">
+                                        </div>
+                                        @error('order_id') <span class="text-danger small">{{ $message }}</span> @enderror
+                                    </div>
                                 </div>
-                                @error('message') <span class="text-danger small">{{ $message }}</span> @enderror
-                            </div>
-                        </div>
+                            @endif
 
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-lg btn-primary">
-                                <em class="icon ni ni-send"></em> <span>Submit Ticket</span>
-                            </button>
-                        </div>
+                            {{-- Dynamic: Payment Method (Show for 'Payment' categories) --}}
+                            @if(Str::contains(strtolower($selectedCategoryName), ['payment', 'deposit']))
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-label" for="payment_ref">Transaction ID / Proof</label>
+                                        <div class="form-control-wrap">
+                                            <input type="text" wire:model="payment_ref" class="form-control" id="payment_ref" placeholder="e.g., MTN MoMo Ref or Transaction Hash">
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Message --}}
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="message">Message Details</label>
+                                    <div class="form-control-wrap">
+                                        <textarea wire:model="message" class="form-control form-control-simple no-resize" id="message" rows="4" placeholder="Describe your issue in detail..."></textarea>
+                                    </div>
+                                    @error('message') <span class="text-danger small">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-lg btn-primary">
+                                    <em class="icon ni ni-send"></em> <span>Submit Ticket</span>
+                                </button>
+                            </div>
+                        @else
+                            <div class="col-12 text-center py-4">
+                                <p class="text-soft">Please select a category to continue.</p>
+                            </div>
+                        @endif
                     </div>
                 </form>
             </div>
         </div>
     @else
-        {{-- Tickets Table --}}
+        {{-- Tickets Table Section (Same as before) --}}
         <div class="card card-bordered card-stretch">
             <div class="card-inner-group">
                 <div class="card-inner p-0">
@@ -135,18 +161,14 @@
                         @empty
                             <div class="nk-tb-item">
                                 <div class="nk-tb-col text-center w-100 py-5 text-soft">
-                                    <p>No tickets found. Need help? Open a ticket above!</p>
+                                    No tickets found. Need help? Open a ticket above!
                                 </div>
                             </div>
                         @endforelse
                     </div>
                 </div>
                 <div class="card-inner">
-                    <div class="nk-block-between-md g-3">
-                        <div class="g">
-                            {{ $tickets->links() }}
-                        </div>
-                    </div>
+                    {{ $tickets->links() }}
                 </div>
             </div>
         </div>
