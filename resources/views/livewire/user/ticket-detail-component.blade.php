@@ -31,7 +31,7 @@
 
         {{-- Expanded Chat Area: Increased height and reduced horizontal padding --}}
         <div class="nk-msg-reply nk-reply" 
-             style="height: 700px; overflow-y: auto; background-color: #f5f7f9; padding: 40px 10% 20px 10%;">
+             style="height: 200px; overflow-y: auto; background-color: #f5f7f9; padding: 40px 10% 20px 10%;">
             
             @forelse($messages as $msg)
                 <div class="d-flex flex-column mb-4 {{ $msg->is_admin ? 'align-items-start' : 'align-items-end' }}">
