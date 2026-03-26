@@ -506,7 +506,7 @@
             </a>
           </li>
            <li class="nav-item">
-               <a href="{{ route('admin-iwange.create') }}" class="nav-link">
+               <a href="/admin/dashboard" class="nav-link">
                   <i class="fa fa-user"></i> 
                   <p>Add Admin</p>
                   </a>
