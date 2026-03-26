@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Order;
+use App\Models\order;
 use App\Models\User;
-use App\Models\Wallet;
-use App\Models\Subscription;
-use App\Models\Fund;
+use App\Models\wallet;
+use App\Models\subscription;
+use App\Models\fund;
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
@@ -17,18 +17,18 @@ class AdminController extends Controller
         $admin = Auth::user();
         
         // Optimized counts using Eloquent
-        $ordersCounter = Order::count();
-        $pendingOrders = Order::where('status', 0)->count(); // Assuming 0 is pending
+        $ordersCounter = order::count();
+        $pendingOrders = order::where('status', 0)->count(); // Assuming 0 is pending
         $usersCounter  = User::count();
         
         // Wallet Stats
-        $walletsCounter = Wallet::count();
-        $walletsTotal   = Wallet::sum('money');
+        $walletsCounter = wallet::count();
+        $walletsTotal   = wallet::sum('money');
         
-        // Subscription & Fund Stats
-        $subscribersCounter = Subscription::count();
-        $fundsCounter       = Fund::count();
-        $fundsTotal         = Fund::sum('amount');
+        // subscription & Fund Stats
+        $subscribersCounter = subscription::count();
+        $fundsCounter       = fund::count();
+        $fundsTotal         = fund::sum('amount');
 
         return view('admin.index', compact(
             'admin', 
