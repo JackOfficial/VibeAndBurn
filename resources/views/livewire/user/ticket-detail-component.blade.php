@@ -1,8 +1,8 @@
 <div class="nk-msg nk-msg-custom-container">
     <div class="nk-msg-body d-flex flex-column h-100">
         
-        {{-- Header Section: Always at the top --}}
-        <div class="nk-msg-head pb-3 border-bottom bg-white px-4 py-3" style="flex-shrink: 0;">
+        {{-- Header Section: Fixed height, never shrinks --}}
+        <div class="nk-msg-head border-bottom bg-white px-4 py-3" style="flex: 0 0 auto;">
             <div class="nk-msg-head-meta">
                 <div class="d-flex align-items-center justify-content-between w-100">
                     <div>
@@ -30,16 +30,15 @@
             </div>
         </div>
 
-        {{-- Chat History: Automatically scrolls --}}
+        {{-- Chat History: This is the area that grows to fill the "Big" space --}}
         <div class="nk-msg-reply-scroll nk-reply" id="chat-container">
             @forelse($messages as $msg)
                 <div class="d-flex flex-column mb-4 {{ $msg->is_admin ? 'align-items-start' : 'align-items-end' }}">
-                    <div class="bubble-msg {{ $msg->is_admin ? 'admin-bubble' : 'user-bubble' }}" 
-                         style="{{ $msg->is_admin 
-                                    ? 'background: #ffffff; color: #364a63; border: 1px solid #e5e9f2; border-radius: 0 18px 18px 18px;' 
-                                    : 'background: #6576ff; color: #ffffff; border-radius: 18px 18px 0 18px;' }}">
+                    
+                    <div class="bubble-msg {{ $msg->is_admin ? 'admin-bubble' : 'user-bubble' }}">
                         <p class="mb-0" style="white-space: pre-wrap;">{{ $msg->message }}</p>
                     </div>
+
                     <div class="mt-1 px-2">
                         <small class="text-soft" style="font-size: 11px;">
                             <em class="icon ni {{ $msg->is_admin ? 'ni-shield-check-fill text-primary' : 'ni-user-fill' }}"></em>
@@ -48,15 +47,15 @@
                     </div>
                 </div>
             @empty
-                <div class="p-5 text-center text-soft">
-                    <em class="icon ni ni-chat-circle-fill fs-1" style="opacity: 0.3;"></em>
-                    <p class="mt-3">Start the conversation below.</p>
+                <div class="h-100 d-flex align-items-center justify-content-center flex-column text-soft">
+                    <em class="icon ni ni-chat-circle-fill fs-1" style="opacity: 0.2;"></em>
+                    <p class="mt-3">No messages in this ticket yet.</p>
                 </div>
             @endforelse
             <div id="chat-bottom"></div>
         </div>
 
-        {{-- Reply Form: Pinned to bottom --}}
+        {{-- Reply Form: Pinned to the bottom --}}
         <div class="reply-form-fixed">
             @if($ticket->status !== 'closed')
                 <div class="form-group mb-3">
@@ -68,7 +67,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="text-soft small">
-                        <em class="icon ni ni-info-fill"></em> Shift + Enter for new line.
+                        <em class="icon ni ni-info-fill"></em> Press Enter to send.
                     </div>
                     <button wire:click="sendMessage" wire:loading.attr="disabled" class="btn btn-primary btn-lg px-5 btn-round">
                         <span wire:loading.remove>
@@ -79,11 +78,11 @@
                         </span>
                     </button>
                 </div>
-                @error('newMessage') <span class="text-danger small mt-2 d-block">{{ $message }}</span> @enderror
+                @error('newMessage') <span class="text-danger small mt-2 d-block font-weight-bold">{{ $message }}</span> @enderror
             @else
                 <div class="alert alert-fill alert-light text-center py-3 mb-0" style="border-radius: 12px;">
                     <em class="icon ni ni-lock-alt-fill text-soft fs-4"></em>
-                    <h6 class="mt-1 text-soft">This ticket is closed and cannot be replied to.</h6>
+                    <h6 class="mt-1 text-soft">Conversation Locked</h6>
                 </div>
             @endif
         </div>
