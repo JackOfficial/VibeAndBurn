@@ -41,6 +41,7 @@
      <link rel="stylesheet" href="{{ asset('back/plugins/toastr/toastr.min.css') }}">
   <!-- jQuery library -->
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+@stack('styles')
 @livewireStyles
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -647,10 +648,8 @@ window.addEventListener('sourceRemoved', event => {
 			icon: event.detail.type,
            });
 		});
-
- 		
-  
 </script>
+@stack('scripts')
 @livewireScripts
 </body>
 </html>
