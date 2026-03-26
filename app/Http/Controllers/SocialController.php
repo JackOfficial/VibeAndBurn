@@ -8,6 +8,8 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Http\Controllers\Session;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class SocialController extends Controller
 {
@@ -20,41 +22,43 @@ public function redirect()
 public function callback()
 {
     try {
-            $user = Socialite::driver('google')->stateless()->user();
-            $user = User::where('google_id', $user->getId())->first();
+        $googleUser = Socialite::driver('google')->stateless()->user();
+        $user = User::where('google_id', $googleUser->getId())->first();
 
-            if($user){
-                Auth::login($user);
-                return redirect('/home');
-            }else{
+        if ($user) {
+            // Log in existing user
+            Auth::login($user);
+            return redirect('/home');
+        } else {
+            // 1. Prepare data for the new user
+            $userData = [
+                'name'      => $googleUser->getName(),
+                'email'     => $googleUser->getEmail(),
+                'google_id' => $googleUser->getId(),
+                'password'  => Hash::make(Str::random(24)),
+                'avatar'    => $googleUser->getAvatar(),
+            ];
 
-                $user = Socialite::driver('google')->user();
-                
-                if(session()->has('sharedLinkID')){
-                 $newUser = User::create([
-                    'name' => $user->getName(),
-                    'email' => $user->getEmail(),
-                    'google_id'=> $user->getId(),
-                    'password' => encrypt('123456dummy'),
-                    'avatar' => $user->getAvatar(),
-                    'linkOwner' => session()->get('sharedLinkID') 
-                ]);   
-                }
-                else{
-                   $newUser = User::create([
-                    'name' => $user->getName(),
-                    'email' => $user->getEmail(),
-                    'google_id'=> $user->getId(),
-                    'password' => encrypt('123456dummy'),
-                    'avatar' => $user->getAvatar()
-                ]); 
-                }
-                Auth::login($newUser);
-                return redirect('/home');
-                
+            // Add referral link if it exists in session
+            if (session()->has('sharedLinkID')) {
+                $userData['linkOwner'] = session()->get('sharedLinkID');
             }
-        } catch (\Exception $e) {
-            dd($e->getMessage());
+
+            // 2. Create the user
+            $newUser = User::create($userData);
+
+            // 3. ASSIGN DEFAULT ROLE
+            // This works because you added 'use HasRoles' to your User model
+            $newUser->assignRole('User');
+
+            // 4. Log in and redirect
+            Auth::login($newUser);
+            return redirect('/home');
         }
-   }
+    } catch (\Exception $e) {
+        // In production, log this instead of dd()
+        return redirect('/login')->with('error', 'Google authentication failed.');
+    }
+  }
+
 }

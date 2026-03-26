@@ -14,14 +14,17 @@
                             </h3>
                             <div class="card-tools">
                                 @if($ticket->status != 2)
+                                @role('Super Admin|Admin')
                                     <button wire:click="closeTicket" class="btn btn-sm btn-outline-success">
                                         <i class="fas fa-check-circle mr-1"></i> Mark as Resolved
                                     </button>
+                                    @endrole
                                 @endif
                             </div>
                         </div>
 
                         {{-- Chat History --}}
+                        @can('manage tickets')
                         <div class="card-body p-0">
                             <div class="nk-reply-history px-4 py-3" style="max-height: 600px; overflow-y: auto; background: #f8f9fc;">
                                 @foreach($messages as $msg)
@@ -46,6 +49,7 @@
                                 @endforeach
                             </div>
                         </div>
+                        @can('manage tickets')
 
                         {{-- Reply Form --}}
                         <div class="card-footer bg-white border-top-0">
