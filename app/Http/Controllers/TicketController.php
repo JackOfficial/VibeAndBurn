@@ -20,7 +20,7 @@ class TicketController extends Controller
       $wallet = wallet::where('user_id', '=', $userID)->value('money');
     }
 
-       return view('tickets', compact('wallet'));
+       return view('tickets.index', compact('wallet'));
        }
        else{
          return redirect('login');  
