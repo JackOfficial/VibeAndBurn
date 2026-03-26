@@ -512,7 +512,7 @@
                   </a>
                </li>
                
-          <li><a class="btn btn-primary btn-block text-white" href="{{route('logmeout')}}"><span><i class="fa fa-logout"></i> Logout</span></a></li>
+          <li><a class="btn btn-primary btn-block text-white" href="{{ route('logout') }}"><span><i class="fa fa-logout"></i> Logout</span></a></li>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
@@ -523,7 +523,7 @@
   @yield('content')
 
   <footer class="main-footer">
-    <strong>Copyright &copy; {{date('Y')}} <a href="https://adminlte.io">vibeandburn</a>.</strong>
+    <strong>Copyright &copy; {{date('Y')}} <a href="/">vibeandburn</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
       <b>Version</b> 3.1.0
