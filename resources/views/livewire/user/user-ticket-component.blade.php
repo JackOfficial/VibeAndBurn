@@ -4,7 +4,7 @@
             <div class="nk-block-head-content">
                 <h3 class="nk-block-title page-title">Support Tickets</h3>
                 <div class="nk-block-des text-soft">
-                    <p>You have total {{ $tickets->total() }} tickets.</p>
+                    <p>You have total {{ $tickets->total() }} support requests.</p>
                 </div>
             </div>
             <div class="nk-block-head-content">
@@ -31,18 +31,18 @@
                     <div class="row g-gs">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-label">Subject</label>
+                                <label class="form-label" for="subject">Subject</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" wire:model="subject" class="form-control" placeholder="e.g., Order not delivered">
+                                    <input type="text" wire:model="subject" class="form-control" id="subject" placeholder="e.g., Order not delivered">
                                 </div>
                                 @error('subject') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-label">Category</label>
+                                <label class="form-label" for="category">Category</label>
                                 <div class="form-control-wrap">
-                                    <select wire:model="category_id" class="form-select js-select2">
+                                    <select wire:model="category_id" class="form-select" id="category">
                                         <option value="">Select Category</option>
                                         @foreach($categories as $cat)
                                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -54,18 +54,18 @@
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label class="form-label">Order ID (Optional)</label>
+                                <label class="form-label" for="order_id">Order ID (Optional)</label>
                                 <div class="form-control-wrap">
                                     <div class="form-icon form-icon-left"><em class="icon ni ni-cart"></em></div>
-                                    <input type="text" wire:model="order_id" class="form-control" placeholder="Input Order ID">
+                                    <input type="text" wire:model="order_id" class="form-control" id="order_id" placeholder="Input Order ID">
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label class="form-label">Message</label>
+                                <label class="form-label" for="message">Message</label>
                                 <div class="form-control-wrap">
-                                    <textarea wire:model="message" class="form-control form-control-simple no-resize" rows="5" placeholder="Describe your issue in detail..."></textarea>
+                                    <textarea wire:model="message" class="form-control form-control-simple no-resize" id="message" rows="5" placeholder="Describe your issue in detail..."></textarea>
                                 </div>
                                 @error('message') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
@@ -84,6 +84,7 @@
             <div class="card-inner-group">
                 <div class="card-inner p-0">
                     <div class="nk-tb-list nk-tb-ulist">
+                        {{-- Table Header --}}
                         <div class="nk-tb-item nk-tb-head">
                             <div class="nk-tb-col"><span class="sub-text">ID</span></div>
                             <div class="nk-tb-col"><span class="sub-text">Subject</span></div>
@@ -91,20 +92,30 @@
                             <div class="nk-tb-col tb-col-sm"><span class="sub-text">Status</span></div>
                             <div class="nk-tb-col tb-col-lg"><span class="sub-text">Last Update</span></div>
                             <div class="nk-tb-col text-right"><span class="sub-text">Action</span></div>
-                        </div>@forelse($tickets as $ticket)
+                        </div>
+
+                        @forelse($tickets as $ticket)
                             <div class="nk-tb-item">
                                 <div class="nk-tb-col">
                                     <span class="text-primary fw-bold">#{{ $ticket->id }}</span>
                                 </div>
                                 <div class="nk-tb-col">
-                                    <span class="tb-lead">{{ Str::limit($ticket->subject, 40) }}</span>
+                                    <span class="tb-lead">{{ Str::limit($ticket->subject, 35) }}</span>
                                 </div>
                                 <div class="nk-tb-col tb-col-md">
                                     <span class="sub-text">{{ $ticket->category->name ?? 'General' }}</span>
                                 </div>
                                 <div class="nk-tb-col tb-col-sm">
-                                    <span class="badge badge-dot {{ $ticket->status == 'pending' ? 'badge-warning' : ($ticket->status == 'answered' ? 'badge-success' : 'badge-secondary') }}">
-                                        {{ $ticket->status == 1 ? 'Answered' : 'Pending' }}
+                                    @php
+                                        $statusClass = match($ticket->status) {
+                                            'answered' => 'badge-success',
+                                            'pending' => 'badge-warning',
+                                            'closed' => 'badge-secondary',
+                                            default => 'badge-primary'
+                                        };
+                                    @endphp
+                                    <span class="badge badge-dot {{ $statusClass }}">
+                                        {{ ucfirst($ticket->status) }}
                                     </span>
                                 </div>
                                 <div class="nk-tb-col tb-col-lg">
@@ -115,14 +126,16 @@
                                         <span>View</span>
                                     </a>
                                 </div>
-                            </div>@empty
+                            </div>
+                        @empty
                             <div class="nk-tb-item">
                                 <div class="nk-tb-col text-center w-100 py-5 text-soft">
-                                    No tickets found. Need help? Open a ticket above!
+                                    <p>No tickets found. Need help? Open a ticket above!</p>
                                 </div>
                             </div>
                         @endforelse
-                    </div></div>
+                    </div>
+                </div>
                 <div class="card-inner">
                     <div class="nk-block-between-md g-3">
                         <div class="g">
