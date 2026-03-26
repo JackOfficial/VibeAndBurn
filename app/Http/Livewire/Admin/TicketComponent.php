@@ -75,8 +75,8 @@ class TicketComponent extends Component
             ->paginate(15, ['*'], 'ticketsPage');
 
         return view('livewire.admin.ticket-component', [
-            'ticketMessages' => $ticketMessages,
-            'allTickets' => $allTickets
+            'ticket' => $ticketMessages,
+            'chats' => $allTickets
         ]);
     }
 }
