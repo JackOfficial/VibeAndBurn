@@ -55,8 +55,6 @@ use App\Http\Controllers\admin\RateController;
 Route::get('/', [pagesController::class, 'index']);
 
 Route::resource('/sharedlink', sharedlinkController::class);
-Route::get('/admin/referrals/{id}', [sharedlinkController::class, 'referral'])->name('admin.referrals');
-Route::get('/admin/offer/bonus/{id}', [sharedlinkController::class, 'bonus'])->name('admin.bonus');
 
 Route::get('/mybonus', [sharedlinkController::class, 'mybonus'])->name('mybonus')->middleware('auth');
 
@@ -124,19 +122,15 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('index', AdminController::class);
+    Route::resource('wholesalers', WholesalersController::class);
+    Route::get('/tickets', [TicketController::class, 'adminTickets'])->name('tickets');
+    Route::get('/ticket/{id}', [TicketController::class, 'adminTicket'])->name('ticket.show');
+    Route::get('/fund', [pagesController::class, 'fund']);
+    Route::get('/rate', [RateController::class, 'index']);
+    Route::get('/referrals/{id}', [sharedlinkController::class, 'referral'])->name('referrals');
+    Route::get('/offer/bonus/{id}', [sharedlinkController::class, 'bonus'])->name('bonus');
 });
 
-Route::get('/admin/fund', [pagesController::class, 'fund']);
-Route::resource('admin/wholesalers', WholesalersController::class);
-
-Route::get('/admin/rate', [RateController::class, 'index']);
-
-Route::get('/admin/summernote', function(){
-    return view('admin.summernote');
-});
-
-Route::get('/admin/tickets', [TicketController::class, 'adminTickets'])->name('admin.tickets');
-Route::get('/admin/ticket/{id}', [TicketController::class, 'adminTicket'])->name('admin.ticket.show');
 
 Route::resource('wallet', walletController::class);
 Route::resource('advert', AdvertsController::class);
@@ -144,7 +138,7 @@ Route::resource('update', UpdatesController::class);
 Route::resource('socialmedia', socialmediaController::class);
 Route::resource('category', categoryController::class);
 Route::resource('service', serviceController::class);
-Route::get('/admin/toggle-service/{id}', [serviceController::class, 'toggler']);
+Route::get('/toggle-service/{id}', [serviceController::class, 'toggler']);
 
 Route::resource('clientOrders', clientOrdersController::class);
 Route::resource('broadcast', broadcastController::class);
