@@ -59,7 +59,7 @@ class TicketComponent extends Component
                 'users.avatar'
             ])
             ->latest('supports.created_at')
-            ->paginate(10, ['*'], 'messagesPage');
+            ->paginate(10);
 
         // Fetch the list of all tickets for the sidebar/list view
         $allTickets = Ticket::join('users', 'tickets.user_id', '=', 'users.id')
