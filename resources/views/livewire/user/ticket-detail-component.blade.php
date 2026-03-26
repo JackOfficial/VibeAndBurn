@@ -29,37 +29,38 @@
             </div>
         </div>
 
-        {{-- Expanded Chat Area: Increased height and reduced horizontal padding --}}
-        <div class="nk-msg-reply nk-reply" 
-             style="min-height: 600px; height: 70vh; overflow-y: auto; background-color: #f5f7f9; padding: 30px 25px;">
+        {{-- Expanded Chat Area --}}
+<div class="nk-msg-reply nk-reply" 
+     style="min-height: 500px; height: 65vh; overflow-y: auto; background-color: #f5f7f9; padding: 30px 20px;">
+    
+    @forelse($messages as $msg)
+        <div class="d-flex flex-column mb-4 {{ $msg->is_admin ? 'align-items-start' : 'align-items-end' }}">
             
-            @forelse($messages as $msg)
-                <div class="d-flex flex-column mb-4 {{ $msg->is_admin ? 'align-items-start' : 'align-items-end' }}">
-                    
-                    {{-- Wider Bubbles (90% instead of 80%) --}}
-                    <div class="p-3 shadow-sm" 
-                         style="max-width: 90%; font-size: 15px; line-height: 1.6;
-                                {{ $msg->is_admin 
-                                    ? 'background: #ffffff; color: #364a63; border: 1px solid #e5e9f2; border-radius: 0 20px 20px 20px;' 
-                                    : 'background: #6576ff; color: #ffffff; border-radius: 20px 20px 0 20px;' }}">
-                        
-                        <p class="mb-0" style="white-space: pre-wrap;">{{ $msg->message }}</p>
-                    </div>
+            {{-- Message Bubble --}}
+            <div class="p-3 shadow-sm" 
+                 style="max-width: 85%; font-size: 15px; line-height: 1.5;
+                        {{ $msg->is_admin 
+                            ? 'background: #ffffff; color: #364a63; border: 1px solid #e5e9f2; border-radius: 0 15px 15px 15px;' 
+                            : 'background: #6576ff; color: #ffffff; border-radius: 15px 15px 0 15px;' }}">
+                
+                <p class="mb-0" style="white-space: pre-wrap;">{{ $msg->message }}</p>
+            </div>
 
-                    <div class="mt-1 px-2">
-                        <small class="text-muted" style="font-size: 12px; font-weight: 500;">
-                            {{ $msg->is_admin ? 'Support Agent' : 'Customer' }} • {{ $msg->created_at->diffForHumans() }}
-                        </small>
-                    </div>
-                </div>
-            @empty
-                <div class="p-5 text-center text-soft">
-                    <em class="icon ni ni-chat-circle-fill fs-1" style="opacity: 0.3;"></em>
-                    <p class="mt-3">No messages yet. Send a reply to start the conversation.</p>
-                </div>
-            @endforelse
-            <div id="chat-bottom"></div>
+            <div class="mt-1 px-2">
+                <small class="text-muted" style="font-size: 11px;">
+                    <em class="icon ni {{ $msg->is_admin ? 'ni-shield-check text-primary' : 'ni-user' }}"></em>
+                    {{ $msg->is_admin ? 'Support' : 'Client' }} • {{ $msg->created_at->diffForHumans() }}
+                </small>
+            </div>
         </div>
+    @empty
+        <div class="p-5 text-center text-soft">
+            <em class="icon ni ni-chat-circle-fill fs-1" style="opacity: 0.2;"></em>
+            <p class="mt-3">No messages yet.</p>
+        </div>
+    @endforelse
+    <div id="chat-bottom"></div>
+</div>
 
         {{-- Reply Form: More vertical room for typing --}}
         <div class="nk-reply-form border-top bg-white p-4">
