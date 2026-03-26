@@ -42,6 +42,17 @@ class UserTicketComponent extends Component
         ];
     }
 
+    public function mount()
+    {
+    $defaultCategory = TicketCategory::where('name', 'LIKE', '%Order%')
+                        ->where('is_active', true)
+                        ->first();
+
+     if ($defaultCategory) {
+        $this->category_id = $defaultCategory->id;
+     }
+    }
+
     public function toggleCreate()
     {
         $this->isCreating = !$this->isCreating;
