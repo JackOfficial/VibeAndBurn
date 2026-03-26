@@ -107,7 +107,7 @@
                             {{-- Message --}}
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="form-label" for="message">Message Details</label>
+                                    <label class="form-label" for="message">Message (Optional)</label>
                                     <div class="form-control-wrap">
                                         <textarea wire:model="message" class="form-control form-control-simple no-resize" id="message" rows="4" placeholder="Describe your issue in detail..."></textarea>
                                     </div>
