@@ -56,6 +56,9 @@
                                         </div>
                                     @endif
                                     <span class="font-weight-bold">{{ $user->name }}</span>
+                                    @if($user->status === 'banned')
+                                    <span class="badge badge-danger px-1" style="font-size: 10px;">BANNED</span>
+                                    @endif
                                 </div>
                             </td>
                             <td class="align-middle">{{ $user->email }}</td>
@@ -71,17 +74,35 @@
                                     <span class="badge {{ $badgeClass }} px-2 py-1">{{ $role->name }}</span>
                                 @endforeach
                             </td>
-                            <td class="text-right align-middle px-4">
-                                @if(auth()->id() !== $user->id)
-                                    <button wire:click="deleteUser({{ $user->id }})" 
-                                            wire:confirm="Are you sure you want to delete {{ $user->name }}?" 
-                                            class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                @else
-                                    <small class="text-muted italic">Current User</small>
-                                @endif
-                            </td>
+                           <td class="text-right align-middle px-4">
+    <div class="btn-group">
+        {{-- Edit Button --}}
+        <a href="{{ url('admin/users/'.$user->id.'/edit') }}" 
+           class="btn btn-sm btn-default" 
+           title="Edit User">
+            <i class="fas fa-edit text-primary"></i>
+        </a>
+
+        @if(auth()->id() !== $user->id)
+            {{-- Ban/Unban Button --}}
+            <button wire:click="toggleBan({{ $user->id }})" 
+                    class="btn btn-sm btn-default" 
+                    title="{{ $user->status === 'banned' ? 'Unban User' : 'Ban User' }}">
+                <i class="fas {{ $user->status === 'banned' ? 'fa-unlock text-success' : 'fa-user-slash text-warning' }}"></i>
+            </button>
+
+            {{-- Delete Button --}}
+            <button wire:click="deleteUser({{ $user->id }})" 
+                    wire:confirm="Are you sure you want to permanently delete {{ $user->name }}?" 
+                    class="btn btn-sm btn-default"
+                    title="Delete User">
+                <i class="fas fa-trash-alt text-danger"></i>
+            </button>
+        @else
+            <span class="badge badge-light border ml-2">You</span>
+        @endif
+    </div>
+</td>
                         </tr>
                     @empty
                         <tr>

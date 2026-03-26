@@ -20,6 +20,31 @@ class UserManagement extends Component
         $this->resetPage();
     }
 
+    // Add this method to toggle the ban status
+public function toggleBan($id)
+{
+    $user = User::find($id);
+    
+    // Safety check: Don't let an admin ban themselves
+    if (auth()->id() == $id) {
+        session()->flash('error', 'You cannot ban your own account.');
+        return;
+    }
+
+    $user->status = ($user->status === 'banned') ? 'active' : 'banned';
+    $user->save();
+
+    $message = $user->status === 'banned' ? 'User has been banned.' : 'User has been unbanned.';
+    session()->flash('success', $message);
+}
+
+// For the Edit button, you usually redirect to a separate page 
+// or open a modal. Here is the redirect approach:
+public function editUser($id)
+{
+    return redirect()->route('admin.users.edit', $id);
+}
+
     public function deleteUser($id)
     {
         if (Auth::id() == $id) {

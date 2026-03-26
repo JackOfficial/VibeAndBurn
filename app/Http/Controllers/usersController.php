@@ -13,7 +13,12 @@ class usersController extends Controller
      */
   public function index(Request $request)
 {
-    return view('admin.manage.users');
+    return view('admin.users.index');
+}
+
+public function show(User $user)
+{
+    return view('admin.users.show', compact('user'));
 }
 
     /**
