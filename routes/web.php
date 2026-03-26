@@ -133,8 +133,8 @@ Route::get('/admin/summernote', function(){
     return view('admin.summernote');
 });
 
-Route::get('/admin/tickets', [TicketController::class, 'adminTickets']);
-Route::get('/admin/ticket/{id}', [TicketController::class, 'adminTicket']);
+Route::get('/admin/tickets', [TicketController::class, 'adminTickets'])->name('admin.tickets');
+Route::get('/admin/ticket/{id}', [TicketController::class, 'adminTicket'])->name('admin.ticket.show');
 
 Route::resource('wallet', walletController::class);
 Route::resource('advert', AdvertsController::class);

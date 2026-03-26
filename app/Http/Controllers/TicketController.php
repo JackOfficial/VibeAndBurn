@@ -43,13 +43,11 @@ public function tickets()
    }
    
    public function adminTickets(){
-     return view('admin.manage.tickets');
+     return view('admin.tickets.index');
    }
    
    public function adminTicket($id){
-       //dd($id);
-       $ticketID = $id;
-     return view('admin.manage.chat', compact('ticketID'));
+     return view('admin.tickets.show', compact('id'));
    }
 
 }
