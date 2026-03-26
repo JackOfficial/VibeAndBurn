@@ -159,29 +159,3 @@ echo "Event has been broadcast";
 Route::get('/listener', function(){
     return view('listener');
     });
-    
-    //////////////////////////// Group Work
-    Route::get('/datastructure/index', function(){
-    return view('datastructure/index');
-});
-Route::get('/datastructure/work1', function(){
-    return view('datastructure/work1');
-});
-
-Route::get('/datastructure/work2', function(){
-    return view('datastructure/work2');
-}); 
-
-Route::get('/datastructure/work3', function(){
-    return view('datastructure/work3');
-});
-Route::get('/datastructure/register', function(){
-    return view('datastructure/register');
-});
-Route::post('/datastructure/register', function(){
-    return view('datastructure/register');
-});
-Route::get('/datastructure/edit', function(){
-    return view('datastructure/edit');
-});
-    
