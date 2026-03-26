@@ -60,8 +60,7 @@
                                         <i class="fas fa-info-circle mr-1"></i> User will be notified via email.
                                     </div>
                                     <button wire:click="sendMessage" wire:loading.attr="disabled" class="btn btn-primary px-4">
-                                        <span wire:loading.remove><i class="fas fa-paper-plane mr-2"></i> Send Reply</span>
-                                        <span wire:loading><i class="fas fa-spinner fa-spin"></i> Sending...</span>
+                                        <span><i class="fas fa-paper-plane mr-2"></i> Send Reply</span>
                                     </button>
                                 </div>
                             @else
