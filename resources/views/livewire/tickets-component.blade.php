@@ -12,24 +12,65 @@
                 </div>
                 @endif
 
-                <div class="card card-outline card-primary shadow-sm">
-                    <div class="card-header bg-white py-3">
-                        <div class="d-flex justify-content-between align-items-center">
+                {{-- Quick Stats / Filters Bar --}}
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="info-box shadow-sm border-0 clickable-card {{ $status === null ? 'bg-primary text-white' : 'bg-white' }}" wire:click="$set('status', null)" style="cursor: pointer;">
+                            <span class="info-box-icon"><i class="fas fa-list"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">All Tickets</span>
+                                <span class="info-box-number">Total</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box shadow-sm border-0 clickable-card {{ $status === '0' ? 'bg-warning text-dark' : 'bg-white' }}" wire:click="$set('status', '0')" style="cursor: pointer;">
+                            <span class="info-box-icon"><i class="fas fa-clock"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Pending</span>
+                                <span class="info-box-number">Action Required</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box shadow-sm border-0 clickable-card {{ $status === '1' ? 'bg-info text-white' : 'bg-white' }}" wire:click="$set('status', '1')" style="cursor: pointer;">
+                            <span class="info-box-icon"><i class="fas fa-reply"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Replied</span>
+                                <span class="info-box-number">Awaiting User</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box shadow-sm border-0 clickable-card {{ $status === '2' ? 'bg-success text-white' : 'bg-white' }}" wire:click="$set('status', '2')" style="cursor: pointer;">
+                            <span class="info-box-icon"><i class="fas fa-check-double"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Closed</span>
+                                <span class="info-box-number">Resolved</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-outline card-primary shadow-sm border-0">
+                    <div class="card-header bg-white py-3 border-bottom-0">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap">
                             <h3 class="card-title font-weight-bold">
-                                <i class="fas fa-ticket-alt mr-2 text-primary"></i> Support Tickets
+                                <i class="fas fa-ticket-alt mr-2 text-primary"></i> 
+                                Ticket Management
                                 @if(count($this->checkbox) > 0)
-                                    <span class="badge badge-pill badge-primary ml-2 animate__animated animate__fadeIn">
+                                    <span class="badge badge-pill badge-primary ml-2 animate__animated animate__pulse animate__infinite">
                                         {{ count($this->checkbox) }} selected
                                     </span>
                                 @endif
                             </h3>
 
-                            <div class="card-tools">
-                                <div class="input-group input-group-sm" style="width: 250px;">
+                            <div class="card-tools d-flex">
+                                <div class="input-group input-group-sm" style="width: 300px;">
                                     <input type="text" 
                                            wire:model.live.debounce.300ms="search" 
-                                           class="form-control border-right-0" 
-                                           placeholder="Search by ID, name or subject...">
+                                           class="form-control border-right-0 shadow-none" 
+                                           placeholder="Search ID, email, or subject...">
                                     <div class="input-group-append">
                                         <span class="input-group-text bg-white border-left-0">
                                             <i class="fas fa-search text-muted"></i>
@@ -41,52 +82,51 @@
                     </div>
 
                     <div class="card-body p-0">
-                        <div class="mailbox-controls d-flex align-items-center p-3 border-bottom bg-light">
+                        <div class="mailbox-controls d-flex align-items-center p-3 border-bottom bg-light-soft">
                             <div class="btn-group mr-2">
-                                <button type="button" wire:click="selectAllMessages" class="btn btn-white btn-sm shadow-sm" title="Select All">
+                                <button type="button" wire:click="selectAllMessages" class="btn btn-white btn-sm shadow-sm border" title="Select All">
                                     <i class="{{ count($this->checkbox) > 0 ? 'fas fa-check-square text-primary' : 'far fa-square' }}"></i>
                                 </button>
                                 <button type="button" 
                                         wire:click="deleteMultipleMessages" 
-                                        wire:confirm="Are you sure you want to delete these tickets?"
-                                        class="btn btn-white btn-sm shadow-sm {{ empty($this->checkbox) ? 'disabled' : '' }}" 
+                                        wire:confirm="Permanentely delete these tickets?"
+                                        class="btn btn-white btn-sm shadow-sm border {{ empty($this->checkbox) ? 'disabled text-muted' : '' }}" 
                                         title="Delete Selected">
                                     <i class="far fa-trash-alt text-danger"></i>
                                 </button>
                             </div>
 
-                            <button type="button" wire:click="$refresh" class="btn btn-white btn-sm shadow-sm mr-2" title="Refresh">
+                            <button type="button" wire:click="$refresh" class="btn btn-white btn-sm shadow-sm border mr-2" title="Refresh">
                                 <i class="fas fa-sync-alt" wire:loading.class="fa-spin" wire:target="render"></i>
                             </button>
 
-                            <div wire:loading wire:target="deleteMultipleMessages, delete" class="text-muted small">
-                                <div class="spinner-border spinner-border-sm text-primary mr-2" role="status"></div>
-                                Processing...
+                            <div wire:loading wire:target="search, status, deleteMultipleMessages" class="text-primary small font-weight-bold">
+                                <span class="spinner-grow spinner-grow-sm mr-1"></span> Updating...
                             </div>
 
                             <div class="ml-auto d-flex align-items-center">
-                                <span class="text-muted small mr-3">Showing {{ $tickets->count() }} results</span>
+                                <span class="text-muted small mr-3 d-none d-md-inline">Showing {{ $tickets->firstItem() }} - {{ $tickets->lastItem() }} of {{ $tickets->total() }}</span>
                                 {{ $tickets->links('vendor.livewire.bootstrap') }}
                             </div>
                         </div>
 
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
-                                <thead class="thead-light">
+                                <thead class="bg-light text-muted small text-uppercase font-weight-bold">
                                     <tr>
-                                        <th style="width: 40px"></th>
-                                        <th>Ticket</th>
-                                        <th>Contact</th>
-                                        <th>Subject</th>
+                                        <th style="width: 50px" class="pl-4"></th>
+                                        <th style="width: 100px">Ticket ID</th>
+                                        <th>User Details</th>
+                                        <th>Subject & Preview</th>
                                         <th>Status</th>
-                                        <th>Created</th>
-                                        <th class="text-right">Actions</th>
+                                        <th>Activity</th>
+                                        <th class="text-right pr-4">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($tickets as $ticket)
-                                    <tr wire:key="ticket-{{ $ticket->id }}">
-                                        <td class="pl-3">
+                                    <tr wire:key="ticket-{{ $ticket->id }}" class="{{ $ticket->status == 0 ? 'bg-unseen' : '' }}">
+                                        <td class="pl-4">
                                             <div class="custom-control custom-checkbox">
                                                 <input type="checkbox" 
                                                        value="{{ $ticket->id }}" 
@@ -96,54 +136,64 @@
                                                 <label class="custom-control-label" for="check-{{ $ticket->id }}"></label>
                                             </div>
                                         </td>
-                                        <td class="font-weight-bold text-primary">
-                                            <a href="/admin/ticket/{{$ticket->id}}">#{{ $ticket->id }}</a>
+                                        <td class="font-weight-bold">
+                                            <a href="/admin/ticket/{{$ticket->id}}" class="text-primary">#{{ $ticket->id }}</a>
                                         </td>
                                         <td>
-                                            <div class="d-flex flex-column">
-                                                <span class="font-weight-bold text-dark">{{ ucfirst($ticket->name) }}</span>
-                                                <small class="text-muted">{{ $ticket->email }}</small>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm mr-2 d-none d-md-flex align-items-center justify-content-center bg-light rounded-circle text-primary font-weight-bold" style="width: 32px; height: 32px;">
+                                                    {{ strtoupper(substr($ticket->name, 0, 1)) }}
+                                                </div>
+                                                <div class="d-flex flex-column">
+                                                    <span class="font-weight-bold text-dark mb-0">{{ ucfirst($ticket->name) }}</span>
+                                                    <small class="text-muted" style="font-size: 11px;">{{ $ticket->email }}</small>
+                                                </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="text-truncate d-inline-block" style="max-width: 250px;">
-                                                {{ Str::limit($ticket->subject, 40) }}
-                                            </span>
+                                            <div class="d-flex flex-column">
+                                                <span class="text-dark font-weight-600">{{ Str::limit($ticket->subject, 35) }}</span>
+                                                <small class="text-muted text-truncate" style="max-width: 200px;">
+                                                    {{ $ticket->last_message ?? 'Click to view conversation...' }}
+                                                </small>
+                                            </div>
                                         </td>
                                         <td>
                                             @if($ticket->status == 0)
-                                                <span class="badge badge-soft-warning px-2 py-1">Pending</span>
+                                                <span class="badge badge-soft-warning px-3 py-1 rounded-pill"><i class="fas fa-exclamation-circle mr-1"></i> Pending</span>
                                             @elseif($ticket->status == 1)
-                                                <span class="badge badge-soft-primary px-2 py-1">Replied</span>
+                                                <span class="badge badge-soft-primary px-3 py-1 rounded-pill"><i class="fas fa-reply mr-1"></i> Replied</span>
                                             @else
-                                                <span class="badge badge-soft-success px-2 py-1">Closed</span>
+                                                <span class="badge badge-soft-success px-3 py-1 rounded-pill"><i class="fas fa-check mr-1"></i> Closed</span>
                                             @endif
                                         </td>
-                                        <td class="text-muted small">
-                                            {{ $ticket->created_at->diffForHumans() }}
+                                        <td>
+                                            <span class="text-muted small">
+                                                <i class="far fa-clock mr-1"></i>{{ $ticket->created_at->diffForHumans() }}
+                                            </span>
                                         </td>
-                                        <td class="text-right pr-3">
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-light btn-xs dropdown-toggle" data-toggle="dropdown">
-                                                    Manage
+                                        <td class="text-right pr-4">
+                                            <div class="btn-group shadow-sm">
+                                                <a href="/admin/ticket/{{$ticket->id}}" class="btn btn-white btn-sm px-3" title="View Ticket">
+                                                    <i class="fas fa-eye text-primary"></i>
+                                                </a>
+                                                <button class="btn btn-white btn-sm px-3 text-danger" 
+                                                        wire:click="delete({{ $ticket->id }})" 
+                                                        wire:confirm="Delete this ticket forever?"
+                                                        title="Delete Ticket">
+                                                    <i class="fas fa-trash-alt"></i>
                                                 </button>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="/admin/ticket/{{$ticket->id}}">
-                                                        <i class="fas fa-eye mr-2"></i> View Details
-                                                    </a>
-                                                    <div class="dropdown-divider"></div>
-                                                    <button class="dropdown-item text-danger" wire:click="delete({{ $ticket->id }})" wire:confirm="Delete this ticket?">
-                                                        <i class="fas fa-trash mr-2"></i> Delete
-                                                    </button>
-                                                </div>
                                             </div>
                                         </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="7" class="text-center py-5">
-                                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="opacity-50 mb-3" alt="Empty">
-                                            <p class="text-muted">No tickets found matching your criteria.</p>
+                                        <td colspan="7" class="text-center py-5 bg-white">
+                                            <div class="py-4">
+                                                <i class="fas fa-inbox fa-3x text-light mb-3"></i>
+                                                <h5 class="text-muted">No tickets found</h5>
+                                                <p class="text-soft small">Try adjusting your filters or search terms.</p>
+                                            </div>
                                         </td>
                                     </tr>
                                     @endforelse
@@ -158,13 +208,23 @@
 </section>
 
 <style>
-    /* Professional Soft Badges */
-    .badge-soft-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-    .badge-soft-primary { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }
-    .badge-soft-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    /* Admin UI Overrides */
+    .bg-light-soft { background-color: #f9fbfd; }
+    .bg-unseen { background-color: rgba(0, 123, 255, 0.04); }
+    .font-weight-600 { font-weight: 600; }
     
-    /* Hover effects */
-    .table-hover tbody tr:hover { background-color: rgba(0,123,255,0.03); cursor: pointer; }
+    /* Professional Soft Badges (Pill style) */
+    .badge-soft-warning { background-color: #fff8e1; color: #f57c00; border: 1px solid #ffe082; }
+    .badge-soft-primary { background-color: #e3f2fd; color: #1976d2; border: 1px solid #90caf9; }
+    .badge-soft-success { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    
+    /* Info Box Hover */
+    .clickable-card { transition: all 0.2s; border: 1px solid transparent !important; }
+    .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
+    
+    /* Table Enhancements */
+    .table thead th { border-top: none; }
+    .table tbody tr td { vertical-align: middle; padding: 12px 8px; border-bottom: 1px solid #edf2f9; }
     .btn-white { background: #fff; border: 1px solid #dee2e6; color: #495057; }
-    .btn-white:hover { background: #f8f9fa; color: #212529; }
+    .btn-white:hover { background: #f8f9fa; border-color: #c1c9d0; }
 </style>

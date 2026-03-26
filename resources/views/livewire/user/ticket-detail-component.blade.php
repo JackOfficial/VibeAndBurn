@@ -91,9 +91,6 @@
                                     <span wire:loading.remove>
                                         <em class="icon ni ni-send-alt"></em> <span>Send Message</span>
                                     </span>
-                                    <span wire:loading>
-                                        <em class="icon ni ni-loader spin"></em> <span>Sending...</span>
-                                    </span>
                                 </button>
                             </li>
                         </ul>
