@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('user dashboard.dashboard')
 
 @section('content')
 <div class="container py-4">
