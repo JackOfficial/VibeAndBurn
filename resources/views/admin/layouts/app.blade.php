@@ -193,7 +193,7 @@
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="{{route('admin.dashboard')}}" class="brand-link">
+    <a href="/admin/dashboard" class="brand-link">
       <img src="{{ asset('front/images/vb white.png') }}" alt="Vibe & Burn" style="width: 100%; height:auto;">
     </a>
 
