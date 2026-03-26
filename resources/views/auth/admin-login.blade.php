@@ -47,7 +47,7 @@
 @endif
 
                                 </div>
-                                <form method="POST" action="{{ route('admin-iwange.store') }}">
+                                <form method="POST" action="#">
                                     @csrf
                                     <div class="form-group">
                                         <div class="form-label-group">
