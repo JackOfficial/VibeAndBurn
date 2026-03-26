@@ -94,6 +94,9 @@ Route::get('/getPrice/{id}', [ajaxController::class, 'getPrice']);
 Route::get('/tickets', [TicketController::class, 'tickets']);
 Route::get('/ticket/{id}', [TicketController::class, 'ticket']);
 Route::post('sendTicket', [TicketController::class, 'sendTicket']);
+Route::get('/support/ticket/{id}', function ($id) {
+    return view('tickets.show', ['ticketId' => $id]);
+})->name('user.tickets.view')->middleware(['auth']);
 
 //---------------------------- SOCIALITE ROUTES --------------------------------
 Route::get('redirect', [SocialController::class, 'redirect']);
