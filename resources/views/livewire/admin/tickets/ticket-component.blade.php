@@ -59,7 +59,7 @@
                                     <div class="text-muted small">
                                         <i class="fas fa-info-circle mr-1"></i> User will be notified via email.
                                     </div>
-                                    <button wire:click="sendMessage" wire:loading.attr="disabled" class="btn btn-primary px-4">
+                                    <button wire:click="sendMessage" class="btn btn-primary px-4">
                                         <span><i class="fas fa-paper-plane mr-2"></i> Send Reply</span>
                                     </button>
                                 </div>
