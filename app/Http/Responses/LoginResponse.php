@@ -13,7 +13,7 @@ class LoginResponse implements LoginResponseContract
 
         // Redirect Admins to the Admin Dashboard
         if ($user->hasRole('Super Admin') || $user->hasRole('Admin')) {
-            return redirect()->intended('/admin-iwange');
+            return redirect()->intended('/admin/dashboard');
         }
 
         // Redirect regular Users to the Home page

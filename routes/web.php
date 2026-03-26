@@ -56,29 +56,16 @@ Route::get('/', [pagesController::class, 'index']);
 
 Route::resource('/sharedlink', sharedlinkController::class);
 
-Route::get('/mybonus', [sharedlinkController::class, 'mybonus'])->name('mybonus')->middleware('auth');
 
-Route::get('/cleambonus', [sharedlinkController::class, 'cleambonus'])->name('cleambonus')->middleware('auth');
-
-
-Route::get('/home', [pagesController::class, 'dashboard'])->middleware('auth');
 Route::get('/terms-and-conditions', [pagesController::class, 'terms']);
-Route::get('/terms-police', [pagesController::class, 'termsAndConditions'])->middleware('auth');
-Route::post('/payInRwanda', [pagesController::class, 'payInRwanda'])->middleware('auth');
-Route::get('/payInBurundi', [pagesController::class, 'payInBurundi'])->middleware('auth');
-Route::get('/payInTether', [pagesController::class, 'payInTether'])->middleware('auth');
-Route::get('ourservices', [pagesController::class, 'services'])->name('ourservices')->middleware('auth');
+
 Route::resource('our-services', ourServicesController::class);
 Route::resource('contactus', contactusController::class);
 Route::resource('faq', faqController::class);
 Route::resource('aboutus', aboutUsController::class);
 Route::resource('subscription', subscriptionController::class);
-Route::resource('addFund', addFundController::class)->middleware('auth');
-Route::resource('newOrder', newOrderController::class)->middleware('auth');
-Route::resource('profile', ProfilesController::class)->middleware('auth');
-Route::resource('order', orderController::class)->middleware('auth'); //real new order route
+
 Route::get('/testBulkmedya', [orderController::class, 'testBulkmedya']); //for testing purpose
-Route::get('/testOrder', [orderController::class, 'testOrder'])->middleware('auth');
 Route::resource('faqs', faqsController::class);
 Route::get('/sharelink/{id}', [pagesController::class, 'sharelink'])->name('sharelink');
 Route::get('payment', [paymentController::class, 'payment'])->name('payment');
@@ -95,6 +82,19 @@ Route::post('sendTicket', [TicketController::class, 'sendTicket']);
 Route::middleware(['auth'])->group(function () {
     // This is the missing route for your "Back to List" button
     Route::get('/tickets', [TicketController::class, 'tickets'])->name('user.tickets.list');
+    Route::get('/home', [pagesController::class, 'dashboard']);
+    Route::resource('addFund', addFundController::class);
+    Route::resource('newOrder', newOrderController::class);
+    Route::resource('profile', ProfilesController::class);
+    Route::resource('order', orderController::class);
+    Route::get('/terms-police', [pagesController::class, 'termsAndConditions']);
+    Route::post('/payInRwanda', [pagesController::class, 'payInRwanda']);
+    Route::get('/payInBurundi', [pagesController::class, 'payInBurundi']);
+    Route::get('/payInTether', [pagesController::class, 'payInTether']);
+    Route::get('ourservices', [pagesController::class, 'services'])->name('ourservices');
+    Route::get('/mybonus', [sharedlinkController::class, 'mybonus'])->name('mybonus');
+    Route::get('/cleambonus', [sharedlinkController::class, 'cleambonus'])->name('cleambonus');
+    Route::get('/testOrder', [orderController::class, 'testOrder']);
     
     // This is the route for the individual ticket view we just built
     Route::get('/support/ticket/{id}', function ($id) {
@@ -115,13 +115,10 @@ Route::get('/binance/test', [BinanceController::class, 'test']);
 //.............................. Payment Controller ......................................
 Route::get('/afripay-callback', [ProcessPaymentController::class, 'pay'])->name('afripay.callback');
 
-Route::middleware(['auth'])->group(function () {
-  
-});
 //---------------------------- ADMIN --------------------------------
 
 Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('index', AdminController::class);
+    Route::resource('dashboard', AdminController::class);
     Route::resource('wholesalers', WholesalersController::class);
     Route::get('/tickets', [TicketController::class, 'adminTickets'])->name('tickets');
     Route::get('/ticket/{id}', [TicketController::class, 'adminTicket'])->name('ticket.show');
