@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\User; // Your specific required namespace
+namespace App\Http\Livewire\User; // Your specific required namespace
 
 use Livewire\Component;
 use Livewire\WithPagination;
