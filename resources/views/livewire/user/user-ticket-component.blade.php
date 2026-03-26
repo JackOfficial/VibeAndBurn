@@ -38,20 +38,20 @@
                                 @error('subject') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label" for="category">Category</label>
-                                <div class="form-control-wrap">
-                                    <select wire:model="category_id" class="form-select" id="category">
-                                        <option value="">Select Category</option>
-                                        @foreach($categories as $cat)
-                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                @error('category_id') <span class="text-danger small">{{ $message }}</span> @enderror
-                            </div>
-                        </div>
+                        <div class="col-md-6 mb-3">
+    <div class="form-group">
+        <label for="category">Category</label>
+        <select wire:model="category_id" class="form-control" id="category">
+            <option value="">Select Category</option>
+            @foreach($categories as $cat)
+                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+            @endforeach
+        </select>
+        @error('category_id') 
+            <span class="text-danger small">{{ $message }}</span> 
+        @enderror
+    </div>
+</div>
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="form-label" for="order_id">Order ID (Optional)</label>
