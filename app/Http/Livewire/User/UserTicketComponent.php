@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\User; // Updated Namespace for Livewire 3
+namespace App\Http\Livewire\User; // Updated Namespace for Livewire 3
 
 use Livewire\Component;
 use Livewire\WithPagination;
