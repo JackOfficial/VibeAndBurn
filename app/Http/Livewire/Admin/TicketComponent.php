@@ -41,42 +41,48 @@ class TicketComponent extends Component
         }
     }
 
-    public function render()
-    {
-        // Fetch specific conversation for the selected ticket
-        $ticketMessages = Supports::join('tickets', 'supports.ticket_id', '=', 'tickets.id')
-            ->join('users', 'tickets.user_id', '=', 'users.id')
-            ->where('tickets.id', $this->ticketID)
-            ->select([
-                'tickets.id as ticket_id',
-                'tickets.subject',
-                'tickets.status',
-                'supports.id as support_id',
-                'supports.message',
-                'supports.reply',
-                'supports.created_at as message_date',
-                'users.google_id',
-                'users.avatar'
-            ])
-            ->latest('supports.created_at')
-            ->paginate(10);
+  public function render()
+{
+    // 1. Fetch the conversation for the selected ticket
+    // If ticketID is null, we still call paginate so the ->links() method exists
+    $ticketMessages = Supports::join('tickets', 'supports.ticket_id', '=', 'tickets.id')
+        ->join('users', 'tickets.user_id', '=', 'users.id')
+        ->when($this->ticketID, function($query) {
+            return $query->where('tickets.id', $this->ticketID);
+        }, function($query) {
+            // If no ID, force an empty result but keep it as a Paginator
+            return $query->where('tickets.id', 0); 
+        })
+        ->select([
+            'tickets.id as ticket_id',
+            'tickets.subject',
+            'tickets.status',
+            'supports.id as support_id',
+            'supports.message',
+            'supports.reply',
+            'supports.created_at as message_date',
+            'users.google_id',
+            'users.avatar'
+        ])
+        ->latest('supports.created_at')
+        ->paginate(10, ['*'], 'chatPage'); // Naming the page helps prevent conflicts
 
-        // Fetch the list of all tickets for the sidebar/list view
-        $allTickets = Ticket::join('users', 'tickets.user_id', '=', 'users.id')
-            ->select(
-                'tickets.*', 
-                'tickets.id as ticket_id', 
-                'users.name', 
-                'users.email', 
-                'users.google_id', 
-                'users.avatar'
-            )
-            ->orderBy('tickets.id', 'DESC')
-            ->paginate(15, ['*'], 'ticketsPage');
+    // 2. Fetch all tickets for the sidebar
+    $allTickets = Ticket::join('users', 'tickets.user_id', '=', 'users.id')
+        ->select(
+            'tickets.*', 
+            'tickets.id as ticket_id', 
+            'users.name', 
+            'users.email', 
+            'users.google_id', 
+            'users.avatar'
+        )
+        ->orderBy('tickets.id', 'DESC')
+        ->paginate(15, ['*'], 'ticketsPage');
 
-        return view('livewire.admin.ticket-component', [
-            'ticket' => $ticketMessages,
-            'chats' => $allTickets
-        ]);
-    }
+    return view('livewire.admin.ticket-component', [
+        'ticket' => $ticketMessages,
+        'chats' => $allTickets
+    ]);
+}
 }
