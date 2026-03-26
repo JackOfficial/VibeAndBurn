@@ -66,10 +66,7 @@
                               style="background: #f5f6fa; border-radius: 12px; font-size: 15px; border: 1px solid #e5e9f2 !important;"></textarea>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-soft small">
-                        <em class="icon ni ni-info-fill"></em> Press Enter to send.
-                    </div>
-                    <button wire:click="sendMessage" wire:loading.attr="disabled" class="btn btn-primary btn-lg px-5 btn-round">
+                    <button wire:click="sendMessage" class="btn btn-primary btn-lg px-5 btn-round">
                         <span>
                             <em class="icon ni ni-send-alt"></em> <span>Send Reply</span>
                         </span>
