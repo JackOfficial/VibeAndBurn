@@ -17,11 +17,4 @@
     </div>
 </div>
 
-<script>
-    window.addEventListener('contentChanged', event => {
-        var objDiv = document.querySelector(".nk-reply");
-        objDiv.scrollTop = objDiv.scrollHeight;
-    });
-</script>
-
 @endsection
