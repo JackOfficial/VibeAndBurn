@@ -1,77 +1,51 @@
 @extends('user dashboard.dashboard')
+@push('styles')
 <style>
-    /* Force parents to allow full height if they are squashing the chat */
-    .nk-content-body, .nk-block {
+    /* Force DashLite layout to allow full-height children */
+    .nk-content, .nk-content-inner, .container-fluid, .nk-content-body {
+        height: 100% !important;
+        min-height: 100% !important;
+        padding-bottom: 0 !important;
         display: flex !important;
         flex-direction: column !important;
-        height: 100% !important;
     }
 
     .nk-msg-custom-container {
-        /* This ensures the chat is at least 800px or 85% of the screen */
-        height: calc(100vh - 150px); 
-        min-height: 700px; 
-        display: flex;
-        flex-direction: column;
+        /* Use a fixed height based on the viewport minus header/footer */
+        height: calc(100vh - 180px) !important; 
+        display: flex !important;
+        flex-direction: column !important;
         background: #fff;
         border: 1px solid #dbdfea;
         border-radius: 12px;
         overflow: hidden;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
 
     .nk-msg-reply-scroll {
-        flex: 1 1 auto; /* Forces this area to grow and take all space */
-        overflow-y: auto;
-        padding: 2.5rem 1.5rem;
+        flex-grow: 1 !important;
+        overflow-y: auto !important;
         background-color: #f5f6fa;
-        /* Smooth scrolling for better UX */
-        scroll-behavior: smooth;
-    }
-
-    /* Message Bubbles */
-    .bubble-msg {
-        max-width: 80%;
-        padding: 1rem 1.25rem;
-        font-size: 15px;
-        line-height: 1.6;
-        position: relative;
-        box-shadow: 0 2px 4px rgba(32, 45, 122, 0.05);
-    }
-
-    /* Admin Bubble (Left) */
-    .admin-bubble {
-        background: #ffffff;
-        color: #364a63;
-        border: 1px solid #e5e9f2;
-        border-radius: 0 18px 18px 18px;
-    }
-
-    /* User Bubble (Right) */
-    .user-bubble {
-        background: #6576ff;
-        color: #ffffff;
-        border-radius: 18px 18px 0 18px;
+        padding: 1.5rem;
     }
 
     .reply-form-fixed {
-        flex: 0 0 auto; /* Form never shrinks or grows, stays fixed size */
+        flex-shrink: 0 !important;
         background: #fff;
         border-top: 1px solid #dbdfea;
-        padding: 1.5rem 2rem;
-        z-index: 10;
+        padding: 1rem 1.5rem;
     }
 
-    /* Custom Scrollbar for a "Big" modern feel */
-    .nk-msg-reply-scroll::-webkit-scrollbar {
-        width: 6px;
+    .bubble-msg {
+        max-width: 80%;
+        padding: 0.8rem 1.2rem;
+        border-radius: 15px;
+        font-size: 15px;
+        margin-bottom: 5px;
     }
-    .nk-msg-reply-scroll::-webkit-scrollbar-thumb {
-        background-color: #dbdfea;
-        border-radius: 10px;
-    }
+    .admin-bubble { background: #fff; border: 1px solid #e5e9f2; color: #364a63; border-top-left-radius: 0; }
+    .user-bubble { background: #6576ff; color: #fff; border-top-right-radius: 0; }
 </style>
+@endpush
 
 @section('content')
 <div class="container py-4">
