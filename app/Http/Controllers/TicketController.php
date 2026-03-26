@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\wallet;
 
-class TicketsController extends Controller
+class TicketController extends Controller
 {
    public function tickets(){
        if(Auth::check()){
@@ -59,7 +57,5 @@ class TicketsController extends Controller
        $ticketID = $id;
      return view('admin.manage.chat', compact('ticketID'));
    }
-   
-   
-   
+
 }

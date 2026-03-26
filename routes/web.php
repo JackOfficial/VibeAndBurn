@@ -27,7 +27,7 @@ use App\Http\Controllers\adminController;
 use App\Http\Controllers\logmeoutController;
 use App\Http\Controllers\walletController;
 use App\Http\Controllers\sharedlinkController;
-use App\Http\Controllers\TicketsController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ProfilesController;
 use App\Http\Controllers\TermsController;
 use App\Http\Controllers\BFCurrencyController;
@@ -91,9 +91,9 @@ Route::post('bulkfollow-order', function(){
 });
 Route::get('/getServices/{id}', [ajaxController::class, 'getServices']);
 Route::get('/getPrice/{id}', [ajaxController::class, 'getPrice']);
-Route::get('/tickets', [TicketsController::class, 'tickets']);
-Route::get('/ticket/{id}', [TicketsController::class, 'ticket']);
-Route::post('sendTicket', [TicketsController::class, 'sendTicket']);
+Route::get('/tickets', [TicketController::class, 'tickets']);
+Route::get('/ticket/{id}', [TicketController::class, 'ticket']);
+Route::post('sendTicket', [TicketController::class, 'sendTicket']);
 
 //---------------------------- SOCIALITE ROUTES --------------------------------
 Route::get('redirect', [SocialController::class, 'redirect']);
@@ -124,8 +124,8 @@ Route::get('/admin/summernote', function(){
     return view('admin.summernote');
 });
 
-Route::get('/admin/tickets', [TicketsController::class, 'adminTickets']);
-Route::get('/admin/ticket/{id}', [TicketsController::class, 'adminTicket']);
+Route::get('/admin/tickets', [TicketController::class, 'adminTickets']);
+Route::get('/admin/ticket/{id}', [TicketController::class, 'adminTicket']);
 
 Route::resource('wallet', walletController::class);
 Route::resource('advert', AdvertsController::class);
