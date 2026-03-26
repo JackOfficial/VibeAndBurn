@@ -3,186 +3,85 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\admin;
-use App\Models\order;
+use App\Models\Order;
 use App\Models\User;
-use App\Models\wallet;
-use App\Models\subscription;
-use App\Models\fund;
+use App\Models\Wallet;
+use App\Models\Subscription;
+use App\Models\Fund;
+use Illuminate\Support\Facades\Auth;
 
-class adminController extends Controller
+class AdminController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Use a constructor to ensure only Admins can access these methods.
+     * This replaces your manual if(session()->has('adminId')) checks.
      */
-    public function index(Request $request)
+    public function __construct()
     {
-        if($request->session()->has('adminId')){
-            
-             $name = $request->Session()->get('adminName');
-            
-            $ordersCounter = order::join('users', 'orders.user_id', '=', 'users.id')
-         ->join('services', 'orders.service_id', '=', 'services.id')
-         ->join('categories', 'services.category_id', '=', 'categories.id')
-         ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-         ->count();
-         
-         $pendingOrders = order::join('users', 'orders.user_id', '=', 'users.id')
-         ->join('services', 'orders.service_id', '=', 'services.id')
-         ->join('categories', 'services.category_id', '=', 'categories.id')
-         ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-         ->where('orders.status', '=', 0)
-         ->count();
-         
-         $usersCounter = User::count();
-         
-          $walletsCounter = wallet::join('users', 'wallets.user_id', '=', 'users.id')
-    ->count();
-    
-     $walletsTotal = wallet::join('users', 'wallets.user_id', '=', 'users.id')
-    ->sum('money');
-    
-    $subscribersCounter = subscription::count();
-    
-     $fundsCounter = fund::join('users', 'funds.user_id', '=', 'users.id')
-    ->count();
-    
-    $fundsTotal = fund::join('users', 'funds.user_id', '=', 'users.id')
-    ->sum('amount');
-  $admin = admin::where('id', session()->get('adminId'))->first();  
- return view('admin.index', compact('name', 'admin', 'ordersCounter', 'usersCounter', 'walletsCounter', 'walletsTotal', 'pendingOrders', 'subscribersCounter', 'fundsCounter', 'fundsTotal'));
-        }
-        else{
-            return view('auth.admin-login'); 
-        }
-        
+        $this->middleware(['auth', 'role:Admin|Super Admin']);
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Display the Admin Dashboard with Stats
+     */
+    public function index()
+    {
+        $admin = Auth::user();
+        
+        // Optimized counts using Eloquent
+        $ordersCounter = Order::count();
+        $pendingOrders = Order::where('status', 0)->count(); // Assuming 0 is pending
+        $usersCounter  = User::count();
+        
+        // Wallet Stats
+        $walletsCounter = Wallet::count();
+        $walletsTotal   = Wallet::sum('money');
+        
+        // Subscription & Fund Stats
+        $subscribersCounter = Subscription::count();
+        $fundsCounter       = Fund::count();
+        $fundsTotal         = Fund::sum('amount');
+
+        return view('admin.index', compact(
+            'admin', 
+            'ordersCounter', 
+            'pendingOrders', 
+            'usersCounter', 
+            'walletsCounter', 
+            'walletsTotal', 
+            'subscribersCounter', 
+            'fundsCounter', 
+            'fundsTotal'
+        ));
+    }
+
+    /**
+     * In Laravel 12 with Fortify, the 'store' (Login) and 'create' (Registration)
+     * are usually handled by Fortify's internal controllers. 
+     * If you are adding NEW admins manually, use this:
      */
     public function create()
     {
-        if($request->session()->has('adminId')){
-             return view('auth.add-admin'); 
-        }
-        else{
-               return view('auth.admin-login'); 
-        }
+        return view('admin.manage.add-admin');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        $email = $request->email;
-        $password = $request->password;
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+        ]);
 
-        $admin = admin::where('email', '=', $email)
-        ->where('password', '=', $password)
-        ->count();
-        
-        $ordersCounter = order::join('users', 'orders.user_id', '=', 'users.id')
-         ->join('services', 'orders.service_id', '=', 'services.id')
-         ->join('categories', 'services.category_id', '=', 'categories.id')
-         ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-         ->count();
-         
-         $pendingOrders = order::join('users', 'orders.user_id', '=', 'users.id')
-         ->join('services', 'orders.service_id', '=', 'services.id')
-         ->join('categories', 'services.category_id', '=', 'categories.id')
-         ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-         ->where('orders.status', '=', 0)
-         ->count();
-         
-         $usersCounter = User::count();
-         
-          $walletsCounter = wallet::join('users', 'wallets.user_id', '=', 'users.id')
-    ->count();
-    
-     $walletsTotal = wallet::join('users', 'wallets.user_id', '=', 'users.id')
-    ->sum('money');
-    
-    $subscribersCounter = subscription::count();
-    
-     $fundsCounter = fund::join('users', 'funds.user_id', '=', 'users.id')
-    ->count();
-    
-    $fundsTotal = fund::join('users', 'funds.user_id', '=', 'users.id')
-    ->sum('amount');
-    
-        if($admin != 0){
+        $newAdmin = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'status' => 'active',
+        ]);
 
-        $info = admin::where('email', '=', $email)
-        ->where('password', '=', $password)
-        ->get();
+        $newAdmin->assignRole('Admin');
 
-        foreach($info as $myinfo){
-            $email = $myinfo->email;
-            $name = $myinfo->name;
-            $request->Session()->put('adminId', $myinfo->id);
-            $request->Session()->put('adminName', $name);
-        }
-
-  return view('admin.index', compact('email', 'name', 'ordersCounter', 'usersCounter', 'walletsCounter', 'walletsTotal', 'subscribersCounter', 'fundsCounter', 'fundsTotal', 'pendingOrders'));
-        }
-        else{
-            return redirect()->back()->with('loginFail','Login failed');
-           
-        }
-
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        return redirect()->route('users.index')->with('success', 'Admin created successfully.');
     }
 }
