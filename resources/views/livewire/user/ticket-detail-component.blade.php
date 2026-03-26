@@ -21,8 +21,8 @@
                         </ul>
                     </div>
                     <div class="nk-msg-actions text-right">
-                        <div class="badge badge-md badge-dot {{ $ticket->status == 'pending' ? 'badge-warning' : ($ticket->status == 'answered' ? 'badge-success' : 'badge-secondary') }}">
-                            {{ ucfirst($ticket->status) }}
+                        <div class="badge badge-md badge-dot {{ $ticket->status == 0 ? 'badge-warning' : ($ticket->status == 2 ? 'badge-success' : 'badge-secondary') }}">
+                            {{ $ticket->status == 0 ? 'Pending' : 'Unswered' }}
                         </div>
                         <div class="sub-text mt-1 small text-soft">{{ $ticket->created_at->format('M d, Y') }}</div>
                     </div>
@@ -55,7 +55,7 @@
 
         {{-- Reply Form: Only shows when NOT closed --}}
         <div class="reply-form-fixed">
-            @if($ticket->status !== 'closed')
+            @if($ticket->status != 2)
                 <div class="form-group mb-3">
                     <textarea wire:model.defer="newMessage" 
                               wire:keydown.enter="$set('newMessage', $event.target.value); sendMessage()"
