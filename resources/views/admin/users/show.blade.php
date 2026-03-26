@@ -90,7 +90,7 @@
                             <div class="tab-content">
                                 <div class="tab-pane fade show active" id="details" role="tabpanel">
                                     {{-- CALLING THE LIVEWIRE EDIT COMPONENT --}}
-                                    @livewire('admin.user-edit', ['user' => $user])
+                                    @livewire('admin.users.edit-component', ['user' => $user])
                                 </div>
                                 <div class="tab-pane fade" id="orders" role="tabpanel">
                                     {{-- You can add an Order History table here later --}}
