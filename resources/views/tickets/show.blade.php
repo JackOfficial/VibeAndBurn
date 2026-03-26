@@ -1,35 +1,75 @@
 @extends('user dashboard.dashboard')
 <style>
+    /* Force parents to allow full height if they are squashing the chat */
+    .nk-content-body, .nk-block {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+    }
+
     .nk-msg-custom-container {
-        height: 80vh; /* Takes up 80% of the screen height */
+        /* This ensures the chat is at least 800px or 85% of the screen */
+        height: calc(100vh - 150px); 
+        min-height: 700px; 
         display: flex;
         flex-direction: column;
         background: #fff;
         border: 1px solid #dbdfea;
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: hidden;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
 
     .nk-msg-reply-scroll {
-        flex-grow: 1; /* Fills all available middle space */
+        flex: 1 1 auto; /* Forces this area to grow and take all space */
         overflow-y: auto;
-        padding: 2rem;
+        padding: 2.5rem 1.5rem;
         background-color: #f5f6fa;
+        /* Smooth scrolling for better UX */
+        scroll-behavior: smooth;
     }
 
+    /* Message Bubbles */
     .bubble-msg {
-        max-width: 85%;
-        padding: 1rem;
+        max-width: 80%;
+        padding: 1rem 1.25rem;
         font-size: 15px;
-        line-height: 1.5;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        line-height: 1.6;
+        position: relative;
+        box-shadow: 0 2px 4px rgba(32, 45, 122, 0.05);
+    }
+
+    /* Admin Bubble (Left) */
+    .admin-bubble {
+        background: #ffffff;
+        color: #364a63;
+        border: 1px solid #e5e9f2;
+        border-radius: 0 18px 18px 18px;
+    }
+
+    /* User Bubble (Right) */
+    .user-bubble {
+        background: #6576ff;
+        color: #ffffff;
+        border-radius: 18px 18px 0 18px;
     }
 
     .reply-form-fixed {
-        flex-shrink: 0; /* Prevents the form from being squeezed */
+        flex: 0 0 auto; /* Form never shrinks or grows, stays fixed size */
         background: #fff;
         border-top: 1px solid #dbdfea;
-        padding: 1.5rem;
+        padding: 1.5rem 2rem;
+        z-index: 10;
+    }
+
+    /* Custom Scrollbar for a "Big" modern feel */
+    .nk-msg-reply-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+    .nk-msg-reply-scroll::-webkit-scrollbar-thumb {
+        background-color: #dbdfea;
+        border-radius: 10px;
     }
 </style>
 
