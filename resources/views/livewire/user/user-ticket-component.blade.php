@@ -4,20 +4,19 @@
             <div class="nk-block-head-content">
                 <h3 class="nk-block-title page-title">Support Tickets</h3>
                 <div class="nk-block-des text-soft">
-                    <p>You have total {{ $tickets->total() }} support requests.</p>
+                    <p>You have total **{{ $tickets->total() }}** support requests.</p>
                 </div>
             </div>
             <div class="nk-block-head-content">
-                <div class="toggle-wrap nk-block-tools-toggle">
-                    <button wire:click="toggleCreate" class="btn btn-primary">
-                        <em class="icon ni {{ $isCreating ? 'ni-arrow-left' : 'ni-plus' }}"></em>
-                        <span>{{ $isCreating ? 'Back to Tickets' : 'Open New Ticket' }}</span>
-                    </button>
-                </div>
+                <button wire:click="toggleCreate" class="btn btn-primary">
+                    <em class="icon ni {{ $isCreating ? 'ni-arrow-left' : 'ni-plus' }}"></em>
+                    <span>{{ $isCreating ? 'Back to Tickets' : 'Open New Ticket' }}</span>
+                </button>
             </div>
         </div>
     </div>
 
+    {{-- Success Message --}}
     @if(session()->has('success'))
         <div class="alert alert-pro alert-success alert-icon mb-4">
             <em class="icon ni ni-check-circle"></em> <strong>Success!</strong> {{ session('success') }}
@@ -29,6 +28,7 @@
             <div class="card-inner">
                 <form wire:submit.prevent="createTicket">
                     <div class="row g-gs">
+                        {{-- Subject --}}
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label" for="subject">Subject</label>
@@ -38,20 +38,22 @@
                                 @error('subject') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-    <div class="form-group">
-        <label for="category">Category</label>
-        <select wire:model="category_id" class="form-control" id="category">
-            <option value="">Select Category</option>
-            @foreach($categories as $cat)
-                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-            @endforeach
-        </select>
-        @error('category_id') 
-            <span class="text-danger small">{{ $message }}</span> 
-        @enderror
-    </div>
-</div>
+
+                        {{-- Category - Standard BS4 for Visibility --}}
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label" for="category">Category</label>
+                                <select wire:model="category_id" class="form-control" id="category">
+                                    <option value="">Select Category</option>
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('category_id') <span class="text-danger small">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+
+                        {{-- Order ID --}}
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="form-label" for="order_id">Order ID (Optional)</label>
@@ -61,6 +63,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Message --}}
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="form-label" for="message">Message</label>
@@ -70,6 +74,7 @@
                                 @error('message') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
+
                         <div class="col-12">
                             <button type="submit" class="btn btn-lg btn-primary">
                                 <em class="icon ni ni-send"></em> <span>Submit Ticket</span>
@@ -80,11 +85,11 @@
             </div>
         </div>
     @else
+        {{-- Tickets Table --}}
         <div class="card card-bordered card-stretch">
             <div class="card-inner-group">
                 <div class="card-inner p-0">
                     <div class="nk-tb-list nk-tb-ulist">
-                        {{-- Table Header --}}
                         <div class="nk-tb-item nk-tb-head">
                             <div class="nk-tb-col"><span class="sub-text">ID</span></div>
                             <div class="nk-tb-col"><span class="sub-text">Subject</span></div>
@@ -123,7 +128,7 @@
                                 </div>
                                 <div class="nk-tb-col text-right">
                                     <a href="{{ route('user.tickets.view', $ticket->id) }}" class="btn btn-sm btn-dim btn-primary">
-                                        <span>View</span>
+                                        View
                                     </a>
                                 </div>
                             </div>
