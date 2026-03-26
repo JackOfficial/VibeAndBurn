@@ -52,8 +52,8 @@
                             <ul class="list-group list-group-unbordered mb-3">
                                 <li class="list-group-item">
                                     <b>Account Status</b> 
-                                    <span class="float-right badge {{ $user->status === '1' ? 'badge-success' : 'badge-danger' }}">
-                                        {{ strtoupper($user->status == 1 ? 'Active' : 'Banned') }}
+                                    <span class="float-right badge {{ $user->status == 'active' ? 'badge-success' : 'badge-danger' }}">
+                                        {{ strtoupper($user->status) }}
                                     </span>
                                 </li>
                                 <li class="list-group-item">
