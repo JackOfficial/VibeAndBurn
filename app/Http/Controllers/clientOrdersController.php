@@ -18,16 +18,7 @@ class clientOrdersController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->session()->has('adminName')){
-            
-        $name = $request->Session()->get('adminName');
-
-        return view('admin.manage.orders', compact('name'));
-        }
-        else{
-            return view('auth.admin-login'); 
-        }
-     
+         return view('admin.manage.orders', compact('name'));
     }
 
     /**
