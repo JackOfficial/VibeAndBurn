@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Livewire\User; // Updated Namespace for Livewire 3
+namespace App\Http\User; // Your specific required namespace
 
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Ticket;
-use App\Models\Supports; // Ensure this model name is plural in your migrations
+use App\Models\Supports; 
 use App\Models\TicketCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -15,71 +15,75 @@ class UserTicketComponent extends Component
     use WithPagination;
 
     // Form fields
-    public $subject, $category_id, $order_id, $message, $payment_ref;
+    public $subject, $category_id, $order_id, $message, $payment_ref, $other_subject;
     
     // UI state
     public $isCreating = false;
 
     protected $paginationTheme = 'bootstrap';
 
-    // Livewire 3 uses the 'rules' method for more dynamic control
     public function rules()
     {
         $selectedCategory = TicketCategory::find($this->category_id);
         $categoryName = $selectedCategory ? strtolower($selectedCategory->name) : '';
 
         return [
-            'subject' => 'required|min:5|max:255',
             'category_id' => 'required|exists:ticket_categories,id',
-            // Order ID is only required if the category is about Orders
+            'subject' => 'required',
+            'other_subject' => ($this->subject === 'Other') ? 'required|min:5|max:255' : 'nullable',
             'order_id' => Str::contains($categoryName, ['order', 'refill', 'cancel']) 
                             ? 'required|numeric' 
                             : 'nullable',
-            'message' => 'required|min:10',
             'payment_ref' => Str::contains($categoryName, ['payment', 'deposit']) 
                             ? 'required|string' 
                             : 'nullable',
+            'message' => 'required|min:10',
         ];
     }
 
     public function mount()
     {
-    $defaultCategory = TicketCategory::where('name', 'LIKE', '%Order%')
-                        ->where('is_active', true)
-                        ->first();
+        $defaultCategory = TicketCategory::where('name', 'LIKE', '%Order%')
+                            ->where('is_active', true)
+                            ->first();
 
-     if ($defaultCategory) {
-        $this->category_id = $defaultCategory->id;
-     }
+        if ($defaultCategory) {
+            $this->category_id = $defaultCategory->id;
+        }
     }
 
     public function toggleCreate()
-{
-    $this->isCreating = !$this->isCreating;
-    
-    if (!$this->isCreating) {
-        $this->reset(['subject', 'category_id', 'order_id', 'message', 'payment_ref']);
-    } else {
-        // Ensure it stays preselected when they open the form again
-        $this->mount(); 
+    {
+        $this->isCreating = !$this->isCreating;
+        
+        if (!$this->isCreating) {
+            $this->reset(['subject', 'category_id', 'order_id', 'message', 'payment_ref', 'other_subject']);
+            $this->resetErrorBag();
+        } else {
+            $this->mount(); 
+        }
     }
-}
+
+    public function updatedCategoryId()
+    {
+        $this->reset(['subject', 'other_subject']);
+    }
 
     public function createTicket()
     {
         $this->validate();
 
-        // 1. Create the Ticket Header
+        $finalSubject = ($this->subject === 'Other') ? $this->other_subject : $this->subject;
+
         $ticket = Ticket::create([
             'user_id' => Auth::id(),
             'category_id' => $this->category_id,
-            'subject' => $this->subject,
+            'subject' => $finalSubject,
             'order_id' => $this->order_id,
             'status' => 'pending',
             'priority' => 'medium',
         ]);
 
-        // 2. Create the first message in the thread
         Supports::create([
             'ticket_id' => $ticket->id,
             'user_id' => Auth::id(),
@@ -88,8 +92,7 @@ class UserTicketComponent extends Component
         ]);
 
         session()->flash('success', 'Ticket opened successfully!');
-        $this->isCreating = false; // Close the form
-        $this->reset(['subject', 'category_id', 'order_id', 'message', 'payment_ref']);
+        $this->toggleCreate();
     }
 
     public function render()
@@ -100,6 +103,6 @@ class UserTicketComponent extends Component
                 ->latest()
                 ->paginate(10),
             'categories' => TicketCategory::where('is_active', true)->get()
-        ]); // Ensure this points to your DashLite user layout
+        ]);
     }
 }

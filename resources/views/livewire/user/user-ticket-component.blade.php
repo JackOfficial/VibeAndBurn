@@ -5,7 +5,7 @@
             <div class="nk-block-head-content">
                 <h3 class="nk-block-title page-title">Support Tickets</h3>
                 <div class="nk-block-des text-soft">
-                    <p>You have total **{{ $tickets->total() }}** support requests.</p>
+                    <p>You have total <strong>{{ $tickets->total() }}</strong> support requests.</p>
                 </div>
             </div>
             <div class="nk-block-head-content">
@@ -28,7 +28,7 @@
             <div class="card-inner">
                 <form wire:submit.prevent="createTicket">
                     <div class="row g-gs">
-                        {{-- Category Selection (First) --}}
+                        {{-- Category Selection --}}
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="form-label" for="category">Select Ticket Category</label>
@@ -42,25 +42,56 @@
                             </div>
                         </div>
 
-                        {{-- Dynamic Fields based on Category --}}
                         @if($category_id)
-                            {{-- Common Field: Subject --}}
+                            @php
+                                $selectedCategoryName = optional($categories->find($category_id))->name;
+                                $lowName = strtolower($selectedCategoryName);
+                            @endphp
+
+                            {{-- Subject Dropdown (Better UX) --}}
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="form-label" for="subject">Subject</label>
+                                    <label class="form-label" for="subject">Subject / Issue Type</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" wire:model="subject" class="form-control" id="subject" placeholder="Summary of your issue">
+                                        <select wire:model.live="subject" class="form-control" id="subject">
+                                            <option value="">Choose an issue...</option>
+                                            
+                                            @if(Str::contains($lowName, ['order', 'refill', 'cancel']))
+                                                <option value="Refill Not Working">Refill Not Working</option>
+                                                <option value="Order Not Started">Order Not Started</option>
+                                                <option value="Partial/Drop Issue">Partial/Drop Issue</option>
+                                                <option value="Cancel Request">Cancel Request</option>
+                                            @elseif(Str::contains($lowName, ['payment', 'deposit']))
+                                                <option value="Payment Not Added">Payment Not Added</option>
+                                                <option value="Double Charged">Double Charged</option>
+                                                <option value="MTN MoMo Inquiry">MTN MoMo Inquiry</option>
+                                            @else
+                                                <option value="General Question">General Question</option>
+                                                <option value="Account Issue">Account Issue</option>
+                                            @endif
+                                            
+                                            <option value="Other">Other (Type manually)</option>
+                                        </select>
                                     </div>
                                     @error('subject') <span class="text-danger small">{{ $message }}</span> @enderror
                                 </div>
                             </div>
 
-                            {{-- Dynamic: Order ID (Show for 'Order' categories) --}}
-                            @php
-                                $selectedCategoryName = optional($categories->find($category_id))->name;
-                            @endphp
+                            {{-- Manual Subject Input (Only shows if "Other" is picked) --}}
+                            @if($subject === 'Other')
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-label" for="other_subject">Specify Subject</label>
+                                        <div class="form-control-wrap">
+                                            <input type="text" wire:model="other_subject" class="form-control" id="other_subject" placeholder="What is the issue about?">
+                                        </div>
+                                        @error('other_subject') <span class="text-danger small">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+                            @endif
 
-                            @if(Str::contains(strtolower($selectedCategoryName), ['order', 'refill', 'cancel']))
+                            {{-- Order ID Field --}}
+                            @if(Str::contains($lowName, ['order', 'refill', 'cancel']))
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-label" for="order_id">Order ID</label>
@@ -69,18 +100,6 @@
                                             <input type="text" wire:model="order_id" class="form-control" id="order_id" placeholder="Enter your Order ID">
                                         </div>
                                         @error('order_id') <span class="text-danger small">{{ $message }}</span> @enderror
-                                    </div>
-                                </div>
-                            @endif
-
-                            {{-- Dynamic: Payment Method (Show for 'Payment' categories) --}}
-                            @if(Str::contains(strtolower($selectedCategoryName), ['payment', 'deposit']))
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class="form-label" for="payment_ref">Transaction ID / Proof</label>
-                                        <div class="form-control-wrap">
-                                            <input type="text" wire:model="payment_ref" class="form-control" id="payment_ref" placeholder="e.g., MTN MoMo Ref or Transaction Hash">
-                                        </div>
                                     </div>
                                 </div>
                             @endif
@@ -111,7 +130,7 @@
             </div>
         </div>
     @else
-        {{-- Tickets Table Section (Same as before) --}}
+        {{-- Tickets Table Section --}}
         <div class="card card-bordered card-stretch">
             <div class="card-inner-group">
                 <div class="card-inner p-0">
