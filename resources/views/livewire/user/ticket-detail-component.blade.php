@@ -69,23 +69,11 @@
                     <div class="text-soft small">
                         <em class="icon ni ni-info-fill"></em> Press Enter to send.
                     </div>
-                    <button wire:click="sendMessage" 
-        wire:loading.attr="disabled" 
-        wire:target="sendMessage" 
-        class="btn btn-primary btn-lg px-5 btn-round">
-    
-    {{-- Hide this only when sendMessage is processing --}}
-    <span wire:loading.remove wire:target="sendMessage">
-        <em class="icon ni ni-send-alt"></em> 
-        <span>Send Reply</span>
-    </span>
-
-    {{-- Show this only when sendMessage is processing --}}
-    <span wire:loading wire:target="sendMessage">
-        <em class="icon ni ni-loader spin"></em> 
-        <span>Sending...</span>
-    </span>
-</button>
+                    <button wire:click="sendMessage" wire:loading.attr="disabled" class="btn btn-primary btn-lg px-5 btn-round">
+                        <span>
+                            <em class="icon ni ni-send-alt"></em> <span>Send Reply</span>
+                        </span>
+                    </button>
                 </div>
                 @error('newMessage') <span class="text-danger small mt-2 d-block font-weight-bold">{{ $message }}</span> @enderror
             @else
