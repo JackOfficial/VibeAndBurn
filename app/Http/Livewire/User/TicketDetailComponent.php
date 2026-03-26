@@ -4,7 +4,7 @@ namespace App\Http\Livewire\User;
 
 use Livewire\Component;
 use App\Models\Ticket;
-use App\Models\Supports;
+use App\Models\Support;
 use Illuminate\Support\Facades\Auth;
 
 class TicketDetailComponent extends Component
@@ -27,7 +27,7 @@ class TicketDetailComponent extends Component
     ]);
 
     // 1. Add the message to the thread
-    Supports::create([
+    Support::create([
         'ticket_id' => $this->ticket->id,
         'user_id' => Auth::id(),
         'message' => $this->newMessage,
@@ -51,7 +51,7 @@ class TicketDetailComponent extends Component
     public function render()
     {
         return view('livewire.user.ticket-detail-component', [
-            'messages' => Supports::where('ticket_id', $this->ticket->id)
+            'messages' => Support::where('ticket_id', $this->ticket->id)
                 ->with('user')
                 ->oldest()
                 ->get()

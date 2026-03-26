@@ -5,7 +5,7 @@ namespace App\Http\Livewire\User; // Your specific required namespace
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Ticket;
-use App\Models\Supports; 
+use App\Models\Support; 
 use App\Models\TicketCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -84,7 +84,7 @@ class UserTicketComponent extends Component
             'priority' => 'medium',
         ]);
 
-        Supports::create([
+        Support::create([
             'ticket_id' => $ticket->id,
             'user_id' => Auth::id(),
             'message' => $this->message,

@@ -11,11 +11,6 @@ class Ticket extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     * * Added 'category_id', 'priority', and 'last_reply_at' to match 
-     * the professional migration.
-     */
     protected $fillable = [
         'user_id',
         'category_id',
@@ -29,12 +24,9 @@ class Ticket extends Model
         'last_reply_at'
     ];
 
-    /**
-     * The attributes that should be cast.
-     * This ensures 'last_reply_at' is treated as a Carbon date object.
-     */
     protected $casts = [
         'last_reply_at' => 'datetime',
+        'status' => 'integer',
     ];
 
     /**
@@ -54,15 +46,29 @@ class Ticket extends Model
     }
 
     /**
-     * Get the conversation thread (Support messages).
+     * IMPORTANT: I renamed this from 'supports' to 'messages' 
+     * to match the logic in your Blade and Component.
      */
-    public function supports(): HasMany
+    public function messages(): HasMany
     {
-        return $this->hasMany(Supports::class);
+        // Ensure your model name is 'Support' or 'Message' correctly here
+        return $this->hasMany(Support::class, 'ticket_id');
     }
 
     /**
-     * Scope: Filter by Status (e.g., Ticket::status('pending')->get())
+     * Helper to get status badge classes quickly
+     */
+    public function getStatusBadgeAttribute()
+    {
+        return [
+            0 => 'badge-warning', // Pending
+            1 => 'badge-primary', // Replied
+            2 => 'badge-success', // Closed
+        ][$this->status] ?? 'badge-secondary';
+    }
+
+    /**
+     * Scope: Filter by Status
      */
     public function scopeStatus($query, $status)
     {
