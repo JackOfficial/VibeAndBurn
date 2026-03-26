@@ -14,33 +14,33 @@ class AdminController extends Controller
 {
     public function index()
     {
-        // $admin = Auth::user();
+        $admin = Auth::user();
         
-        // // Optimized counts using Eloquent
-        // $ordersCounter = order::count();
-        // $pendingOrders = order::where('status', 0)->count(); // Assuming 0 is pending
-        // $usersCounter  = User::count();
+        // Optimized counts using Eloquent
+        $ordersCounter = order::count();
+        $pendingOrders = order::where('status', 0)->count(); // Assuming 0 is pending
+        $usersCounter  = User::count();
         
-        // // Wallet Stats
-        // $walletsCounter = wallet::count();
-        // $walletsTotal   = wallet::sum('money');
+        // Wallet Stats
+        $walletsCounter = wallet::count();
+        $walletsTotal   = wallet::sum('money');
         
-        // // subscription & Fund Stats
-        // $subscribersCounter = subscription::count();
-        // $fundsCounter       = fund::count();
-        // $fundsTotal         = fund::sum('amount');
+        // subscription & Fund Stats
+        $subscribersCounter = subscription::count();
+        $fundsCounter       = fund::count();
+        $fundsTotal         = fund::sum('amount');
 
-        // return view('admin.index', compact(
-        //     'admin', 
-        //     'ordersCounter', 
-        //     'pendingOrders', 
-        //     'usersCounter', 
-        //     'walletsCounter', 
-        //     'walletsTotal', 
-        //     'subscribersCounter', 
-        //     'fundsCounter', 
-        //     'fundsTotal'
-        // ));
+        return view('admin.index', compact(
+            'admin', 
+            'ordersCounter', 
+            'pendingOrders', 
+            'usersCounter', 
+            'walletsCounter', 
+            'walletsTotal', 
+            'subscribersCounter', 
+            'fundsCounter', 
+            'fundsTotal'
+        ));
     }
 
     /**
