@@ -1,89 +1,135 @@
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Support Tickets</h2>
-        <button wire:click="toggleCreate" class="btn {{ $isCreating ? 'btn-secondary' : 'btn-primary' }}">
-            {{ $isCreating ? 'Back to Tickets' : 'Open New Ticket' }}
-        </button>
+<div class="nk-block">
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title">Support Tickets</h3>
+                <div class="nk-block-des text-soft">
+                    <p>You have total {{ $tickets->total() }} tickets.</p>
+                </div>
+            </div>
+            <div class="nk-block-head-content">
+                <div class="toggle-wrap nk-block-tools-toggle">
+                    <button wire:click="toggleCreate" class="btn btn-primary">
+                        <em class="icon ni {{ $isCreating ? 'ni-arrow-left' : 'ni-plus' }}"></em>
+                        <span>{{ $isCreating ? 'Back to Tickets' : 'Open New Ticket' }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if(session()->has('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-pro alert-success alert-icon mb-4">
+            <em class="icon ni ni-check-circle"></em> <strong>Success!</strong> {{ session('success') }}
+        </div>
     @endif
 
     @if($isCreating)
-        <div class="card shadow-sm">
-            <div class="card-body">
+        <div class="card card-bordered shadow-sm">
+            <div class="card-inner">
                 <form wire:submit.prevent="createTicket">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label>Subject</label>
-                            <input type="text" wire:model="subject" class="form-control" placeholder="e.g., Order not delivered">
-                            @error('subject') <span class="text-danger small">{{ $message }}</span> @error
+                    <div class="row g-gs">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Subject</label>
+                                <div class="form-control-wrap">
+                                    <input type="text" wire:model="subject" class="form-control" placeholder="e.g., Order not delivered">
+                                </div>
+                                @error('subject') <span class="text-danger small">{{ $message }}</span> @enderror
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label>Category</label>
-                            <select wire:model="category_id" class="form-control">
-                                <option value="">Select Category</option>
-                                @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('category_id') <span class="text-danger small">{{ $message }}</span> @error
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Category</label>
+                                <div class="form-control-wrap">
+                                    <select wire:model="category_id" class="form-select js-select2">
+                                        <option value="">Select Category</option>
+                                        @foreach($categories as $cat)
+                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @error('category_id') <span class="text-danger small">{{ $message }}</span> @enderror
+                            </div>
                         </div>
-                        <div class="col-md-12 mb-3">
-                            <label>Order ID (Optional)</label>
-                            <input type="text" wire:model="order_id" class="form-control" placeholder="If related to a specific order">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label">Order ID (Optional)</label>
+                                <div class="form-control-wrap">
+                                    <div class="form-icon form-icon-left"><em class="icon ni ni-cart"></em></div>
+                                    <input type="text" wire:model="order_id" class="form-control" placeholder="Input Order ID">
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-12 mb-3">
-                            <label>Message</label>
-                            <textarea wire:model="message" class="form-control" rows="5" placeholder="Describe your issue in detail..."></textarea>
-                            @error('message') <span class="text-danger small">{{ $message }}</span> @error
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label">Message</label>
+                                <div class="form-control-wrap">
+                                    <textarea wire:model="message" class="form-control form-control-simple no-resize" rows="5" placeholder="Describe your issue in detail..."></textarea>
+                                </div>
+                                @error('message') <span class="text-danger small">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-lg btn-primary">
+                                <em class="icon ni ni-send"></em> <span>Submit Ticket</span>
+                            </button>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-success">Submit Ticket</button>
                 </form>
             </div>
         </div>
     @else
-        <div class="card shadow-sm">
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th>ID</th>
-                            <th>Subject</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Last Update</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($tickets as $ticket)
-                            <tr>
-                                <td>#{{ $ticket->id }}</td>
-                                <td><strong>{{ $ticket->subject }}</strong></td>
-                                <td>{{ $ticket->category->name ?? 'General' }}</td>
-                                <td>
-                                    <span class="badge {{ $ticket->status == 'pending' ? 'bg-warning' : ($ticket->status == 'answered' ? 'bg-success' : 'bg-secondary') }}">
+        <div class="card card-bordered card-stretch">
+            <div class="card-inner-group">
+                <div class="card-inner p-0">
+                    <div class="nk-tb-list nk-tb-ulist">
+                        <div class="nk-tb-item nk-tb-head">
+                            <div class="nk-tb-col"><span class="sub-text">ID</span></div>
+                            <div class="nk-tb-col"><span class="sub-text">Subject</span></div>
+                            <div class="nk-tb-col tb-col-md"><span class="sub-text">Category</span></div>
+                            <div class="nk-tb-col tb-col-sm"><span class="sub-text">Status</span></div>
+                            <div class="nk-tb-col tb-col-lg"><span class="sub-text">Last Update</span></div>
+                            <div class="nk-tb-col text-right"><span class="sub-text">Action</span></div>
+                        </div>@forelse($tickets as $ticket)
+                            <div class="nk-tb-item">
+                                <div class="nk-tb-col">
+                                    <span class="text-primary fw-bold">#{{ $ticket->id }}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span class="tb-lead">{{ Str::limit($ticket->subject, 40) }}</span>
+                                </div>
+                                <div class="nk-tb-col tb-col-md">
+                                    <span class="sub-text">{{ $ticket->category->name ?? 'General' }}</span>
+                                </div>
+                                <div class="nk-tb-col tb-col-sm">
+                                    <span class="badge badge-dot {{ $ticket->status == 'pending' ? 'badge-warning' : ($ticket->status == 'answered' ? 'badge-success' : 'badge-secondary') }}">
                                         {{ ucfirst($ticket->status) }}
                                     </span>
-                                </td>
-                                <td>{{ $ticket->updated_at->diffForHumans() }}</td>
-                                <td>
-                                    <a href="{{ route('user.tickets.view', $ticket->id) }}" class="btn btn-sm btn-outline-info">View Details</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center py-4">No tickets found. Need help? Open a ticket above!</td>
-                            </tr>
+                                </div>
+                                <div class="nk-tb-col tb-col-lg">
+                                    <span class="sub-text">{{ $ticket->updated_at->diffForHumans() }}</span>
+                                </div>
+                                <div class="nk-tb-col text-right">
+                                    <a href="{{ route('user.tickets.view', $ticket->id) }}" class="btn btn-sm btn-dim btn-primary">
+                                        <span>View</span>
+                                    </a>
+                                </div>
+                            </div>@empty
+                            <div class="nk-tb-item">
+                                <div class="nk-tb-col text-center w-100 py-5 text-soft">
+                                    No tickets found. Need help? Open a ticket above!
+                                </div>
+                            </div>
                         @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="card-footer">
-                {{ $tickets->links() }}
+                    </div></div>
+                <div class="card-inner">
+                    <div class="nk-block-between-md g-3">
+                        <div class="g">
+                            {{ $tickets->links() }}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     @endif
