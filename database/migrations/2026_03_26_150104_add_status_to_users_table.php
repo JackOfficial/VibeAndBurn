@@ -14,7 +14,9 @@ class AddStatusToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('status')->default('active')->after('email');
+            $table->enum('status', ['active', 'banned', 'suspended'])
+              ->default('active')
+              ->after('email');
         });
     }
 
