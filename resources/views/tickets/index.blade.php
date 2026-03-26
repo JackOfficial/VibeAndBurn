@@ -8,7 +8,7 @@
 
             <div class="nk-block">
                 {{-- This component lists all tickets; it doesn't need an ID passed to it --}}
-                
+                @livewire('user.user-ticket-component')
             </div>
         </div>
     </div>
