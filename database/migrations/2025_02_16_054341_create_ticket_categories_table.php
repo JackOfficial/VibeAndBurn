@@ -14,7 +14,10 @@ class CreateTicketCategoriesTable extends Migration
     public function up()
     {
         Schema::create('ticket_categories', function (Blueprint $table) {
-            $table->id();
+            $table->string('name')->after('id'); // e.g. "Payment", "Instagram", "TikTok"
+            $table->string('slug')->unique()->after('name'); // e.g. "payment-issues"
+            $table->boolean('is_active')->default(true)->after('slug'); // To toggle visibility
+            $table->integer('sort_order')->default(0)->after('is_active'); // To control which shows first in the dropdown
             $table->timestamps();
         });
     }
