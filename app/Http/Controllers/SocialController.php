@@ -74,7 +74,7 @@ class SocialController extends Controller
         // If they were trying to reach a specific admin page, go there
         // Otherwise, redirect based on their role
         if ($user->hasRole('Super Admin') || $user->hasRole('Admin')) {
-            return redirect()->intended('/admin');
+            return redirect()->intended('/admin-iwange');
         }
 
         return redirect()->intended('/home');
