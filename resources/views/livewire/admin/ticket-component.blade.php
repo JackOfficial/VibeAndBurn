@@ -59,7 +59,7 @@
                 @endforeach
                 
                 <div class="mt-3">
-                    {{ $ticket->links() }}
+                    {{-- {{ $ticket->links() }} --}}
                 </div>
             </div>
 
