@@ -13,20 +13,7 @@ class usersController extends Controller
      */
   public function index(Request $request)
 {
-    // 1. Security Check (Ideally moved to Middleware later)
-    if (!Auth::check() || !Auth::user()->hasAnyRole(['Super Admin', 'Admin'])) {
-        return view('auth.login'); 
-    }
-
-    $name = Auth::user()->name;
-    
-    // 2. Use paginate() instead of get()
-    // 15 users per page is a good standard for admin tables
-    $users = User::with('roles')->orderBy('id', 'DESC')->paginate(15);
-
-    $usersCounter = User::count();
-
-    return view('admin.manage.users', compact('name', 'users', 'usersCounter'));
+    return view('admin.manage.users');
 }
 
     /**
