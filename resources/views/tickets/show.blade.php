@@ -6,7 +6,7 @@
         <div class="col-md-10">
             <nav aria-label="breadcrumb" class="mb-4">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('user.dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('user.tickets.list') }}">Support Tickets</a></li>
                     <li class="breadcrumb-item active">Ticket #{{ $ticketId }}</li>
                 </ol>
