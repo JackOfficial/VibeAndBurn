@@ -103,8 +103,8 @@
                                     <span class="sub-text">{{ $ticket->category->name ?? 'General' }}</span>
                                 </div>
                                 <div class="nk-tb-col tb-col-sm">
-                                    <span class="badge badge-dot {{ $ticket->status == 'pending' ? 'badge-warning' : ($ticket->status == 'answered' ? 'badge-success' : 'badge-secondary') }}">
-                                        {{ ucfirst($ticket->status) }}
+                                    <span class="badge badge-dot {{ $ticket->status == 'pending' ? 'badge-warning' : ($ticket->1 == 'answered' ? 'badge-success' : 'badge-secondary') }}">
+                                        {{ $ticket->status == 1 ? 'Answered' : 'Pending' }}
                                     </span>
                                 </div>
                                 <div class="nk-tb-col tb-col-lg">
