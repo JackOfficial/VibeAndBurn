@@ -106,7 +106,7 @@
 
                             <div class="ml-auto d-flex align-items-center">
                                 <span class="text-muted small mr-3 d-none d-md-inline">Showing {{ $tickets->firstItem() }} - {{ $tickets->lastItem() }} of {{ $tickets->total() }}</span>
-                                {{ $tickets->links('vendor.livewire.bootstrap') }}
+                                {{ $tickets->links('livewire::bootstrap') }}
                             </div>
                         </div>
 
