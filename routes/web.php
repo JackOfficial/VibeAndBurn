@@ -117,11 +117,13 @@ Route::get('/binance/test', [BinanceController::class, 'test']);
 //.............................. Payment Controller ......................................
 Route::get('/afripay-callback', [ProcessPaymentController::class, 'pay'])->name('afripay.callback');
 
+Route::middleware(['auth'])->group(function () {
+  
+});
 //---------------------------- ADMIN --------------------------------
 
-Route::resource('admin-iwange', adminController::class);
-Route::get('/admin/datatable', function(){
-    return view('admin.datatable');
+Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('admin-iwange', AdminController::class);
 });
 
 Route::get('/admin/fund', [pagesController::class, 'fund']);

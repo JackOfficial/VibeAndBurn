@@ -12,18 +12,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
-    /**
-     * Use a constructor to ensure only Admins can access these methods.
-     * This replaces your manual if(session()->has('adminId')) checks.
-     */
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:Admin|Super Admin']);
-    }
-
-    /**
-     * Display the Admin Dashboard with Stats
-     */
     public function index()
     {
         $admin = Auth::user();
