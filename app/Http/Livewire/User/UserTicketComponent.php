@@ -54,11 +54,16 @@ class UserTicketComponent extends Component
     }
 
     public function toggleCreate()
-    {
-        $this->isCreating = !$this->isCreating;
+{
+    $this->isCreating = !$this->isCreating;
+    
+    if (!$this->isCreating) {
         $this->reset(['subject', 'category_id', 'order_id', 'message', 'payment_ref']);
-        $this->resetErrorBag(); // Clears validation errors when toggling
+    } else {
+        // Ensure it stays preselected when they open the form again
+        $this->mount(); 
     }
+}
 
     public function createTicket()
     {
