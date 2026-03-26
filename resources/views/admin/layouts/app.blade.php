@@ -512,7 +512,17 @@
                   </a>
                </li>
                
-          <li><a class="btn btn-primary btn-block text-white" href="{{ route('logout') }}"><span><i class="fa fa-logout"></i> Logout</span></a></li>
+          <li>
+    <a class="btn btn-primary btn-block text-white" 
+       href="{{ route('logout') }}" 
+       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+        <span><i class="fas fa-sign-out-alt"></i> Logout</span>
+    </a>
+
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
+</li>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
