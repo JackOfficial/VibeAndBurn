@@ -6,7 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Ticket;
 use App\Models\Supports;
-use App\Models\TicketCategories;
+use App\Models\TicketCategory;
 use Illuminate\Support\Facades\Auth;
 
 class UserTicketComponent extends Component
@@ -67,7 +67,7 @@ class UserTicketComponent extends Component
                 ->with('category')
                 ->latest()
                 ->paginate(10),
-            'categories' => TicketCategories::where('is_active', true)->get()
+            'categories' => TicketCategory::where('is_active', true)->get()
         ]);
     }
 }

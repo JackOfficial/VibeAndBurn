@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-class TicketCategories extends Model
+class TicketCategory extends Model
 {
     use HasFactory;
 
