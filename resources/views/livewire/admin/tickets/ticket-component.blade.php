@@ -1,4 +1,4 @@
-<div> {{-- Critical: The Single Root Wrapper --}}
+<div wire:poll.5s> {{-- Critical: The Single Root Wrapper --}}
     <section class="content">
         <div class="container-fluid">
             <div class="row">

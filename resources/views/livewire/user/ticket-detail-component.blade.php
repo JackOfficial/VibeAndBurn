@@ -1,4 +1,4 @@
-<div class="nk-msg nk-msg-custom-container">
+<div class="nk-msg nk-msg-custom-container" wire:poll.5s>
     <div class="nk-msg-body d-flex flex-column h-100">
         
         {{-- Header Section: Fixed height, never shrinks --}}
