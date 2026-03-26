@@ -8,24 +8,17 @@ use Illuminate\Support\Facades\Auth;
 
 class TicketController extends Controller
 {
-   public function tickets(){
-       if(Auth::check()){
-           $userID = Auth::user()->id;
-         $walletCounter = wallet::where('user_id', $userID)->count();
-    
-    if($walletCounter == 0){
-      $wallet = 0;  
-    }
-    else{
-      $wallet = wallet::where('user_id', '=', $userID)->value('money');
-    }
+public function tickets()
+{
+    // Use the 'auth' middleware on your route instead of manual if/else for cleaner code
+    $user = Auth::user();
 
-       return view('tickets.index', compact('wallet'));
-       }
-       else{
-         return redirect('login');  
-       } 
-   }
+    // One query: Get the money value directly. 
+    // If no wallet exists, ?? 0 will set the variable to 0 automatically.
+    $wallet = Wallet::where('user_id', $user->id)->value('money') ?? 0;
+
+    return view('tickets.index', compact('wallet'));
+}
    
    public function ticket(Request $request){
        

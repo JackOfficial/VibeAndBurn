@@ -12,13 +12,18 @@
                         <div class="nk-block-des text-soft">
                             <p>View conversation for Ticket #{{ $ticketId }}</p>
                         </div>
-                    </div><div class="nk-block-head-content">
+                    </div>
+                    <div class="nk-block-head-content">
                         <div class="toggle-wrap nk-block-tools-toggle">
-                            <a href="#" class="btn btn-outline-light btn-white">
+                            {{-- Change '#' to your actual route name --}}
+                            <a href="{{ route('user.tickets.list') }}" class="btn btn-outline-light btn-white">
                                 <em class="icon ni ni-arrow-left"></em><span>Back to List</span>
                             </a>
                         </div>
-                    </div></div></div><div class="nk-block">
+                    </div>
+                </div>
+            </div><div class="nk-block">
+                {{-- Passing the ID to your Livewire Component --}}
                 @livewire('user.ticket-detail-component', ['id' => $ticketId])
             </div></div></div>
 </div>

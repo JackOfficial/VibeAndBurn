@@ -91,12 +91,18 @@ Route::post('bulkfollow-order', function(){
 });
 Route::get('/getServices/{id}', [ajaxController::class, 'getServices']);
 Route::get('/getPrice/{id}', [ajaxController::class, 'getPrice']);
-Route::get('/tickets', [TicketController::class, 'tickets']);
 Route::get('/ticket/{id}', [TicketController::class, 'ticket']);
 Route::post('sendTicket', [TicketController::class, 'sendTicket']);
-Route::get('/support/ticket/{id}', function ($id) {
-    return view('tickets.show', ['ticketId' => $id]);
-})->name('user.tickets.view')->middleware(['auth']);
+
+Route::middleware(['auth'])->group(function () {
+    // This is the missing route for your "Back to List" button
+    Route::get('/tickets', [TicketController::class, 'tickets'])->name('user.tickets.list');
+    
+    // This is the route for the individual ticket view we just built
+    Route::get('/support/ticket/{id}', function ($id) {
+        return view('tickets.show', ['ticketId' => $id]);
+    })->name('user.tickets.view');
+});
 
 //---------------------------- SOCIALITE ROUTES --------------------------------
 Route::get('redirect', [SocialController::class, 'redirect']);
