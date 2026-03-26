@@ -54,7 +54,7 @@ class TicketComponent extends Component
         'users.avatar'
     )
     ->orderBy('tickets.id', 'DESC')
-    ->get();
+    ->paginate(20);
         
         return view('livewire.admin.ticket-component', compact('ticket', 'chats'));
     }
