@@ -11,7 +11,7 @@ class TicketsController extends Controller
    public function tickets(){
        if(Auth::check()){
            $userID = Auth::user()->id;
-         
+         //klhjhjkhkjhjkhjkhkjkjhkjjkhkjhjk
          $walletCounter = wallet::where('user_id', $userID)->count();
     
     if($walletCounter == 0){
