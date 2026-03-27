@@ -56,7 +56,7 @@
                                             {{ $initial }}
                                         </div>
                                     @endif
-                                    <span class="font-weight-bold"><a href="{{ route('users.show', $user->id) }}">{{ $user->name }}</a></span>
+                                    <span class="font-weight-bold"><a href="{{ route('admin.users.show', $user->id) }}">{{ $user->name }}</a></span>
                                     @if($user->status === 'banned')
                                     <span class="badge badge-danger px-1" style="font-size: 10px;">BANNED</span>
                                     @endif
