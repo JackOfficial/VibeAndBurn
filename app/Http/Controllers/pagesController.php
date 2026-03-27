@@ -8,7 +8,7 @@ use App\Models\wallet;
 use App\Models\service;
 use App\Models\category;
 use App\Models\order;
-use App\Models\fund;
+use App\Models\Fund;
 use App\Models\Terms;
 
 class pagesController extends Controller
