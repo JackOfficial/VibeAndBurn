@@ -4,7 +4,7 @@
             <h6 class="overline-title text-soft">Share & Earn</h6>
             <ul class="nav nav-sm">
                 @php 
-                    $shareUrl = route('sharedlink.show', Auth::id());
+                    $shareUrl = route('admin.sharedlink.show', Auth::id());
                     $shareText = rawurlencode("Check out the best SMM panel: ");
                 @endphp
 
