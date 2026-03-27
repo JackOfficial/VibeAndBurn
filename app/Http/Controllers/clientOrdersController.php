@@ -28,15 +28,8 @@ class clientOrdersController extends Controller
      */
     public function create(Request $request)
     {
-        if($request->session()->has('adminName')){
-            
-        $name = $request->Session()->get('adminName');
         $users = User::orderBy('name', 'ASC')->get();
-        return view('admin.add.fund', compact('name', 'users'));
-        }
-        else{
-            return view('auth.admin-login'); 
-        }
+        return view('admin.add.fund', compact('users'));
     }
 
     /**
@@ -67,26 +60,6 @@ class clientOrdersController extends Controller
             else{
                 $result = false; 
             }
-            
-//             else{
-//              //Currency Conversion
-//       $endpoint = 'convert';
-// $access_key = 'cbee96985754e4844413ba838ffb7e76';
-
-// $from = $currency;
-// $to = 'USD';
-// // initialize CURL:
-// $ch = curl_init('https://api.exchangeratesapi.io/v1/'.$endpoint.'?access_key='.$access_key.'&from='.$from.'&to='.$to.'&amount='.$amount.'');
-// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-// // get the JSON data:
-// $json = curl_exec($ch);
-// curl_close($ch);
-
-// // Decode JSON response:
-// $conversionResult = json_decode($json, true);
-// $result = $conversionResult['result'];   
-//             }
 
 if($result != false){
     $wallet = wallet::where('user_id', '=', $userID)->count();

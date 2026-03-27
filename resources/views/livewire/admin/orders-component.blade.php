@@ -154,7 +154,7 @@
                     <td>
                               <a href="{{ route('approve', $order->id) }}" class="btn text-primary borderless"><i class="fa fa-check"></i></a> &nbsp;
                               <a onclick="return confirm('Are you sure you want to reverse?')" href="{{ route('order.show', $order->id) }}" class="btn text-danger borderless"><i class="fa fa-times"></i></a>
-                        <a href="{{ route('clientOrders.edit', $order->id) }}" class="btn text-success borderless"><i class="fa fa-edit"></i></a> &nbsp;
+                        <a href="{{ route('admin.clientOrders.edit', $order->id) }}" class="btn text-success borderless"><i class="fa fa-edit"></i></a> &nbsp;
                        </td>
                   </tr>  
                   @empty
