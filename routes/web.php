@@ -126,10 +126,11 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::resource('advert', AdvertsController::class);
     Route::get('/bfcurrency', [BFCurrencyController::class, 'index'])->name('bfcurrency');
     Route::resource('sharedlink', sharedlinkController::class);
+    Route::resource('update', UpdatesController::class);
 });
 
 
-Route::resource('update', UpdatesController::class);
+
 Route::resource('socialmedia', socialmediaController::class);
 Route::resource('category', categoryController::class);
 Route::resource('service', serviceController::class);

@@ -15,7 +15,7 @@ class UpdatesController extends Controller
      */
     public function index()
     {
-       return view('admin.manage.updates');
+       return view('admin.updates.index');
     }
 
     /**
@@ -25,7 +25,7 @@ class UpdatesController extends Controller
      */
     public function create()
     {
-       return view('admin.add.update');
+       return view('admin.updates.create');
     }
 
     /**
@@ -85,7 +85,7 @@ class UpdatesController extends Controller
     public function update(Request $request, $id)
     {
         $update = Updates::findOrFail($id);
-        return view('admin.add.update', compact('update'));
+        return view('admin.updates.create', compact('update'));
     }
 
     /**
