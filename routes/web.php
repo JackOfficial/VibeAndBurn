@@ -127,6 +127,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::get('/bfcurrency', [BFCurrencyController::class, 'index'])->name('bfcurrency');
     Route::resource('sharedlink', sharedlinkController::class);
     Route::resource('update', UpdatesController::class);
+    Route::resource('terms', TermsController::class);
 });
 
 
@@ -141,7 +142,6 @@ Route::resource('broadcast', broadcastController::class);
 Route::resource('users', usersController::class);
 Route::get('approve/{id}', [approveOrderController::class, 'approve'])->name('approve');
 Route::get('/logmeout', [logmeoutController::class, 'logmeout'])->name('logmeout');
-Route::resource('terms', TermsController::class);
 Route::get('/event', function(){
 event(new PaymentProcessed("Hello world"));
 echo "Event has been broadcast";

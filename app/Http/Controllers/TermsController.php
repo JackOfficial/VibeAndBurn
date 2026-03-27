@@ -15,7 +15,7 @@ class TermsController extends Controller
     public function index()
     {
         $terms = Terms::firstOrFail();
-        return view('admin.manage.terms', compact('terms'));
+        return view('admin.terms.index', compact('terms'));
     }
 
     /**
@@ -59,7 +59,7 @@ class TermsController extends Controller
     public function edit($id)
     {
         $terms = Terms::findOrFail($id);
-        return view('admin.edit.terms', compact('terms'));
+        return view('admin.terms.edit', compact('terms'));
     } 
 
     /**
@@ -78,7 +78,7 @@ class TermsController extends Controller
         $update_terms = Terms::where('id', $id)->update($terms);
         
         if($update_terms){
-            return redirect()->route('terms.index')->with('updateTermsSuccess', 'Terms has been updated successfully');
+            return redirect()->route('admin.terms.index')->with('updateTermsSuccess', 'Terms has been updated successfully');
         }
         else{
              return back()->with('updateTermsFail', 'Terms could not be updated');
