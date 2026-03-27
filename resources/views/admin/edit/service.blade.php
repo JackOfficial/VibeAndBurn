@@ -40,7 +40,7 @@
               </div>
               <!-- /.card-header -->
               <!-- form start -->
-              <form method="POST" action="{{ route('service.update', $service->id) }}" enctype="multipart/form-data">
+              <form method="POST" action="{{ route('admin.service.update', $service->id) }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                

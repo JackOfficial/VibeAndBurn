@@ -87,14 +87,14 @@
                     <td>{!! $service->description !!}</td>
                     <td>{{ $service->created_at }}</td>
                     <td>
-                        <form method="POST" action="{{ route('service.destroy', $service->id) }}">
+                        <form method="POST" action="{{ route('admin.service.destroy', $service->id) }}">
                           @csrf
                             @method('DELETE')
-                            <a class="btn btn-sm btn-success m-1" href="{{ route('service.edit', $service->id) }}"><i class="fa fa-edit"></i> Edit</a>&nbsp;
+                            <a class="btn btn-sm btn-success m-1" href="{{ route('admin.service.edit', $service->id) }}"><i class="fa fa-edit"></i> Edit</a>&nbsp;
                             @if($service->status == 1)
-                            <a class="btn btn-sm btn-warning m-1" href="{{ route('service.show', $service->id) }}"><i class="fa fa-times"></i> Disable</a>&nbsp;
+                            <a class="btn btn-sm btn-warning m-1" href="{{ route('admin.service.show', $service->id) }}"><i class="fa fa-times"></i> Disable</a>&nbsp;
                             @else
-                            <a class="btn btn-sm btn-warning m-1" href="{{ route('service.show', $service->id) }}"><i class="fa fa-check"></i> Enable</a>&nbsp;
+                            <a class="btn btn-sm btn-warning m-1" href="{{ route('admin.service.show', $service->id) }}"><i class="fa fa-check"></i> Enable</a>&nbsp;
                             @endif
                             <a class="btn btn-sm btn-secondary m-1 {{ ($service->serviceId == "" || $service->serviceId == null) ? 'd-none' : '' }}" href="admin/toggle-service/{{$service->id}}"><i class="fa fa-edit"></i> {{ ($service->state == 1) ? "Set Manual" : "Set Auto" }} </a>
                            <button type="submit" class="btn btn-sm btn-danger"><span><i class="fa fa-trash"></i></span> Delete</button>

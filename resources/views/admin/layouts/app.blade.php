@@ -253,13 +253,13 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="{{ route('socialmedia.create') }}" class="nav-link">
+                <a href="{{ route('admin.socialmedia.create') }}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Add Social Media</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{{ route('socialmedia.index') }}" class="nav-link">
+                <a href="{{ route('admin.socialmedia.index') }}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Manage Social Media</p>
                 </a>
@@ -276,13 +276,13 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="{{ route('category.create') }}" class="nav-link">
+                <a href="{{ route('admin.category.create') }}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Add Category</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{{ route('category.index') }}" class="nav-link">
+                <a href="{{ route('admin.category.index') }}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Manage Categories</p>
                 </a>
@@ -300,13 +300,13 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="{{ route('service.create') }}" class="nav-link">
+                <a href="{{ route('admin.service.create') }}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Add Service</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{{ route('service.index') }}" class="nav-link">
+                <a href="{{ route('admin.service.index') }}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Manage Services</p>
                 </a>

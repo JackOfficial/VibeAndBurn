@@ -129,9 +129,9 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::resource('terms', TermsController::class);
     Route::resource('socialmedia', socialmediaController::class);
     Route::resource('category', categoryController::class);
+    Route::resource('service', serviceController::class);
 });
 
-Route::resource('service', serviceController::class);
 Route::get('/toggle-service/{id}', [serviceController::class, 'toggler']);
 
 Route::resource('clientOrders', clientOrdersController::class);

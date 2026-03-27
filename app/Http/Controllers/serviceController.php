@@ -16,9 +16,6 @@ class serviceController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->session()->has('adminName')){
-             $name = $request->Session()->get('adminName');
-             
         $services = service::join('categories', 'services.category_id', '=', 'categories.id')
         ->join('sources', 'services.source_id', '=', 'sources.id')
         ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
@@ -29,11 +26,7 @@ class serviceController extends Controller
          $servicesCounter = service::join('categories', 'services.category_id', '=', 'categories.id')
          ->count();
 
-        return view('admin.manage.services', compact('name', 'services', 'servicesCounter'));
-        }
-         else{
-            return view('auth.admin-login'); 
-        }
+        return view('admin.manage.services', compact('services', 'servicesCounter'));
     }
 
     /**
@@ -43,21 +36,14 @@ class serviceController extends Controller
      */
     public function create(Request $request)
     {
-          if($request->session()->has('adminName')){
-            
-             $name = $request->Session()->get('adminName');
-        $categories = category::join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
+       $categories = category::join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
         ->select('categories.*', 'socialmedia.socialmedia')
          ->orderBy('categories.category', 'ASC')
          ->get();
          
           $sources = Source::all();
 
-        return view('admin.add.service', compact('name', 'categories', 'sources'));
-    }
-         else{
-            return view('auth.admin-login'); 
-        }
+        return view('admin.add.service', compact('categories', 'sources'));
     }
 
     /**
@@ -136,11 +122,7 @@ class serviceController extends Controller
      */
     public function show(Request $request, $id)
     {
-       if($request->session()->has('adminName')){
-            
-             $name = $request->Session()->get('adminName');
-             
-        $status = service::findOrFail($id);
+       $status = service::findOrFail($id);
         
         if($status->status == 1){
            $services = service::where('id', $id)->update([
@@ -166,11 +148,6 @@ class serviceController extends Controller
                 return redirect()->back()->with('deleteServiceFail', 'the service could not be activated');
             }
         }
-        
-    }
-         else{
-            return view('auth.admin-login'); 
-        }
     }
 
     /**
@@ -181,9 +158,6 @@ class serviceController extends Controller
      */
     public function edit(Request $request, $id)
     {
-          if($request->session()->has('adminName')){
-            
-             $name = $request->Session()->get('adminName');
         $service = service::join('categories', 'services.category_id', '=', 'categories.id')
         ->where('services.id', '=', $id)
         ->select('services.*', 'categories.category')
@@ -196,11 +170,7 @@ class serviceController extends Controller
          
          $sources = Source::all();
          
-        return view('admin.edit.service', compact('name', 'service', 'categories',  'sources'));
-    }
-         else{
-            return view('auth.admin-login'); 
-        }
+        return view('admin.edit.service', compact('service', 'categories',  'sources'));
     }
 
     /**
