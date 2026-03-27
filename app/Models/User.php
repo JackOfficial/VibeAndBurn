@@ -46,4 +46,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function funds() // Plural is better for "hasMany"
+{
+    // A User HAS MANY funds
+    return $this->hasMany(Fund::class, 'user_id');
+}
 }
