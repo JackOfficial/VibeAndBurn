@@ -85,7 +85,7 @@ public function sharelink($id){
     // 'with' pulls in the user data automatically
     $funds = fund::with('user')
         ->latest() // Shortcut for orderBy('id', 'DESC')
-        ->get();
+        ->paginate(25);
 
     // 3. Simple aggregates (No joins needed here)
     $fundsCounter = fund::count();
