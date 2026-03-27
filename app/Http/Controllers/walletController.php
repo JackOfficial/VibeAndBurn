@@ -15,7 +15,7 @@ class walletController extends Controller
     public function index(Request $request)
     {
         $name = auth()->user()->name;
-        return view('admin.manage.wallets', compact('name'));
+        return view('admin.wallets.index', compact('name'));
     }
 
     /**

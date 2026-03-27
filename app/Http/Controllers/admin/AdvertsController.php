@@ -16,7 +16,7 @@ class AdvertsController extends Controller
     public function index()
     {
        $adverts = Advert::orderBy('id', 'DESC')->get();
-       return view('admin.manage.adverts', compact('adverts'));
+       return view('admin.adverts.index', compact('adverts'));
     }
 
     /**
