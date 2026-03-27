@@ -128,6 +128,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::get('/offer/bonus/{id}', [sharedlinkController::class, 'bonus'])->name('bonus');
     Route::resource('wallet', walletController::class);
     Route::resource('advert', AdvertsController::class);
+    Route::get('/bfcurrency', [BFCurrencyController::class, 'index'])->name('bfcurrency');
 });
 
 
@@ -141,7 +142,6 @@ Route::resource('clientOrders', clientOrdersController::class);
 Route::resource('broadcast', broadcastController::class);
 Route::resource('users', usersController::class);
 Route::get('approve/{id}', [approveOrderController::class, 'approve'])->name('approve');
-Route::get('/bfcurrency', [BFCurrencyController::class, 'index'])->name('bfcurrency');
 Route::get('/logmeout', [logmeoutController::class, 'logmeout'])->name('logmeout');
 Route::resource('terms', TermsController::class);
 Route::get('/event', function(){

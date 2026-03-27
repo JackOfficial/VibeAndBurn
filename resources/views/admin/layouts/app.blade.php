@@ -452,7 +452,7 @@
           </li>
           
           <li class="nav-item">
-            <a href="/bfcurrency" class="nav-link">
+            <a href="{{ route('admin.bfcurrency') }}" class="nav-link">
               <i class="nav-icon fas fa-coins"></i>
               <p>
                 Set Currencies

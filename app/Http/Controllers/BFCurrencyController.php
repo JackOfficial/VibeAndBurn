@@ -7,6 +7,6 @@ use Illuminate\Http\Request;
 class BFCurrencyController extends Controller
 {
     public function index(){
-        return view('admin.manage.bfcurrency');
+        return view('admin.bfcurrency.index');
     }
 }
