@@ -81,11 +81,7 @@ public function sharelink($id){
    
    public function fund(Request $request)
     {
-        if($request->session()->has('adminName')){
-            
-             $name = $request->Session()->get('adminName');
-             
-       $funds = fund::join('users', 'funds.user_id', '=', 'users.id')
+           $funds = fund::join('users', 'funds.user_id', '=', 'users.id')
     ->select('funds.*', 'users.name', 'users.email')
      ->orderBy('funds.id', 'DESC')
      ->get();
@@ -96,11 +92,7 @@ public function sharelink($id){
     $fundsTotal = fund::join('users', 'funds.user_id', '=', 'users.id')
     ->sum('amount');
     
-    return view('admin.manage.funds', compact('name', 'funds', 'fundsCounter', 'fundsTotal'));
-        }
-         else{
-            return view('auth.admin-login'); 
-        }
+    return view('admin.funds.index', compact('name', 'funds', 'fundsCounter', 'fundsTotal'));
     }
 
 public function services(){

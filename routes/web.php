@@ -122,7 +122,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::resource('wholesalers', WholesalersController::class);
     Route::get('/tickets', [TicketController::class, 'adminTickets'])->name('tickets');
     Route::get('/ticket/{id}', [TicketController::class, 'adminTicket'])->name('ticket.show');
-    Route::get('/fund', [pagesController::class, 'fund']);
+    Route::get('/fund', [pagesController::class, 'fund'])->name('fund');
     Route::get('/rate', [RateController::class, 'index']);
     Route::get('/referrals/{id}', [sharedlinkController::class, 'referral'])->name('referrals');
     Route::get('/offer/bonus/{id}', [sharedlinkController::class, 'bonus'])->name('bonus');

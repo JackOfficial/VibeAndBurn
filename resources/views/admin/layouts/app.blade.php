@@ -461,11 +461,11 @@
           </li>
             
           <li class="nav-item">
-            <a href="/admin/fund" class="nav-link">
+            <a href="{{ route('admin.fund') }}" class="nav-link">
               <i class="nav-icon fas fa-wallet"></i>
               <p>
                 Earnings
-                <span class="right badge badge-danger">$450</span>
+                <span class="right badge badge-danger"></span>
               </p>
             </a>
           </li>
