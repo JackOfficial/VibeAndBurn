@@ -92,7 +92,6 @@ public function sharelink($id){
     $fundsTotal = Fund::sum('amount');
 
     return view('admin.funds.index', compact(
-        'name', 
         'funds', 
         'fundsCounter', 
         'fundsTotal'
