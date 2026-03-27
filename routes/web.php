@@ -58,7 +58,6 @@ Route::resource('our-services', ourServicesController::class);
 Route::resource('contactus', contactusController::class);
 Route::resource('faq', faqController::class);
 Route::resource('aboutus', aboutUsController::class);
-Route::resource('subscription', subscriptionController::class);
 
 Route::get('/testBulkmedya', [orderController::class, 'testBulkmedya']); //for testing purpose
 Route::resource('faqs', faqsController::class);
@@ -132,6 +131,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::resource('service', serviceController::class);
     Route::resource('clientOrders', clientOrdersController::class);
     Route::resource('users', usersController::class);
+    Route::resource('subscription', subscriptionController::class);
 });
 
 Route::get('/toggle-service/{id}', [serviceController::class, 'toggler']);

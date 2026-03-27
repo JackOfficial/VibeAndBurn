@@ -14,16 +14,9 @@ class subscriptionController extends Controller
      */
     public function index(Request $request)
     {
-         if($request->session()->has('adminName')){
-            
-             $name = $request->Session()->get('adminName');
         $subscribers = subscription::orderBy('id', 'DESC')->get();
         $subscribersCounter = subscription::count();
-        return view('admin.manage.subscribers', compact('name', 'subscribers', 'subscribersCounter'));
-         }
-         else{
-            return view('auth.admin-login'); 
-        }
+        return view('admin.manage.subscribers', compact('subscribers', 'subscribersCounter'));
     }
 
     /**

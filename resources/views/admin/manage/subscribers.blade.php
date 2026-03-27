@@ -59,7 +59,7 @@
                     <td>{{ $subscriber->email }}</td>
                     <td>{{ $subscriber->created_at }}</td>
                     <td>
-                        <form method="POST" action="{{ route('subscription.destroy', $subscriber->id) }}">
+                        <form method="POST" action="{{ route('admin.subscription.destroy', $subscriber->id) }}">
                           @csrf
                             @method('DELETE')
                              <button type="submit" class="btn btn-danger"><span><i class="fa fa-trash"></i></span> Delete</button>
