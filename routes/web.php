@@ -127,9 +127,10 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::get('/referrals/{id}', [sharedlinkController::class, 'referral'])->name('referrals');
     Route::get('/offer/bonus/{id}', [sharedlinkController::class, 'bonus'])->name('bonus');
     Route::resource('wallet', walletController::class);
+    Route::resource('advert', AdvertsController::class);
 });
 
-Route::resource('advert', AdvertsController::class);
+
 Route::resource('update', UpdatesController::class);
 Route::resource('socialmedia', socialmediaController::class);
 Route::resource('category', categoryController::class);

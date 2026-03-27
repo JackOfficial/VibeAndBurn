@@ -443,7 +443,7 @@
           </li>
           
           <li class="nav-item">
-            <a href="{{ route('advert.index') }}" class="nav-link">
+            <a href="{{ route('admin.advert.index') }}" class="nav-link">
               <i class="nav-icon fas fa-wallet"></i>
               <p>
                 Adverts

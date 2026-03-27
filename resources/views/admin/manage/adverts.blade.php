@@ -36,7 +36,7 @@
           <strong>FAILED:</strong> {{ Session::get('advertisementFail') }} </div> 
             @endif
             
-             <a href="{{ route('advert.create') }}" class="btn btn-primary btn-sm mb-2"><i class="fa fa-plus"></i> Add Advert</a>
+             <a href="{{ route('admin.advert.create') }}" class="btn btn-primary btn-sm mb-2"><i class="fa fa-plus"></i> Add Advert</a>
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">{{ $adverts->count() }} Adverts</h3>
@@ -76,10 +76,10 @@
                         </td>
                     <td>{{ $ad->created_at }}</td>
                     <td>
-                        <form method="POST" action="{{ route('advert.destroy', $ad->id) }}">
+                        <form method="POST" action="{{ route('admin.advert.destroy', $ad->id) }}">
                           @csrf
                             @method('DELETE')
-                            <a class="btn btn-success btn-sm" href="{{ route('advert.edit', $ad->id) }}"><i class="fa fa-edit"></i> Edit</a>&nbsp;
+                            <a class="btn btn-success btn-sm" href="{{ route('admin.advert.edit', $ad->id) }}"><i class="fa fa-edit"></i> Edit</a>&nbsp;
                            <button type="submit" class="btn btn-danger btn-sm"><span><i class="fa fa-trash"></i></span> Delete</button>
                         </form>
                         </td>
