@@ -42,7 +42,7 @@
               </div>
               <!-- /.card-header -->
               <!-- form start -->
-              <form method="POST" action="{{ route('category.store') }}" enctype="multipart/form-data">
+              <form method="POST" action="{{ route('admin.category.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="card-body">
 

@@ -15,18 +15,9 @@ class socialmediaController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->session()->has('adminName')){
-            
-             $name = $request->Session()->get('adminName');
-             //admin::where('id', session()->get(''))->get();
         $socialmedia = socialmedia::orderBy('socialmedia', 'ASC')->get();
         $socialmediaCounter = socialmedia::count();
-       return view('admin.manage.socialmedia', compact('name', 'socialmedia', 'socialmediaCounter'));
-        }
-        else{
-            return view('auth.admin-login'); 
-        }
-       
+       return view('admin.manage.socialmedia', compact('socialmedia', 'socialmediaCounter')); 
     }
 
     /**
@@ -36,14 +27,7 @@ class socialmediaController extends Controller
      */
     public function create(Request $request)
     {
-        if($request->session()->has('adminName')){
-            
-             $name = $request->Session()->get('adminName');
-        return view('admin.add.socialmedia', compact('name'));
-        }
-         else{
-            return view('auth.admin-login'); 
-        }
+        return view('admin.add.socialmedia');
     }
 
     /**
@@ -89,17 +73,8 @@ class socialmediaController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        if($request->session()->has('adminName')){
-            
-             $name = $request->Session()->get('adminName');
-             
-             $socialmedia = socialmedia::findOrFail($id);
-        return view('admin.edit.socialmedia', compact('socialmedia'));
-        }
-         else{
-            return view('auth.admin-login'); 
-        }
-        
+        $socialmedia = socialmedia::findOrFail($id);
+        return view('admin.edit.socialmedia', compact('socialmedia')); 
     }
 
     /**

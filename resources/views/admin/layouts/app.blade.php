@@ -504,14 +504,7 @@
                 Terms
               </p>
             </a>
-          </li>
-           <li class="nav-item">
-               <a href="/admin/dashboard" class="nav-link">
-                  <i class="fa fa-user"></i> 
-                  <p>Add Admin</p>
-                  </a>
-               </li>
-               
+          </li>   
           <li>
     <a class="btn btn-primary btn-block text-white" 
        href="{{ route('logout') }}" 

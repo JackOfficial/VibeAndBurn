@@ -24,7 +24,6 @@ use App\Http\Controllers\paymentController;
 use App\Http\Controllers\proccessController;
 use App\Http\Controllers\proccessPaymentController;
 use App\Http\Controllers\adminController;
-use App\Http\Controllers\logmeoutController;
 use App\Http\Controllers\walletController;
 use App\Http\Controllers\sharedlinkController;
 use App\Http\Controllers\TicketController;
@@ -128,12 +127,10 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::resource('sharedlink', sharedlinkController::class);
     Route::resource('update', UpdatesController::class);
     Route::resource('terms', TermsController::class);
+    Route::resource('socialmedia', socialmediaController::class);
+    Route::resource('category', categoryController::class);
 });
 
-
-
-Route::resource('socialmedia', socialmediaController::class);
-Route::resource('category', categoryController::class);
 Route::resource('service', serviceController::class);
 Route::get('/toggle-service/{id}', [serviceController::class, 'toggler']);
 
@@ -141,7 +138,6 @@ Route::resource('clientOrders', clientOrdersController::class);
 Route::resource('broadcast', broadcastController::class);
 Route::resource('users', usersController::class);
 Route::get('approve/{id}', [approveOrderController::class, 'approve'])->name('approve');
-Route::get('/logmeout', [logmeoutController::class, 'logmeout'])->name('logmeout');
 Route::get('/event', function(){
 event(new PaymentProcessed("Hello world"));
 echo "Event has been broadcast";

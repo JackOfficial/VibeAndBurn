@@ -15,10 +15,6 @@ class categoryController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->session()->has('adminName')){
-            
-             $name = $request->Session()->get('adminName');
-
         $categories = category::join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
        ->select('categories.*', 'socialmedia.socialmedia')
         ->orderBy('categories.category', 'ASC')
@@ -27,13 +23,7 @@ class categoryController extends Controller
         $categoryCounter = category::join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
         ->count();
 
-       return view('admin.manage.categories', compact('name', 'categories', 'categoryCounter'));
-       
-        }
-         else{
-            return view('auth.admin-login'); 
-        }
-        
+       return view('admin.manage.categories', compact('categories', 'categoryCounter')); 
     }
 
     /**
@@ -43,16 +33,8 @@ class categoryController extends Controller
      */
     public function create(Request $request)
     {
-        if($request->session()->has('adminName')){
-            
-             $name = $request->Session()->get('adminName');
         $socialmedia = socialmedia::orderBy('socialmedia', 'ASC')->get();
-        return view('admin.add.category', compact('name', 'socialmedia'));
-    }
-         else{
-            return view('auth.admin-login'); 
-        }
-          
+        return view('admin.add.category', compact('socialmedia')); 
     }
 
     /**
@@ -100,10 +82,6 @@ class categoryController extends Controller
      */
     public function edit(Request $request, $id)
     {
-         if($request->session()->has('adminName')){
-            
-             $name = $request->Session()->get('adminName');
-             
         $category = category::join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
         ->where('categories.id', '=', $id)
        ->select('categories.*', 'socialmedia.socialmedia')
@@ -112,12 +90,7 @@ class categoryController extends Controller
 
         $socialmedia = socialmedia::orderBy('socialmedia', 'ASC')->get();
 
-        return view('admin.edit.category', compact('name', 'category', 'socialmedia'));
-
-}
-         else{
-            return view('auth.admin-login'); 
-        }
+        return view('admin.edit.category', compact('category', 'socialmedia'));
         }
 
     /**

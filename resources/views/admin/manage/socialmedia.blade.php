@@ -59,10 +59,10 @@
                     <td>{{ $socialmedia->socialmedia }}</td>
                     <td>{{ $socialmedia->created_at }}</td>
                     <td>
-                        <form method="POST" action="{{ route('socialmedia.destroy', $socialmedia->id) }}">
+                        <form method="POST" action="{{ route('admin.socialmedia.destroy', $socialmedia->id) }}">
                           @csrf
                             @method('DELETE')
-                            <a class="btn btn-success" href="{{ route('socialmedia.edit', $socialmedia->id) }}"><i class="fa fa-edit"></i> Edit</a>&nbsp;
+                            <a class="btn btn-success" href="{{ route('admin.socialmedia.edit', $socialmedia->id) }}"><i class="fa fa-edit"></i> Edit</a>&nbsp;
                            <button disabled type="submit" class="btn btn-danger"><span><i class="fa fa-trash"></i></span> Delete</button>
                         </form>
                         </td>

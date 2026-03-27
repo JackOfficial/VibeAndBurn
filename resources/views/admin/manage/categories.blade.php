@@ -61,10 +61,10 @@
                     <td>{{ $category->category }}</td>
                     <td>{{ $category->created_at }}</td>
                     <td>
-                        <form method="POST" action="{{ route('category.destroy', $category->id) }}">
+                        <form method="POST" action="{{ route('admin.category.destroy', $category->id) }}">
                           @csrf
                             @method('DELETE')
-                            <a class="btn btn-success" href="{{ route('category.edit', $category->id) }}"><i class="fa fa-edit"></i> Edit</a>&nbsp;
+                            <a class="btn btn-success" href="{{ route('admin.category.edit', $category->id) }}"><i class="fa fa-edit"></i> Edit</a>&nbsp;
                            <button type="submit" class="btn btn-danger"><span><i class="fa fa-trash"></i></span> Delete</button>
                         </form>
                         </td>

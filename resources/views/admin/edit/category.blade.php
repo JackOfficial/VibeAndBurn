@@ -43,7 +43,7 @@
               <!-- /.card-header -->
               <!-- form start -->
               @foreach ($category as $categoryID)
-              <form method="POST" action="{{ route('category.update', $categoryID->id) }}" enctype="multipart/form-data">
+              <form method="POST" action="{{ route('admin.category.update', $categoryID->id) }}" enctype="multipart/form-data">
                 @endforeach
                 @csrf
                 @method('PUT')
