@@ -51,10 +51,10 @@
             </div>
             <hr>
              <div>
-                 <form method="POST" action="{{ route('terms.destroy', $terms->id) }}">
+                 <form method="POST" action="{{ route('admin.terms.destroy', $terms->id) }}">
                      @csrf
                      @method('DELETE')
-                     <a href="{{ route('terms.edit', $terms->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i> Edit</a>
+                     <a href="{{ route('admin.terms.edit', $terms->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i> Edit</a>
                      <button type="submit" class="btn btn-danger btn-sm d-none"><i class="fa fa-times"></i> Delete</button>
                  </form>
                  </div>
