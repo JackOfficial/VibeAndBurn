@@ -9,4 +9,10 @@ class bonus extends Model
 {
     use HasFactory;
     protected $fillable = ['user_id', 'bonus', 'status'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+    
 }

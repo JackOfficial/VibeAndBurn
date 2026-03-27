@@ -19,15 +19,18 @@ class sharedlinkController extends Controller
     public function index()
     {
       
-      $sharedlinks = bonus::join('users', 'bonuses.user_id', '=', 'users.id')
-        ->select('bonuses.*', 'users.name', 'users.email')
-         ->orderBy('bonuses.id', 'DESC')
-         ->get();
-         
-          $bonusesCounter = bonus::count();
-          
-             $bonusesTotal = bonus::sum('bonus');
-      return view('admin.manage.bonuses', compact('sharedlinks', 'bonusesCounter', 'bonusesTotal'));
+     $sharedlinks = bonus::with('user')->latest()->paginate(25);
+
+    $bonusesCounter = bonus::count();
+    
+    // Sum the 'bonus' column
+    $bonusesTotal = bonus::sum('bonus');
+
+    return view('admin.bonuses.index', compact(
+        'sharedlinks', 
+        'bonusesCounter', 
+        'bonusesTotal'
+    ));
     }
     
     public function bonus(Request $request, $id)

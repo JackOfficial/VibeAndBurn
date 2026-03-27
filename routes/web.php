@@ -53,10 +53,6 @@ use App\Http\Controllers\admin\RateController;
 //---------------------------- USER --------------------------------
 
 Route::get('/', [pagesController::class, 'index']);
-
-Route::resource('/sharedlink', sharedlinkController::class);
-
-
 Route::get('/terms-and-conditions', [pagesController::class, 'terms']);
 
 Route::resource('our-services', ourServicesController::class);
@@ -129,6 +125,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::resource('wallet', walletController::class);
     Route::resource('advert', AdvertsController::class);
     Route::get('/bfcurrency', [BFCurrencyController::class, 'index'])->name('bfcurrency');
+    Route::resource('sharedlink', sharedlinkController::class);
 });
 
 
