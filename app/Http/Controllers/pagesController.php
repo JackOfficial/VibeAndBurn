@@ -8,7 +8,7 @@ use App\Models\wallet;
 use App\Models\service;
 use App\Models\category;
 use App\Models\order;
-use App\Models\Fund;
+use App\Models\fund;
 use App\Models\Terms;
 
 class pagesController extends Controller
@@ -83,13 +83,13 @@ public function sharelink($id){
 {
     // 2. Fetch funds with their related users (Eloquent Way)
     // 'with' pulls in the user data automatically
-    $funds = Fund::with('user')
+    $funds = fund::with('user')
         ->latest() // Shortcut for orderBy('id', 'DESC')
         ->get();
 
     // 3. Simple aggregates (No joins needed here)
-    $fundsCounter = Fund::count();
-    $fundsTotal = Fund::sum('amount');
+    $fundsCounter = fund::count();
+    $fundsTotal = fund::sum('amount');
 
     return view('admin.funds.index', compact(
         'funds', 
