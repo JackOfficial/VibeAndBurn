@@ -129,8 +129,6 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::resource('wallet', walletController::class);
 });
 
-
-
 Route::resource('advert', AdvertsController::class);
 Route::resource('update', UpdatesController::class);
 Route::resource('socialmedia', socialmediaController::class);
