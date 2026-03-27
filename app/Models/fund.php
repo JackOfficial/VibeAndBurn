@@ -9,4 +9,9 @@ class fund extends Model
 {
     use HasFactory;
     protected $fillable = ['user_id', 'method', 'amount', 'Payedwith'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
