@@ -14,14 +14,8 @@ class walletController extends Controller
      */
     public function index(Request $request)
     {
-         if($request->session()->has('adminName')){
-     $name = $request->Session()->get('adminName');
+        $name = auth()->name;
         return view('admin.manage.wallets', compact('name'));
-    }
-         else{
-            return view('auth.admin-login'); 
-        }
-      
     }
 
     /**

@@ -115,7 +115,7 @@ Route::get('/binance/test', [BinanceController::class, 'test']);
 //.............................. Payment Controller ......................................
 Route::get('/afripay-callback', [ProcessPaymentController::class, 'pay'])->name('afripay.callback');
 
-//---------------------------- ADMIN --------------------------------
+//---------------------------- ADMIN ---------------------------------
 
 Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('dashboard', AdminController::class);
@@ -126,10 +126,11 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::get('/rate', [RateController::class, 'index']);
     Route::get('/referrals/{id}', [sharedlinkController::class, 'referral'])->name('referrals');
     Route::get('/offer/bonus/{id}', [sharedlinkController::class, 'bonus'])->name('bonus');
+    Route::resource('wallet', walletController::class);
 });
 
 
-Route::resource('wallet', walletController::class);
+
 Route::resource('advert', AdvertsController::class);
 Route::resource('update', UpdatesController::class);
 Route::resource('socialmedia', socialmediaController::class);
