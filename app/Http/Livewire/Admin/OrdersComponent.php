@@ -73,28 +73,6 @@ class OrdersComponent extends Component
           
    }
     
-    // public function updatedKeyword(){
-    //     dd("hello");
-    //     //  if(isset($this->keyword) && $this->keyword!= ''){
-        
-    //     // }
-    //     // else{
-    //     //   $this->orders = order::join('users', 'orders.user_id', '=', 'users.id')
-    //     // ->join('services', 'orders.service_id', '=', 'services.id')
-    //     // ->join('categories', 'services.category_id', '=', 'categories.id')
-    //     // ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-    //     // ->select('orders.*', 'users.name', 'users.email', 'socialmedia.socialmedia', 'categories.category', 'services.service', 'services.rate_per_1000', 'services.serviceId')
-    //     //  ->orderBy('orders.id', 'DESC')
-    //     //  ->paginate(100);
-
-    //     //  $this->ordersCounter = order::join('users', 'orders.user_id', '=', 'users.id')
-    //     //  ->join('services', 'orders.service_id', '=', 'services.id')
-    //     //  ->join('categories', 'services.category_id', '=', 'categories.id')
-    //     //  ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-    //     //  ->count();  
-    //     // }
-    // }
-    
     public function render()
     {
          if(isset($this->keyword) && $this->keyword != ''){
@@ -108,14 +86,6 @@ class OrdersComponent extends Component
          ->orWhere('users.name', 'LIKE', '%' . $this->keyword . '%')
          ->orWhere('users.email', 'LIKE', '%' . $this->keyword . '%')
          ->orWhere('orders.link', $this->keyword)
-        //  ->orWhere('users.email', $this->keyword)
-        //   ->orWhere('socialmedia.socialmedia', $this->keyword)
-        //   ->orWhere('categories.category', $this->keyword)
-        //  ->orWhere('services.service', $this->keyword)
-      
-        //   ->orWhere('orders.status', $this->keyword)
-        //   ->orWhere('orders.created_at', $this->keyword)
-        //   ->orWhere('orders.updated_at', $this->keyword)
          ->orderBy('orders.id', 'DESC')
          ->paginate(100); 
          
@@ -295,7 +265,7 @@ class OrdersComponent extends Component
         ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
         ->select('orders.*', 'users.name', 'users.email', 'socialmedia.socialmedia', 'categories.category', 'services.service', 'services.source_id', 'sources.api_source', 'services.rate_per_1000', 'services.serviceId')
          ->orderBy('orders.id', 'DESC')
-         ->paginate(100);
+         ->paginate(50);
          
          $ordersCounter = order::join('users', 'orders.user_id', '=', 'users.id')
          ->join('services', 'orders.service_id', '=', 'services.id')
