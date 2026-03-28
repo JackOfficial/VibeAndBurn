@@ -13,7 +13,7 @@ class ChangeMoneyToDecimalInWalletsTable extends Migration
      */
     public function up()
     {
-        Schema::table('decimal_in_wallets', function (Blueprint $table) {
+        Schema::table('wallets', function (Blueprint $table) {
             $table->decimal('money', 19, 8)->default(0)->change();
         });
     }
@@ -25,7 +25,7 @@ class ChangeMoneyToDecimalInWalletsTable extends Migration
      */
     public function down()
     {
-        Schema::table('decimal_in_wallets', function (Blueprint $table) {
+        Schema::table('wallets', function (Blueprint $table) {
             $table->string('money')->default('0')->change();
         });
     }
