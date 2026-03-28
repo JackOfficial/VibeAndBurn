@@ -14,7 +14,7 @@ use App\Http\Controllers\subscriptionController;
 use App\Http\Controllers\addFundController;
 use App\Http\Controllers\newOrderController;
 use App\Http\Controllers\ajaxController;
-use App\Http\Controllers\orderController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\clientOrdersController;
 use App\Http\Controllers\approveOrderController;
 use App\Http\Controllers\faqsController;
@@ -59,7 +59,6 @@ Route::resource('contactus', contactusController::class);
 Route::resource('faq', faqController::class);
 Route::resource('aboutus', aboutUsController::class);
 
-Route::get('/testBulkmedya', [orderController::class, 'testBulkmedya']); //for testing purpose
 Route::resource('faqs', faqsController::class);
 Route::get('/sharelink/{id}', [pagesController::class, 'sharelink'])->name('sharelink');
 Route::get('payment', [paymentController::class, 'payment'])->name('payment');
@@ -80,7 +79,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('addFund', addFundController::class);
     Route::resource('newOrder', newOrderController::class);
     Route::resource('profile', ProfilesController::class);
-    Route::resource('order', orderController::class);
+    Route::resource('order', OrderController::class);
     Route::get('/terms-police', [pagesController::class, 'termsAndConditions']);
     Route::post('/payInRwanda', [pagesController::class, 'payInRwanda']);
     Route::get('/payInBurundi', [pagesController::class, 'payInBurundi']);
@@ -88,7 +87,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('ourservices', [pagesController::class, 'services'])->name('ourservices');
     Route::get('/mybonus', [sharedlinkController::class, 'mybonus'])->name('mybonus');
     Route::get('/cleambonus', [sharedlinkController::class, 'cleambonus'])->name('cleambonus');
-    Route::get('/testOrder', [orderController::class, 'testOrder']);
     
     // This is the route for the individual ticket view we just built
     Route::get('/support/ticket/{id}', function ($id) {
