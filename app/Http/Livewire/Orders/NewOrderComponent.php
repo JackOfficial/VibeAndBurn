@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Orders;
 
+use App\Http\Controllers\OrderController;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Models\wallet;
@@ -174,7 +175,7 @@ class NewOrderComponent extends Component
 
             // 5. API Logic
             if ($service->serviceId) {
-                $apiController = new \App\Http\Controllers\OrderController();
+                $apiController = new OrderController();
                 
                 /**
                  * We pass 'this' because the Controller's sendApiOrder 
