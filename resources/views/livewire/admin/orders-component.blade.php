@@ -93,7 +93,7 @@
                                             </td>
 
                                             <td>
-                                                <span class="font-weight-bold d-block text-dark">#{{ $order->orderId ?? 'N/A' }} | <strong>{{ $order->service_id ?? 'N/A' }}</strong></span>
+                                                <span class="font-weight-bold d-block text-dark">#{{ $order->service->source->api_source == "MINE" ? '' : $order->orderId . '|' }} <strong>{{ $order->service_id ?? 'N/A' }}</strong></span>
                                                 @if($order->service && $order->service->source)
                                                     <span class="badge badge-pill text-uppercase" style="background: rgba(121, 70, 233, 0.1); color: #7946E9; font-size: 8px;">
                                                         {{ $order->service->source->api_source }}
