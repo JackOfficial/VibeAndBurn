@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Getservices;
 use Illuminate\Support\Facades\Http;
 
-class ServicesAPI extends Command
+class ServicesApi extends Command
 {
     protected $signature = 'bulkfollows:services';
     protected $description = 'Fetch and sync Bulkfollows services to the database';

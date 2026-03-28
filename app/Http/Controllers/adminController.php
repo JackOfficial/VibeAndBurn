@@ -10,7 +10,7 @@ use App\Models\subscription;
 use App\Models\fund;
 use Illuminate\Support\Facades\Auth;
 
-class AdminController extends Controller
+class adminController extends Controller
 {
     public function index()
     {
