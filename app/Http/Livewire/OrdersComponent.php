@@ -9,155 +9,33 @@ use Illuminate\Support\Facades\Auth;
 class OrdersComponent extends Component
 {
     public $filter = "All";
-    
+
     public function render()
     {
-       switch($this->filter){
-                case "All":
-                $userID = Auth::user()->id;
-       $orders = order::join('users', 'orders.user_id', '=', 'users.id')
-       ->join('services', 'orders.service_id', '=', 'services.id')
-       ->join('categories', 'services.category_id', '=', 'categories.id')
-       ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-       ->where('users.id', '=', $userID)
-       ->select('orders.*', 'services.service', 'services.rate_per_1000',  'users.name', 'users.email', 'socialmedia.socialmedia', 'categories.category')
-        ->orderBy('orders.id', 'DESC')
-        ->get();
+        // 1. Map filter names to status IDs
+        $statusMap = [
+            "Completed"   => 1,
+            "Canceled"    => 2,
+            "Processing"  => 3,
+            "In progress" => 4,
+            "Partial"     => 5,
+        ];
 
-        $ordersCounter = order::join('users', 'orders.user_id', '=', 'users.id')
-        ->join('services', 'orders.service_id', '=', 'services.id')
-        ->join('categories', 'services.category_id', '=', 'categories.id')
-        ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-        ->where('users.id', '=', $userID)
-        ->count();
-        break;
-        
-         case "Completed":
-                $userID = Auth::user()->id;
-       $orders = order::join('users', 'orders.user_id', '=', 'users.id')
-       ->join('services', 'orders.service_id', '=', 'services.id')
-       ->join('categories', 'services.category_id', '=', 'categories.id')
-       ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-       ->where('users.id', '=', $userID)
-       ->where('orders.status', 1)
-       ->select('orders.*', 'services.service', 'services.rate_per_1000',  'users.name', 'users.email', 'socialmedia.socialmedia', 'categories.category')
-        ->orderBy('orders.id', 'DESC')
-        ->get();
+        // 2. Start the base query scoped to the current user
+        // We use 'with' for Eager Loading instead of joins
+        $query = order::where('user_id', Auth::id())
+            ->with(['service.category.socialmedia'])
+            ->latest('id');
 
-        $ordersCounter = order::join('users', 'orders.user_id', '=', 'users.id')
-        ->join('services', 'orders.service_id', '=', 'services.id')
-        ->join('categories', 'services.category_id', '=', 'categories.id')
-        ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-        ->where('orders.status', 1)
-        ->where('users.id', '=', $userID)
-        ->count();
-        break;
-        
-        case "Processing":
-                $userID = Auth::user()->id;
-       $orders = order::join('users', 'orders.user_id', '=', 'users.id')
-       ->join('services', 'orders.service_id', '=', 'services.id')
-       ->join('categories', 'services.category_id', '=', 'categories.id')
-       ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-       ->where('users.id', '=', $userID)
-       ->where('orders.status', 3)
-       ->select('orders.*', 'services.service', 'services.rate_per_1000',  'users.name', 'users.email', 'socialmedia.socialmedia', 'categories.category')
-        ->orderBy('orders.id', 'DESC')
-        ->get();
+        // 3. Apply status filter if it's not "All"
+        if (isset($statusMap[$this->filter])) {
+            $query->where('status', $statusMap[$this->filter]);
+        }
 
-        $ordersCounter = order::join('users', 'orders.user_id', '=', 'users.id')
-        ->join('services', 'orders.service_id', '=', 'services.id')
-        ->join('categories', 'services.category_id', '=', 'categories.id')
-        ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-        ->where('orders.status', 3)
-        ->where('users.id', '=', $userID)
-        ->count();
-        break;
-        
-         case "In progress":
-                $userID = Auth::user()->id;
-       $orders = order::join('users', 'orders.user_id', '=', 'users.id')
-       ->join('services', 'orders.service_id', '=', 'services.id')
-       ->join('categories', 'services.category_id', '=', 'categories.id')
-       ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-       ->where('users.id', '=', $userID)
-       ->where('orders.status', 4)
-       ->select('orders.*', 'services.service', 'services.rate_per_1000',  'users.name', 'users.email', 'socialmedia.socialmedia', 'categories.category')
-        ->orderBy('orders.id', 'DESC')
-        ->get();
+        // 4. Final Execution
+        $orders = $query->get();
+        $ordersCounter = $orders->count();
 
-        $ordersCounter = order::join('users', 'orders.user_id', '=', 'users.id')
-        ->join('services', 'orders.service_id', '=', 'services.id')
-        ->join('categories', 'services.category_id', '=', 'categories.id')
-        ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-        ->where('orders.status', 4)
-        ->where('users.id', '=', $userID)
-        ->count();
-        break;
-        
-         case "Partial":
-                $userID = Auth::user()->id;
-       $orders = order::join('users', 'orders.user_id', '=', 'users.id')
-       ->join('services', 'orders.service_id', '=', 'services.id')
-       ->join('categories', 'services.category_id', '=', 'categories.id')
-       ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-       ->where('users.id', '=', $userID)
-       ->where('orders.status', 5)
-       ->select('orders.*', 'services.service', 'services.rate_per_1000',  'users.name', 'users.email', 'socialmedia.socialmedia', 'categories.category')
-        ->orderBy('orders.id', 'DESC')
-        ->get();
-
-        $ordersCounter = order::join('users', 'orders.user_id', '=', 'users.id')
-        ->join('services', 'orders.service_id', '=', 'services.id')
-        ->join('categories', 'services.category_id', '=', 'categories.id')
-        ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-        ->where('orders.status', 5)
-        ->where('users.id', '=', $userID)
-        ->count();
-        break;
-        
-        case "Canceled":
-                $userID = Auth::user()->id;
-       $orders = order::join('users', 'orders.user_id', '=', 'users.id')
-       ->join('services', 'orders.service_id', '=', 'services.id')
-       ->join('categories', 'services.category_id', '=', 'categories.id')
-       ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-       ->where('users.id', '=', $userID)
-       ->where('orders.status', 2)
-       ->select('orders.*', 'services.service', 'services.rate_per_1000',  'users.name', 'users.email', 'socialmedia.socialmedia', 'categories.category')
-        ->orderBy('orders.id', 'DESC')
-        ->get();
-
-        $ordersCounter = order::join('users', 'orders.user_id', '=', 'users.id')
-        ->join('services', 'orders.service_id', '=', 'services.id')
-        ->join('categories', 'services.category_id', '=', 'categories.id')
-        ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-        ->where('orders.status', 2)
-        ->where('users.id', '=', $userID)
-        ->count();
-        break;
-        
-        default:
-                $userID = Auth::user()->id;
-       $orders = order::join('users', 'orders.user_id', '=', 'users.id')
-       ->join('services', 'orders.service_id', '=', 'services.id')
-       ->join('categories', 'services.category_id', '=', 'categories.id')
-       ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-       ->where('users.id', '=', $userID)
-       ->select('orders.*', 'services.service', 'services.rate_per_1000',  'users.name', 'users.email', 'socialmedia.socialmedia', 'categories.category')
-        ->orderBy('orders.id', 'DESC')
-        ->get();
-
-        $ordersCounter = order::join('users', 'orders.user_id', '=', 'users.id')
-        ->join('services', 'orders.service_id', '=', 'services.id')
-        ->join('categories', 'services.category_id', '=', 'categories.id')
-        ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-        ->where('users.id', '=', $userID)
-        ->count();
-        break;
-                  
-            }
-       
         return view('livewire.orders-component', compact('orders', 'ordersCounter'));
     }
 }

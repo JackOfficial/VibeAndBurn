@@ -50,33 +50,48 @@
                         @forelse ($orders as $order)
                         <tr class="align-middle">
                             <td class="pl-4"><span class="font-weight-bold text-dark">#{{ $order->id }}</span></td>
-                            <td class="text-nowrap">{{ $order->created_at->format('d M, Y') }}<br><small class="text-soft">{{ $order->created_at->format('H:i') }}</small></td>
+                            <td class="text-nowrap">
+                                {{ $order->created_at->format('d M, Y') }}<br>
+                                <small class="text-soft">{{ $order->created_at->format('H:i') }}</small>
+                            </td>
                             <td style="max-width: 150px;">
                                 <a href="{{ $order->link }}" target="_blank" class="text-primary text-truncate d-block" title="{{ $order->link }}">
                                     {{ str_replace(['https://', 'http://'], '', $order->link) }}
                                 </a>
                             </td>
-                            <td class="font-weight-bold text-dark">${{ number_format((float)$order->charge, 3) }}</td>
-                            <td>{{ number_format((int)$order->quantity) }}</td>
+                            <td class="font-weight-bold text-dark">${{ number_format((float)($order->charge ?? 0), 3) }}</td>
+                            <td>{{ number_format((int)($order->quantity ?? 0)) }}</td>
+                            
+                            {{-- Eloquent Relationship Access --}}
                             <td style="max-width: 200px;">
-                                <span class="d-block text-dark font-weight-bold text-truncate">{{ $order->service }}</span>
-                                <span class="badge badge-dim badge-light text-soft" style="font-size: 10px;">{{ $order->socialmedia }} - {{ $order->category }}</span>
+                                <span class="d-block text-dark font-weight-bold text-truncate" title="{{ $order->service->service ?? 'N/A' }}">
+                                    {{ $order->service->service ?? 'Service Deleted' }}
+                                </span>
+                                @if($order->service && $order->service->category)
+                                    <span class="badge badge-dim badge-light text-soft" style="font-size: 10px;">
+                                        {{ $order->service->category->socialmedia->socialmedia ?? '' }} - {{ $order->service->category->category }}
+                                    </span>
+                                @endif
                             </td>
-                            <td>${{ number_format((float)$order->rate_per_1000, 2) }}</td>
-                            <td class="text-soft">{{ number_format((int)$order->start_count) }}</td>
-                            <td class="text-danger">{{ number_format((int)$order->remains) }}</td>
+
+                            <td>${{ number_format((float)($order->service->rate_per_1000 ?? 0), 2) }}</td>
+                            <td class="text-soft">{{ number_format((int)($order->start_count ?? 0)) }}</td>
+                            <td class="text-danger">{{ number_format((int)($order->remains ?? 0)) }}</td>
+                            
                             <td>
                                 @php
-                                    $statusMap = [
+                                    $statusConfig = match($order->status) {
                                         0 => ['class' => 'badge-warning', 'label' => 'Pending'],
                                         1 => ['class' => 'badge-success', 'label' => 'Completed'],
                                         2 => ['class' => 'badge-danger', 'label' => 'Reversed'],
                                         3 => ['class' => 'badge-info', 'label' => 'Processing'],
                                         4 => ['class' => 'badge-primary', 'label' => 'In Progress'],
-                                    ];
-                                    $status = $statusMap[$order->status] ?? ['class' => 'badge-secondary', 'label' => 'Partial'];
+                                        default => ['class' => 'badge-secondary', 'label' => 'Partial'],
+                                    };
                                 @endphp
-                                <span class="badge badge-dot {{ $status['class'] }}">{{ $status['label'] }}</span>
+                                <span class="badge badge-dot {{ $statusConfig['class'] }}">
+                                    {{ $statusConfig['label'] }}
+                                </span>
                             </td>
                         </tr>
                         @empty
