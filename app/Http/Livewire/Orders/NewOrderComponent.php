@@ -175,7 +175,6 @@ class NewOrderComponent extends Component
 
             // 5. API Logic
             if ($service->serviceId) {
-              dd(class_exists('App\Http\Controllers\OrderController'));
                 $apiController = new OrderController();
                 
                 /**
