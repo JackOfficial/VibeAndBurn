@@ -197,7 +197,7 @@
           <!-- /.col -->
         </div>
         
-        {{ $orders->links() }}
+        {!! $orders->links() !!}
         
         <!-- /.row -->
       </div>

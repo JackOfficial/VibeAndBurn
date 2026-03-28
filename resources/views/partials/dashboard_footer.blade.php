@@ -21,7 +21,6 @@
                         <em class="icon ni ni-facebook-circle"></em>
                     </a>
                 </li>
-
                 {{-- Twitter/X --}}
                 <li class="nav-item">
                     <a class="nav-link text-dark" href="https://twitter.com/share?url={{ $shareUrl }}&text={{ $shareText }}" target="_blank">
