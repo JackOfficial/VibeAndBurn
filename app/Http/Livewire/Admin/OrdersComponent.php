@@ -4,7 +4,7 @@ namespace App\Http\Livewire\Admin;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\order; // Capitalized class names (PSR-4 standard)
+use App\Models\order; 
 use App\Models\fund;
 use App\Models\User;
 
@@ -18,7 +18,7 @@ class OrdersComponent extends Component
 
     protected $paginationTheme = 'bootstrap';
     
-    // Reset pagination when searching or filtering
+    // Ensures search results start from page 1
     public function updatingKeyword() { $this->resetPage(); }
     public function updatingFilterStatus() { $this->resetPage(); }
 
@@ -26,12 +26,12 @@ class OrdersComponent extends Component
     {
         $user = User::findOrFail($userId);
         
-        // Optimized sum: doing it in SQL is 100x faster than a foreach loop
+        // SQL-based summing is much more efficient
         $sum = order::where('user_id', $userId)->sum('charge');
-        $fund = fund::where('user_id', $userId)->sum('amount');
-        $remain = $fund - $sum;
+        $fundAmount = fund::where('user_id', $userId)->sum('amount');
+        $remain = $fundAmount - $sum;
         
-        session()->flash("breathDetails", "The total funds paid by {$user->name} is: {$fund}, the total amount charged: {$sum} and the balance should be: {$remain}");
+        session()->flash("breathDetails", "The total funds paid by {$user->name} is: {$fundAmount}, the total amount charged: {$sum} and the balance should be: {$remain}");
     }
     
     public function changeStatus($orderId)
@@ -45,42 +45,40 @@ class OrdersComponent extends Component
             ];
             
             $feedback = "This order marked " . ($statuses[$this->status] ?? 'updated') . "!";
-                
             $this->dispatchBrowserEvent('toastr:success', ['message' => $feedback]);
         }
     }
     
     public function render()
-{
-    $query = Order::with([
-        'user', 
-        'service.category.socialmedia', 
-        'service.source'
-    ]);
+    {
+        // 1. Eloquent Eager Loading
+        $query = order::with([
+            'user', 
+            'service.category.socialmedia', 
+            'service.source'
+        ]);
 
-    // 2. Apply Search Logic
-    if (!empty($this->keyword)) {
-        $query->where(function($q) {
-            $q->where('id', $this->keyword)
-              ->orWhere('link', 'LIKE', '%' . $this->keyword . '%')
-              ->orWhereHas('user', function($userQuery) {
-                  $userQuery->where('name', 'LIKE', '%' . $this->keyword . '%')
-                            ->orWhere('email', 'LIKE', '%' . $this->keyword . '%');
-              });
-        });
+        // 2. Search Logic (including relationships)
+        if (!empty($this->keyword)) {
+            $query->where(function($q) {
+                $q->where('id', $this->keyword)
+                  ->orWhere('link', 'LIKE', '%' . $this->keyword . '%')
+                  ->orWhereHas('user', function($userQuery) {
+                      $userQuery->where('name', 'LIKE', '%' . $this->keyword . '%')
+                                ->orWhere('email', 'LIKE', '%' . $this->keyword . '%');
+                  });
+            });
+        }
+
+        // 3. Filter Logic
+        if ($this->filterStatus !== null && $this->filterStatus !== "") {
+            $query->where('status', $this->filterStatus);
+        }
+
+        // 4. Final Execution
+        $ordersCounter = $query->count();
+        $orders = $query->latest('id')->paginate(100);
+
+        return view('livewire.admin.orders-component', compact('orders', 'ordersCounter'));
     }
-
-    // 3. Apply Filter Logic
-    if ($this->filterStatus !== null && $this->filterStatus !== "") {
-        $query->where('status', $this->filterStatus);
-        
-        $this->dispatchBrowserEvent('toastr:success', ['message' => "Filter applied!"]);
-    }
-
-    // 4. Execution
-    $ordersCounter = $query->count();
-    $orders = $query->latest('id')->paginate(100);
-
-    return view('livewire.admin.orders-component', compact('orders', 'ordersCounter'));
-}
 }
