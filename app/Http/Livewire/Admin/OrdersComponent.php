@@ -17,6 +17,8 @@ class OrdersComponent extends Component
     public $status;
     public $filterStatus;
     public $thespent, $thefund;
+
+    protected $paginationTheme = 'bootstrap';
     
     public function mount(){
          
