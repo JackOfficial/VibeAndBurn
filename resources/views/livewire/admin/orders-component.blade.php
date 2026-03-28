@@ -119,19 +119,34 @@
     </div>
 </td>
 
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar-sm mr-2 bg-light text-primary d-flex align-items-center justify-content-center rounded-circle" style="width: 32px; height: 32px; font-size: 12px; font-weight: bold;">
-                                                        {{ strtoupper(substr($order->user->name ?? 'U', 0, 1)) }}
-                                                    </div>
-                                                    <div>
-                                                        <a href="javascript:void(0)" wire:click="userWalletDetails({{ $order->user_id }})" class="text-dark font-weight-bold d-block mb-0" style="font-size: 0.9rem;">
-                                                            {{ Str::limit($order->user->name ?? 'Deleted', 15) }}
-                                                        </a>
-                                                        <small class="text-muted">{{ Str::limit($order->user->email ?? '', 20) }}</small>
-                                                    </div>
-                                                </div>
-                                            </td>
+       <td>
+    <div class="d-flex align-items-center">
+        {{-- Avatar Section --}}
+        <div class="avatar-sm mr-2 bg-light text-primary d-flex align-items-center justify-content-center rounded-circle" 
+             style="width: 32px; height: 32px; font-size: 12px; font-weight: bold; overflow: hidden;">
+            
+            @if($order->user && $order->user->avatar)
+                {{-- Show Socialite/Google Avatar --}}
+                <img src="{{ $order->user->avatar }}" 
+                     alt="{{ $order->user->name }}" 
+                     style="width: 100%; height: 100%; object-fit: cover;">
+            @else
+                {{-- Fallback to First Letter --}}
+                {{ strtoupper(substr($order->user->name ?? 'U', 0, 1)) }}
+            @endif
+            
+        </div>
+
+        {{-- User Info Section --}}
+        <div>
+            <a href="javascript:void(0)" wire:click="userWalletDetails({{ $order->user_id }})" 
+               class="text-dark font-weight-bold d-block mb-0" style="font-size: 0.9rem;">
+                {{ Str::limit($order->user->name ?? 'Deleted', 15) }}
+            </a>
+            <small class="text-muted">{{ Str::limit($order->user->email ?? '', 20) }}</small>
+        </div>
+    </div>
+</td>
 
                                             <td x-data="{ copied: false }">
                                                 <span class="d-block text-truncate text-dark mb-1" style="max-width: 200px; font-size: 0.85rem;" title="{{ $order->service->service ?? '' }}">
