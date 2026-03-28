@@ -78,22 +78,26 @@
                             <td class="text-soft">{{ number_format((int)($order->start_count ?? 0)) }}</td>
                             <td class="text-danger">{{ number_format((int)($order->remains ?? 0)) }}</td>
                             
-                            <td>
-                                @php
-                                    $statusConfig = match($order->status) {
-                                        0 => ['class' => 'badge-warning', 'label' => 'Pending'],
-                                        1 => ['class' => 'badge-success', 'label' => 'Completed'],
-                                        2 => ['class' => 'badge-danger', 'label' => 'Reversed'],
-                                        3 => ['class' => 'badge-info', 'label' => 'Processing'],
-                                        4 => ['class' => 'badge-primary', 'label' => 'In Progress'],
-                                        default => ['class' => 'badge-secondary', 'label' => 'Partial'],
-                                    };
-                                @endphp
-                                <span class="badge badge-dot {{ $statusConfig['class'] }}">
-                                    {{ $statusConfig['label'] }}
-                                </span>
-                                
-                            </td>
+                           <td>
+    @php
+        // Casting to (int) ensures '1' (string) matches 1 (integer)
+        $statusValue = (int)$order->status;
+
+        $statusConfig = match($statusValue) {
+            0 => ['class' => 'badge-warning', 'label' => 'Pending'],
+            1 => ['class' => 'badge-success', 'label' => 'Completed'],
+            2 => ['class' => 'badge-danger', 'label' => 'Reversed'],
+            3 => ['class' => 'badge-info', 'label' => 'Processing'],
+            4 => ['class' => 'badge-primary', 'label' => 'In Progress'],
+            5 => ['class' => 'badge-secondary', 'label' => 'Partial'],
+            default => ['class' => 'badge-dark', 'label' => 'Unknown (' . $statusValue . ')'],
+        };
+    @endphp
+
+    <span class="badge badge-dot {{ $statusConfig['class'] }}">
+        {{ $statusConfig['label'] }}
+    </span>
+</td>
                         </tr>
                         @empty
                         <tr>
