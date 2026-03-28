@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\order; 
 use App\Models\fund;
 use App\Models\User;
+use App\Models\wallet;
 use Illuminate\Support\Facades\DB;
 
 class OrdersComponent extends Component
