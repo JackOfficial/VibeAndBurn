@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\order; 
 use App\Models\fund;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class OrdersComponent extends Component
 {
@@ -21,6 +22,48 @@ class OrdersComponent extends Component
     // Ensures search results start from page 1
     public function updatingKeyword() { $this->resetPage(); }
     public function updatingFilterStatus() { $this->resetPage(); }
+
+    /**
+     * Refunding the money back to the user
+     */
+   public function reverseOrder($orderId)
+{
+    // 1. Find the order
+    $order = order::findOrFail($orderId);
+
+    // 2. Prevent double refunding (Status 2 = Reversed)
+    if ((int)$order->status === 2) {
+        $this->dispatchBrowserEvent('toastr:info', ['message' => 'This order was already reversed.']);
+        return;
+    }
+
+    try {
+        DB::transaction(function () use ($order) {
+            // 3. Mark Order as Reversed in the orders table
+            $order->update(['status' => 2]);
+
+            $wallet = wallet::where('user_id', $order->user_id)->firstOrFail();
+            $wallet->increment('money', $order->charge);
+
+            // 5. Create a record in your 'funds' table for the user's history
+            fund::create([
+                'user_id'  => $order->user_id,
+                'method'   => 'Refund',
+                'amount'   => $order->charge,
+                'Payedwith' => 'Order #' . $order->id, // Tracking source of refund
+            ]);
+        });
+
+        $this->dispatchBrowserEvent('toastr:success', [
+            'message' => "Success: Order #{$orderId} reversed and funds returned!"
+        ]);
+        
+    } catch (\Exception $e) {
+        $this->dispatchBrowserEvent('toastr:error', [
+            'message' => 'Refund failed: ' . $e->getMessage()
+        ]);
+    }
+}
 
     public function userWalletDetails($userId)
     {
