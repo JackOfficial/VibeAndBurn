@@ -140,4 +140,5 @@ class OrderController extends Controller
             return redirect()->back()->with('approveOrderSucces', 'Order reversed and funds returned!');
         });
     }
+
 }
