@@ -81,7 +81,7 @@
                            <td>
     @php
         // Casting to (int) ensures '1' (string) matches 1 (integer)
-        $statusValue = (int)$order->status;
+        $statusValue = (int) $order->status;
 
         $statusConfig = match($statusValue) {
             0 => ['class' => 'badge-warning', 'label' => 'Pending'],
