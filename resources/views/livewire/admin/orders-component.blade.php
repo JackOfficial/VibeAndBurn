@@ -92,16 +92,32 @@
                                                 </div>
                                             </td>
 
-                                            <td>
-                                                <span class="font-weight-bold d-block text-dark">#{{ $order->service->source->api_source == "MINE" ? '' : $order->orderId . '|' }} <strong>{{ $order->service_id ?? 'N/A' }}</strong></span>
-                                                @if($order->service && $order->service->source)
-                                                    <span class="badge badge-pill text-uppercase" style="background: rgba(121, 70, 233, 0.1); color: #7946E9; font-size: 8px;">
-                                                        {{ $order->service->source->api_source }}
-                                                    </span>
-                                                @else
-                                                    <span class="badge badge-pill badge-light text-muted" style="font-size: 8px;">MANUAL</span>
-                                                @endif
-                                            </td>
+                                           <td>
+    <div class="d-flex flex-column">
+        {{-- Internal DB ID --}}
+        <span class="text-dark font-weight-bold" style="font-size: 0.9rem;">
+            ID: #{{ $order->id }}
+        </span>
+
+        {{-- API Order ID (Only if not "MINE" and exists) --}}
+        @if($order->service && $order->service->source && $order->service->source->api_source !== "MINE" && $order->orderId)
+            <span class="text-muted small" style="font-size: 0.75rem;">
+                <i class="fas fa-plug mr-1"></i>API: {{ $order->orderId }}
+            </span>
+        @endif
+
+        {{-- Source Badge --}}
+        <div class="mt-1">
+            @if($order->service && $order->service->source)
+                <span class="badge badge-pill text-uppercase" style="background: rgba(121, 70, 233, 0.1); color: #7946E9; font-size: 8px; letter-spacing: 0.5px;">
+                    {{ $order->service->source->api_source }}
+                </span>
+            @else
+                <span class="badge badge-pill badge-light text-muted" style="font-size: 8px;">MANUAL</span>
+            @endif
+        </div>
+    </div>
+</td>
 
                                             <td>
                                                 <div class="d-flex align-items-center">
