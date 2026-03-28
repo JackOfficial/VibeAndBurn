@@ -129,10 +129,6 @@
                                         
                                         <button type="submit" wire:loading.attr="disabled" class="btn btn-lg btn-block btn-primary">
                                             <span wire:loading.remove wire:target="store">Submit Order</span>
-                                            <span wire:loading wire:target="store">
-                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                Processing...
-                                            </span>
                                         </button>
                                     </div>
 
