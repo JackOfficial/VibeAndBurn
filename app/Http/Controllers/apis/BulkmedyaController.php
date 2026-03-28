@@ -9,7 +9,11 @@ class BulkmedyaController extends Controller
 {
     /** API Configuration */
     public $api_url = 'https://bulkmedya.org/api/v2';
-    public $api_key = '8f75c5fd9f190968c49189e34523ca68';
+    public $api_key;
+
+    public function __construct() {
+    $this->api_key = config('services.bulkmedya.key');
+    }
 
     /** Add order */
     public function order($data)
@@ -78,20 +82,25 @@ class BulkmedyaController extends Controller
      * Optimized Request logic using Laravel HTTP Facade
      * Replaces the manual cURL 'connect' function
      */
-    private function request($params)
+   private function request($params)
     {
         $params['key'] = $this->api_key;
 
-        $response = Http::asForm()
-            ->timeout(30)   // Important for shared hosting stability
-            ->retry(3, 200) // Tries 3 times if there is a minor network hiccup
-            ->withUserAgent('Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)')
-            ->post($this->api_url, $params);
+        try {
+            $response = Http::asForm()
+                ->timeout(30)
+                ->retry(2, 100) // Slightly lower retry to keep user experience fast
+                ->withUserAgent('Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)')
+                ->post($this->api_url, $params);
 
-        if ($response->successful()) {
-            return $response->object(); // Automatically decodes JSON to object
+            // Even if the API returns an error (400, 422), it usually returns a JSON 
+            // error message like {"error": "Insufficient balance"}. 
+            // We want to return that object so the Controller can read it.
+            return $response->object();
+
+        } catch (\Exception $e) {
+            // This only triggers if the website is DOWN or the connection timed out
+            return (object) ['error' => 'API Connection Timeout or Provider Offline'];
         }
-
-        return false;
     }
 }

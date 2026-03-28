@@ -9,6 +9,9 @@ use Illuminate\Queue\Events\JobProcessing;
 use App\models\broadcast;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
+use App\Models\order;
+use App\Models\User;
+use App\Observers\OrderObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,5 +49,10 @@ class AppServiceProvider extends ServiceProvider
             //     'status' => 1
             // ]);
         });
+
+        User::observe(\App\Observers\UserObserver::class);
+    
+         // New Order Observer
+        order::observe(OrderObserver::class);
     }
 }

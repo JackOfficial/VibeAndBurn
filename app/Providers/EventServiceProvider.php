@@ -14,6 +14,8 @@ use App\Events\Payment\TransactionRefunded;
 use App\Listeners\Payment\TransactionRefundedListener;
 use App\Events\Payment\TransactionFailed;
 use App\Listeners\Payment\TransactionFailedListener;
+use App\Models\User;
+use App\Observers\UserObserver;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -47,6 +49,6 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        User::observe(UserObserver::class);
     }
 }

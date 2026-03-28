@@ -9,7 +9,13 @@ class AmazingController extends Controller
 {
     /** API Configuration */
     public $api_url = 'https://amazingsmm.com/api/v2';
-    public $api_key = '11869251df2088b9de12cf0d1b77160b';
+    public $api_key;
+
+    public function __construct() 
+    {
+        // Pulled from config/services.php
+        $this->api_key = config('services.amazing.key');
+    }
 
     /** Add order */
     public function order($data)
@@ -53,13 +59,13 @@ class AmazingController extends Controller
     /** Get refill status */
     public function refillStatus(int $refillId)
     {
-        return $this->request(['action' => 'refill_status', 'refill' => $refillId]);
+         return $this->request(['action' => 'refill_status', 'refill' => $refillId]);
     }
 
     /** Get refill statuses */
     public function multiRefillStatus(array $refillIds)
     {
-        return $this->request(['action' => 'refill_status', 'refills' => implode(',', $refillIds)]);
+         return $this->request(['action' => 'refill_status', 'refills' => implode(',', $refillIds)]);
     }
 
     /** Cancel orders */
@@ -75,23 +81,25 @@ class AmazingController extends Controller
     }
 
     /**
-     * Optimized Centralized Request logic
-     * Replaces the manual cURL 'connect' function
+     * Optimized Request logic
      */
     private function request($params)
     {
         $params['key'] = $this->api_key;
 
-        $response = Http::asForm()
-            ->timeout(25) // Prevent script hanging on Namecheap
-            ->retry(2, 100) // Automatically retry once if connection glitched
-            ->withUserAgent('Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)')
-            ->post($this->api_url, $params);
+        try {
+            $response = Http::asForm()
+                ->timeout(25) 
+                ->retry(2, 100) 
+                ->withUserAgent('Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)')
+                ->post($this->api_url, $params);
 
-        if ($response->successful()) {
-            return $response->object(); // Decodes JSON into object automatically
+            // Always return the object so OrderController can check for errors
+            return $response->object();
+
+        } catch (\Exception $e) {
+            // Fallback object for network timeouts
+            return (object) ['error' => 'Amazing SMM API Connection Timeout'];
         }
-
-        return false;
     }
 }

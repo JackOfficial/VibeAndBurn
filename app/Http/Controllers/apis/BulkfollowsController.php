@@ -9,7 +9,12 @@ class BulkfollowsController extends Controller
 {
     /** API Configuration */
     public $api_url = 'https://bulkfollows.com/api/v2';
-    public $api_key = '1b87dc445d0c29c2c2f30c7899adfc89';
+    public $api_key;
+
+    public function __construct() 
+    {
+        $this->api_key = config('services.bulkfollows.key');
+    }
 
     /** Add order */
     public function order($data)
@@ -75,23 +80,25 @@ class BulkfollowsController extends Controller
     }
 
     /**
-     * Optimized Request logic using Laravel HTTP Facade
-     * Replaces the manual cURL 'connect' function
+     * Optimized Request logic
      */
     private function request($params)
     {
         $params['key'] = $this->api_key;
 
-        $response = Http::asForm()
-            ->timeout(30) // Prevents script hanging on Namecheap shared hosting
-            ->retry(3, 200) // Tries 3 times if there is a network glitch
-            ->withUserAgent('Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)')
-            ->post($this->api_url, $params);
+        try {
+            $response = Http::asForm()
+                ->timeout(30) 
+                ->retry(2, 100) 
+                ->withUserAgent('Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)')
+                ->post($this->api_url, $params);
 
-        if ($response->successful()) {
-            return $response->object(); // Returns as a PHP object
+            // Returns the provider's JSON as an object (including their error messages)
+            return $response->object();
+
+        } catch (\Exception $e) {
+            // Catches connection timeouts or DNS issues
+            return (object) ['error' => 'Bulkfollows API Connection Timeout'];
         }
-
-        return false;
     }
 }

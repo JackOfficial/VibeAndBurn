@@ -70,4 +70,9 @@ public function getBalanceAttribute()
     return $this->wallet ? $this->wallet->money : 0.00000000;
 }
 
+public function referrer()
+{
+    return $this->belongsTo(User::class, 'linkOwner');
+}
+
 }

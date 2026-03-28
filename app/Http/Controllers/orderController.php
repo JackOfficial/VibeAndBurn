@@ -27,7 +27,6 @@ class OrderController extends Controller
             'category' => 'required',
             'service'  => 'required|exists:services,id',
             'link'     => 'required|url',
-            'charge'   => 'required',
         ];
 
         if (!$isSpecialService) {
@@ -38,44 +37,46 @@ class OrderController extends Controller
 
         $service = Service::with('category')->findOrFail($request->service);
         $user = Auth::user();
-        
-        $chargeAmount = (float) str_replace(['$', ','], '', $request->charge);
 
-        return DB::transaction(function () use ($request, $user, $service, $chargeAmount) {
+        return DB::transaction(function () use ($request, $user, $service, $isSpecialService) {
+            
+            // 1. Recalculate Charge internally for security
+            $quantity = $isSpecialService ? 1 : (int)$request->quantity;
+            $chargeAmount = ($service->rate_per_1000 * $quantity) / 1000;
+            
+            // 2. Lock wallet and check funds
             $userWallet = Wallet::where('user_id', $user->id)->lockForUpdate()->first();
 
             if (!$userWallet || (float)$userWallet->money < $chargeAmount) {
                 throw new \Exception('Insufficient funds.');
             }
 
-            $userWallet->decrement('money', $chargeAmount);
-
-            // UPDATED: Added source_id here to save the provider at the moment of order
+            // 3. Create Order (Triggering OrderObserver to deduct money)
             $order = Order::create([
                 'user_id'    => $user->id,
                 'service_id' => $service->id,
-                'source_id'  => $service->source_id, // Link provider to this order
+                'source_id'  => $service->source_id,
                 'link'       => $request->link,
-                'quantity'   => $request->quantity ?? 0,
+                'quantity'   => $quantity,
                 'comment'    => in_array((int)$service->category_id, self::CUSTOM_COMMENT_CATS) ? $request->comment : null,
                 'charge'     => $chargeAmount,
                 'status'     => 0 
             ]);
 
+            // 4. Handle External API Providers
             if ($service->serviceId) {
                 try {
                     $apiResponse = $this->sendApiOrder($service, $request);
 
                     if ($apiResponse && isset($apiResponse->order)) {
-                        // Correctly update the provider's external order ID
                         $order->update(['orderId' => $apiResponse->order]);
                         
                         try {
                             Mail::to("onesphoren8@gmail.com")->send(new confirmOrderMail(
-                                $user->name, $user->email, $service->service, $request->link, $request->quantity, $chargeAmount
+                                $user->name, $user->email, $service->service, $request->link, $quantity, $chargeAmount
                             ));
                         } catch (\Exception $e) {
-                            Log::warning("Order email failed but order was placed: " . $e->getMessage());
+                            Log::warning("Order email failed: " . $e->getMessage());
                         }
 
                         return redirect()->back()->with('addOrderSuccess', "Thank you {$user->name}! Order submitted.");
@@ -84,6 +85,7 @@ class OrderController extends Controller
                     $errorReason = $apiResponse->error ?? $apiResponse->message ?? "Provider rejected request.";
                     Log::error("SMM API Failure", ['service_id' => $service->serviceId, 'response' => $apiResponse]);
                     
+                    // Triggering Exception rolls back the money deduction & deletes the order
                     throw new \Exception("Provider API Error: " . $errorReason);
 
                 } catch (\Exception $e) {
@@ -98,7 +100,10 @@ class OrderController extends Controller
         }, 5);
     }
 
-    private function sendApiOrder($service, $request)
+    /**
+     * Send order to provider. Public so Livewire can access it.
+     */
+    public function sendApiOrder($service, $request)
     {
         $params = [
             'service' => (int) $service->serviceId,
@@ -108,11 +113,10 @@ class OrderController extends Controller
         if (in_array((int)$service->category_id, self::CUSTOM_COMMENT_CATS)) {
             $params['comments'] = (string) $request->comment;
         } 
-        elseif ($request->quantity > 0) {
+        elseif (isset($request->quantity) && $request->quantity > 0) {
             $params['quantity'] = (int) $request->quantity;
         }
 
-        // Logic uses the source_id from the service model to pick the correct API controller
         return match ((int)$service->source_id) {
             3 => (new AmazingController())->order($params),
             4 => (new BulkmedyaController())->order($params),

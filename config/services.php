@@ -42,4 +42,20 @@ return [
        'encryption_key' => env('FLUTTERWAVE_ENCRYPTION_KEY'),
     ],
 
+    'bulkmedya' => [
+    'key' => env('BULKMEDYA_API_KEY'),
+    ],
+
+    'amazing' => [
+        'key' => env('AMAZING_SMM_API_KEY'),
+    ],
+
+    'bulkfollows' => [
+        'key' => env('BULKFOLLOWS_API_KEY'),
+    ],
+
+    'smmsun' => [
+        'key' => env('SMMSUN_API_KEY'),
+    ],
+
 ];

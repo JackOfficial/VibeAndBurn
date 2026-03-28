@@ -9,7 +9,12 @@ class SmmsunController extends Controller
 {
     /** API Configuration */
     public $api_url = 'https://smmsun.com/api/v2';
-    public $api_key = 'fbe137dacccef54c4cedae739effd10e';
+    public $api_key;
+
+    public function __construct() 
+    {
+        $this->api_key = config('services.smmsun.key');
+    }
 
     /** Add order */
     public function order($data)
@@ -76,22 +81,24 @@ class SmmsunController extends Controller
 
     /**
      * Optimized Centralized Request logic
-     * Replaces manual cURL and handles JSON decoding automatically
      */
     private function request($params)
     {
         $params['key'] = $this->api_key;
 
-        $response = Http::asForm()
-            ->timeout(30)   // Safety for Namecheap process limits
-            ->retry(3, 200) // Handles temporary API "hiccups"
-            ->withUserAgent('Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)')
-            ->post($this->api_url, $params);
+        try {
+            $response = Http::asForm()
+                ->timeout(30)
+                ->retry(2, 100)
+                ->withUserAgent('Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)')
+                ->post($this->api_url, $params);
 
-        if ($response->successful()) {
-            return $response->object(); 
+            // Always return the decoded object for consistent controller handling
+            return $response->object();
+
+        } catch (\Exception $e) {
+            // Returns an error object if the SMM server is unreachable
+            return (object) ['error' => 'Smmsun API Connection Timeout or DNS Error'];
         }
-
-        return false;
     }
 }
