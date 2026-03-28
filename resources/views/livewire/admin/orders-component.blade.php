@@ -134,12 +134,29 @@
                         <span class="text-success font-weight-bold">${{ number_format((float)($order->charge ?? 0), 3) }}</span>
                       </td>
 
-                      <td class="align-middle">
-                        <span class="badge {{ $currentBadge }} px-2 py-1" style="font-size: 11px; min-width: 80px; text-align: center;">
-                          {{ strtoupper($order->status_name ?? 'Status '.$order->status) }}
-                        </span>
-                        <small class="d-block text-muted mt-1">{{ $order->created_at->format('d M, H:i') }}</small>
-                      </td>
+                      <td class="align-middle text-center">
+    @php
+        // Map the numeric status to a human-readable string
+        $statusNames = [
+            0 => 'Pending',
+            1 => 'Completed',
+            2 => 'Reversed',
+            3 => 'Processing',
+            4 => 'In Progress',
+            5 => 'Partial'
+        ];
+        $statusText = $statusNames[$order->status] ?? 'Unknown';
+    @endphp
+
+    <span class="badge {{ $currentBadge }} px-2 py-1 shadow-sm" 
+          style="font-size: 10px; min-width: 85px; letter-spacing: 0.5px;">
+        {{ strtoupper($statusText) }}
+    </span>
+    
+    <small class="d-block text-muted mt-1" style="font-size: 10px;">
+        <i class="far fa-clock mr-1"></i>{{ $order->created_at->format('d M, H:i') }}
+    </small>
+</td>
 
                       <td class="align-middle text-right px-3">
                         <div class="btn-group shadow-sm">
