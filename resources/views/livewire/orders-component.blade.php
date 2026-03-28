@@ -79,7 +79,20 @@
                             <td class="text-danger">{{ number_format((int)($order->remains ?? 0)) }}</td>
                             
                             <td>
-                                {{ $order->status }}
+                                @php
+                                    $statusConfig = match($order->status) {
+                                        0 => ['class' => 'badge-warning', 'label' => 'Pending'],
+                                        1 => ['class' => 'badge-success', 'label' => 'Completed'],
+                                        2 => ['class' => 'badge-danger', 'label' => 'Reversed'],
+                                        3 => ['class' => 'badge-info', 'label' => 'Processing'],
+                                        4 => ['class' => 'badge-primary', 'label' => 'In Progress'],
+                                        default => ['class' => 'badge-secondary', 'label' => 'Partial'],
+                                    };
+                                @endphp
+                                <span class="badge badge-dot {{ $statusConfig['class'] }}">
+                                    {{ $statusConfig['label'] }}
+                                </span>
+                                
                             </td>
                         </tr>
                         @empty
