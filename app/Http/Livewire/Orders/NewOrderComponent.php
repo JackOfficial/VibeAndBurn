@@ -192,7 +192,7 @@ class NewOrderComponent extends Component
             }
 
             session()->flash('addOrderSuccess', 'Order placed successfully!');
-            dd("Done!");
+            // dd("Done!");
             return redirect()->to('/order');
         });
     } catch (\Exception $e) {
