@@ -17,7 +17,7 @@
                 <div class="nk-sidebar-widget d-none d-xl-block">
                     <div class="user-account-info">
                         <h6 class="overline-title-alt">Current Balance</h6>
-                        <div class="user-balance text-white">${{ number_format($wallet ?? 0, 2) }}</div>
+                        <div class="user-balance text-white">${{ Auth::user()->balance}}</div>
                     </div>
                     <a href="{{ route('addFund.create') }}" class="btn btn-primary btn-block mt-2">
                         <em class="icon ni ni-wallet-in"></em> <span>Add Funds</span>

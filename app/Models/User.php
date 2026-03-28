@@ -50,6 +50,24 @@ class User extends Authenticatable
     public function funds() // Plural is better for "hasMany"
 {
     // A User HAS MANY funds
-    return $this->hasMany(Fund::class, 'user_id');
+    return $this->hasMany(fund::class, 'user_id');
 }
+
+public function orders() 
+{ 
+    return $this->hasMany(order::class, 'user_id'); 
+}
+
+public function bonuses() 
+{ 
+    return $this->hasMany(bonus::class, 'user_id'); 
+}
+
+public function wallet() { return $this->hasOne(wallet::class); }
+
+public function getBalanceAttribute()
+{
+    return $this->wallet ? $this->wallet->money : 0.00000000;
+}
+
 }
