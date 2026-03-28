@@ -144,13 +144,13 @@
 
                                             {{-- Price & Quantity --}}
                                             <td class="text-center">
-                                                <small class="text-muted d-block">Rate: ${{ number_format($order->service->rate_per_1000 ?? 0, 2) }}</small>
-                                                <span class="badge badge-light border text-dark">{{ number_format($order->quantity) }}</span>
+                                                <small class="text-muted d-block">Rate: ${{ number_format((float)($order->service->rate_per_1000 ?? 0), 2) }}</small>
+                                                <span class="badge badge-light border text-dark">{{ number_format((int)$order->quantity) }}</span>
                                             </td>
 
                                             {{-- Charge --}}
                                             <td>
-                                                <span class="text-dark font-weight-bold" style="font-size: 1rem;">${{ number_format($order->charge, 3) }}</span>
+                                                <span class="text-dark font-weight-bold" style="font-size: 1rem;">${{ number_format((float)$order->charge, 3) }}</span>
                                             </td>
 
                                             {{-- Status Pill --}}
