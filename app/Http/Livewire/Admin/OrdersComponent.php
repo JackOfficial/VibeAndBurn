@@ -51,43 +51,36 @@ class OrdersComponent extends Component
     }
     
     public function render()
-    {
-        // 1. Define the Base Query (The "Master" query)
-        $query = order::query()
-            ->join('users', 'orders.user_id', '=', 'users.id')
-            ->join('services', 'orders.service_id', '=', 'services.id')
-            ->join('sources', 'services.source_id', '=', 'sources.id')
-            ->join('categories', 'services.category_id', '=', 'categories.id')
-            ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-            ->select(
-                'orders.*', 'users.name', 'users.email', 
-                'socialmedia.socialmedia', 'categories.category', 
-                'services.service', 'services.source_id', 
-                'sources.api_source', 'services.rate_per_1000', 'services.serviceId'
-            );
+{
+    $query = Order::with([
+        'user', 
+        'service.category.socialmedia', 
+        'service.source'
+    ]);
 
-        // 2. Apply Search Logic
-        if (!empty($this->keyword)) {
-            $query->where(function($q) {
-                $q->where('orders.id', $this->keyword)
-                  ->orWhere('users.name', 'LIKE', '%' . $this->keyword . '%')
-                  ->orWhere('users.email', 'LIKE', '%' . $this->keyword . '%')
-                  ->orWhere('orders.link', 'LIKE', '%' . $this->keyword . '%');
-            });
-        } 
-
-        // 3. Apply Filter Logic
-        if ($this->filterStatus !== null && $this->filterStatus !== "") {
-            $query->where('orders.status', $this->filterStatus);
-            
-            // Dispatch event only once when filter is active
-            $this->dispatchBrowserEvent('toastr:success', ['message' => "Filter applied!"]);
-        }
-
-        // 4. Final Execution
-        $ordersCounter = $query->count();
-        $orders = $query->orderBy('orders.id', 'DESC')->paginate(100);
-        
-        return view('livewire.admin.orders-component', compact('orders', 'ordersCounter'));
+    // 2. Apply Search Logic
+    if (!empty($this->keyword)) {
+        $query->where(function($q) {
+            $q->where('id', $this->keyword)
+              ->orWhere('link', 'LIKE', '%' . $this->keyword . '%')
+              ->orWhereHas('user', function($userQuery) {
+                  $userQuery->where('name', 'LIKE', '%' . $this->keyword . '%')
+                            ->orWhere('email', 'LIKE', '%' . $this->keyword . '%');
+              });
+        });
     }
+
+    // 3. Apply Filter Logic
+    if ($this->filterStatus !== null && $this->filterStatus !== "") {
+        $query->where('status', $this->filterStatus);
+        
+        $this->dispatchBrowserEvent('toastr:success', ['message' => "Filter applied!"]);
+    }
+
+    // 4. Execution
+    $ordersCounter = $query->count();
+    $orders = $query->latest('id')->paginate(100);
+
+    return view('livewire.admin.orders-component', compact('orders', 'ordersCounter'));
+}
 }

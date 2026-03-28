@@ -12,7 +12,11 @@ class order extends Model
 
 public function service()
 {
-    return $this->belongsTo(Service::class, 'service_id');
+    return $this->belongsTo(service::class, 'service_id');
+}
+
+public function user() {
+    return $this->belongsTo(User::class);
 }
 
 }
