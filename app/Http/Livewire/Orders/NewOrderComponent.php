@@ -2,7 +2,6 @@
 
 namespace App\Http\Livewire\Orders;
 
-use App\Http\Controllers\OrderController;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Models\wallet;
@@ -11,6 +10,7 @@ use App\Models\category;
 use App\Models\order;
 use App\Models\Advert;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\OrderController;
 
 class NewOrderComponent extends Component
 {
