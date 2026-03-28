@@ -5,13 +5,21 @@
                 <div>
                     <h4 class="nk-block-title">My Orders</h4>
                     <div class="nk-block-des">
-                        <p class="text-soft">You have total <strong>{{ $ordersCounter }}</strong> {{ Str::plural('Order', $ordersCounter) }}</p>
+                        <p class="text-soft">Total <strong>{{ $ordersCounter }}</strong> orders recorded</p>
                     </div>
                 </div>
                 <div class="d-flex align-items-center">
+                    <div class="form-group mb-0 mr-2">
+                        <div class="form-control-wrap">
+                            <div class="form-icon form-icon-right">
+                                <em class="icon ni ni-search"></em>
+                            </div>
+                            <input wire:model.debounce.400ms="search" type="text" class="form-control form-control-sm border-light shadow-sm" placeholder="Search ID or Link..." style="width: 200px;">
+                        </div>
+                    </div>
+
                     <div class="form-group mb-0 mr-3 d-flex align-items-center">
-                        <label class="mr-2 mb-0 small text-muted text-uppercase">Filter</label>
-                        <select wire:model="filter" class="form-control form-control-sm form-select border-light shadow-sm" style="width: 140px;">
+                        <select wire:model="filter" class="form-control form-control-sm form-select border-light shadow-sm" style="width: 130px;">
                             <option value="All">All Status</option>
                             <option value="Completed">Completed</option>
                             <option value="Processing">Processing</option>
@@ -20,6 +28,7 @@
                             <option value="Canceled">Canceled</option>
                         </select>
                     </div>
+
                     <a href="{{ route('newOrder.create') }}" class="btn btn-primary btn-sm shadow-sm">
                         <em class="icon ni ni-plus-sm"></em> <span>New Order</span>
                     </a>
@@ -34,13 +43,18 @@
                 <table class="table table-hover mb-0">
                     <thead class="bg-light small text-muted text-uppercase font-weight-bold">
                         <tr>
-                            <th class="pl-4">ID</th>
-                            <th>Date</th>
+                            <th class="pl-4 cursor-pointer" wire:click="sortBy('id')">
+                                ID @if($sortField === 'id') <em class="icon ni ni-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}-fill text-primary"></em> @endif
+                            </th>
+                            <th class="cursor-pointer" wire:click="sortBy('created_at')">
+                                Date @if($sortField === 'created_at') <em class="icon ni ni-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}-fill text-primary"></em> @endif
+                            </th>
                             <th>Link</th>
-                            <th>Charge</th>
+                            <th class="cursor-pointer" wire:click="sortBy('charge')">
+                                Charge @if($sortField === 'charge') <em class="icon ni ni-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}-fill text-primary"></em> @endif
+                            </th>
                             <th>Qty</th>
                             <th>Service & Category</th>
-                            <th>Rate</th>
                             <th>Start</th>
                             <th>Remains</th>
                             <th>Status</th>
@@ -62,7 +76,6 @@
                             <td class="font-weight-bold text-dark">${{ number_format((float)($order->charge ?? 0), 3) }}</td>
                             <td>{{ number_format((int)($order->quantity ?? 0)) }}</td>
                             
-                            {{-- Eloquent Relationship Access --}}
                             <td style="max-width: 200px;">
                                 <span class="d-block text-dark font-weight-bold text-truncate" title="{{ $order->service->service ?? 'N/A' }}">
                                     {{ $order->service->service ?? 'Service Deleted' }}
@@ -74,38 +87,33 @@
                                 @endif
                             </td>
 
-                            <td>${{ number_format((float)($order->service->rate_per_1000 ?? 0), 2) }}</td>
                             <td class="text-soft">{{ number_format((int)($order->start_count ?? 0)) }}</td>
                             <td class="text-danger">{{ number_format((int)($order->remains ?? 0)) }}</td>
                             
-                           <td>
-    @php
-        // Casting to (int) ensures '1' (string) matches 1 (integer)
-        $statusValue = (int) $order->status;
-
-        $statusConfig = match($statusValue) {
-            0 => ['class' => 'badge-warning', 'label' => 'Pending'],
-            1 => ['class' => 'badge-success', 'label' => 'Completed'],
-            2 => ['class' => 'badge-danger', 'label' => 'Reversed'],
-            3 => ['class' => 'badge-info', 'label' => 'Processing'],
-            4 => ['class' => 'badge-primary', 'label' => 'In Progress'],
-            5 => ['class' => 'badge-secondary', 'label' => 'Partial'],
-            default => ['class' => 'badge-dark', 'label' => 'Unknown (' . $statusValue . ')'],
-        };
-    @endphp
-
-    <span class="badge badge-dot {{ $statusConfig['class'] }}">
-        {{ $statusConfig['label'] }}
-    </span>
-</td>
+                            <td>
+                                @php
+                                    $statusValue = (int) $order->status;
+                                    $statusConfig = match($statusValue) {
+                                        0 => ['class' => 'badge-warning', 'label' => 'Pending'],
+                                        1 => ['class' => 'badge-success', 'label' => 'Completed'],
+                                        2 => ['class' => 'badge-danger', 'label' => 'Reversed'],
+                                        3 => ['class' => 'badge-info', 'label' => 'Processing'],
+                                        4 => ['class' => 'badge-primary', 'label' => 'In Progress'],
+                                        5 => ['class' => 'badge-secondary', 'label' => 'Partial'],
+                                        default => ['class' => 'badge-dark', 'label' => 'Unknown'],
+                                    };
+                                @endphp
+                                <span class="badge badge-dot {{ $statusConfig['class'] }}">
+                                    {{ $statusConfig['label'] }}
+                                </span>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="10" class="text-center py-5">
+                            <td colspan="9" class="text-center py-5">
                                 <div class="text-muted">
                                     <em class="icon ni ni-info-fill fs-36px mb-2"></em>
-                                    <p>No records found!</p>
-                                    <a href="{{ route('newOrder.create') }}" class="btn btn-outline-primary btn-sm mt-2">Make New Order</a>
+                                    <p>No records found matching your criteria.</p>
                                 </div>
                             </td>
                         </tr>
@@ -114,5 +122,21 @@
                 </table>
             </div>
         </div>
+        
+        @if($orders->hasPages())
+            <div class="card-inner border-top">
+                <div class="d-flex justify-content-center">
+                    {{ $orders->links() }}
+                </div>
+            </div>
+        @endif
     </div>
+
+    <style>
+    .cursor-pointer { cursor: pointer; transition: background 0.2s; }
+    .cursor-pointer:hover { background-color: #f4f6fa !important; }
+    .table thead th { vertical-align: middle; }
+</style>
+
 </div>
+

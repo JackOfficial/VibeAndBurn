@@ -3,16 +3,42 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Models\order;
 use Illuminate\Support\Facades\Auth;
 
 class OrdersComponent extends Component
 {
+    use WithPagination;
+
+    // Properties for UI state
     public $filter = "All";
+    public $search = "";
+    public $sortField = 'id';
+    public $sortDirection = 'desc';
+
+    // Ensure Livewire uses Bootstrap styling for pagination links
+    protected $paginationTheme = 'bootstrap';
+
+    // Reset pagination to page 1 whenever search or filter changes
+    public function updatingSearch() { $this->resetPage(); }
+    public function updatingFilter() { $this->resetPage(); }
+
+    /**
+     * Handle header clicks for sorting
+     */
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortDirection = 'asc';
+        }
+        $this->sortField = $field;
+    }
 
     public function render()
     {
-        // 1. Map filter names to status IDs
         $statusMap = [
             "Completed"   => 1,
             "Canceled"    => 2,
@@ -21,21 +47,29 @@ class OrdersComponent extends Component
             "Partial"     => 5,
         ];
 
-        // 2. Start the base query scoped to the current user
-        // We use 'with' for Eager Loading instead of joins
+        // 1. Build Query with Eager Loading
         $query = order::where('user_id', Auth::id())
             ->with(['service.category.socialmedia'])
-            ->latest('id');
+            
+            // 2. Conditional Status Filter
+            ->when(isset($statusMap[$this->filter]), function ($q) use ($statusMap) {
+                return $q->where('status', $statusMap[$this->filter]);
+            })
+            
+            // 3. Search Filter (Search by ID or Link)
+            ->when($this->search, function ($q) {
+                return $q->where(function($sub) {
+                    $sub->where('id', 'like', '%' . $this->search . '%')
+                        ->orWhere('link', 'like', '%' . $this->search . '%');
+                });
+            })
+            
+            // 4. Dynamic Sorting
+            ->orderBy($this->sortField, $this->sortDirection);
 
-        // 3. Apply status filter if it's not "All"
-        if (isset($statusMap[$this->filter])) {
-            $query->where('status', $statusMap[$this->filter]);
-        }
-
-        // 4. Final Execution
-        $orders = $query->get();
-        $ordersCounter = $orders->count();
-
-        return view('livewire.orders-component', compact('orders', 'ordersCounter'));
+        return view('livewire.orders-component', [
+            'orders' => $query->paginate(10),
+            'ordersCounter' => order::where('user_id', Auth::id())->count()
+        ]);
     }
 }
