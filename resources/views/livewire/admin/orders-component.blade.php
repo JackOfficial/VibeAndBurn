@@ -1,47 +1,52 @@
 <section class="content">
   <div class="container-fluid">
     <div class="row">
-      <div class="col-12 mt-3">
+      <div class="col-12 mt-4"> {{-- Increased top margin --}}
 
-        {{-- Alerts --}}
+        {{-- Alerts with extra bottom margin --}}
         @if (Session::has('approveOrderSuccess'))
-          <div class="alert alert-success alert-dismissible fade show">
+          <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <i class="fas fa-check-circle"></i> {{ Session::get('approveOrderSuccess') }}
+            <i class="fas fa-check-circle mr-2"></i> {{ Session::get('approveOrderSuccess') }}
           </div>
         @elseif(Session::has('approveOrderFail'))
-          <div class="alert alert-danger alert-dismissible fade show">
+          <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <strong>FAILED:</strong> {{ Session::get('approveOrderFail') }}
+            <strong><i class="fas fa-exclamation-triangle mr-2"></i> FAILED:</strong> {{ Session::get('approveOrderFail') }}
           </div>
         @endif
 
-        <div class="card shadow-sm">
-          <div class="card-header bg-white">
-            <div class="d-flex flex-wrap justify-content-between align-items-center">
+        <div class="card shadow-sm border-0"> {{-- Removed border for a modern look --}}
+          <div class="card-header bg-white py-3"> {{-- Added vertical padding --}}
+            <div class="d-flex flex-wrap justify-content-between align-items-center" style="gap: 15px;">
               
               {{-- Left Side: Filters --}}
-              <div class="d-flex align-items-center mb-2 mb-md-0">
-                <select wire:model="filterStatus" class="form-control form-control-sm mr-2" style="width: 150px;">
-                  <option value="">All Statuses</option>
-                  <option value="0">Pending</option>
-                  <option value="1">Completed</option>
-                  <option value="2">Reversed</option>
-                  <option value="3">Processing</option>
-                  <option value="4">In Progress</option>
-                  <option value="5">Partial</option>
-                </select>
-                <span class="badge badge-pill badge-light border">{{ number_format($ordersCounter) }} Orders</span>
-                <div class="ml-2 text-primary small" wire:loading wire:target="filterStatus">
-                   <i class="fas fa-spinner fa-spin"></i> Filtering...
+              <div class="d-flex align-items-center">
+                <div class="mr-3">
+                    <select wire:model="filterStatus" class="form-control form-control-sm border-secondary" style="width: 160px; height: 38px;">
+                      <option value="">All Statuses</option>
+                      <option value="0">Pending</option>
+                      <option value="1">Completed</option>
+                      <option value="2">Reversed</option>
+                      <option value="3">Processing</option>
+                      <option value="4">In Progress</option>
+                      <option value="5">Partial</option>
+                    </select>
+                </div>
+                <span class="badge badge-light border px-3 py-2 text-muted" style="font-size: 0.9rem;">
+                    <strong>{{ number_format($ordersCounter) }}</strong> Total Orders
+                </span>
+                
+                <div class="ml-3 text-primary" wire:loading wire:target="filterStatus">
+                   <i class="fas fa-spinner fa-spin"></i>
                 </div>
               </div>
 
               {{-- Right Side: Search --}}
-              <div class="input-group input-group-sm" style="width: 250px;">
-                <input type="text" wire:model.debounce.500ms="keyword" class="form-control" placeholder="Search Order ID, Link, User...">
+              <div class="input-group" style="width: 300px;">
+                <input type="text" wire:model.debounce.500ms="keyword" class="form-control border-right-0" placeholder="Search orders..." style="height: 38px;">
                 <div class="input-group-append">
-                  <span class="input-group-text bg-primary text-white"><i class="fa fa-search"></i></span>
+                  <span class="input-group-text bg-white border-left-0 text-muted"><i class="fa fa-search"></i></span>
                 </div>
               </div>
 
@@ -49,42 +54,37 @@
           </div>
 
           <div class="card-body p-0">
-            <div class="table-responsive" style="max-height: 700px;">
-              <table class="table table-head-fixed table-hover table-sm text-nowrap mb-0">
-                <thead>
-                  <tr class="text-uppercase small">
-                    <th>#</th>
-                    <th>Update Status</th>
-                    <th>API Source</th>
-                    <th>User Detail</th>
-                    <th>Service</th>
-                    <th>Quantity</th>
-                    <th>Charge</th>
-                    <th>Stats</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th class="text-right">Actions</th>
+            <div class="table-responsive" style="max-height: 750px;">
+              {{-- Removed table-sm to give rows more height --}}
+              <table class="table table-head-fixed table-hover mb-0">
+                <thead class="bg-light">
+                  <tr class="text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">
+                    <th class="py-3">#</th>
+                    <th class="py-3">Update Status</th>
+                    <th class="py-3">Source & ID</th>
+                    <th class="py-3">Customer</th>
+                    <th class="py-3">Service Details</th>
+                    <th class="py-3 text-center">Qty</th>
+                    <th class="py-3">Charge</th>
+                    <th class="py-3">Status</th>
+                    <th class="py-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   @forelse ($orders as $order)
                     @php
                       $statusClasses = [
-                        0 => 'badge-danger',    // Pending
-                        1 => 'badge-success',   // Completed
-                        2 => 'badge-warning',   // Reversed
-                        3 => 'badge-info',      // Processing
-                        4 => 'badge-primary',   // In Progress
-                        5 => 'badge-secondary'  // Partial
+                        0 => 'badge-danger', 1 => 'badge-success', 2 => 'badge-warning',
+                        3 => 'badge-info', 4 => 'badge-primary', 5 => 'badge-secondary'
                       ];
                       $currentBadge = $statusClasses[$order->status] ?? 'badge-dark';
                     @endphp
                     <tr>
-                      <td class="align-middle text-muted">{{ $loop->iteration }}</td>
+                      <td class="align-middle text-muted px-3">{{ $loop->iteration }}</td>
                       
-                      <td class="align-middle" style="width: 180px;">
-                        <div class="input-group input-group-sm">
-                          <select wire:model="status" class="form-control custom-select">
+                      <td class="align-middle">
+                        <div class="input-group input-group-sm" style="width: 170px;">
+                          <select wire:model="status" class="form-control">
                             <option value="">Update...</option>
                             <option value="0">Pending</option>
                             <option value="1">Completed</option>
@@ -94,60 +94,58 @@
                             <option value="5">Partial</option>
                           </select>
                           <div class="input-group-append">
-                            <button class="btn btn-primary" wire:click="changeStatus({{$order->id}})">OK</button>
+                            <button class="btn btn-dark" wire:click="changeStatus({{$order->id}})">OK</button>
                           </div>
                         </div>
                       </td>
 
                       <td class="align-middle">
-                        <small class="d-block text-muted">ID: {{ $order->orderId }}</small>
+                        <span class="text-dark font-weight-bold d-block">ID: {{ $order->orderId }}</span>
                         @switch($order->source_id)
-                          @case(2) <span class="badge" style="background: #7946E9; color: white;">BulkFollows</span> @break
-                          @case(3) <span class="badge" style="background: #3AE3A4; color: white;">AmazingSMM</span> @break
-                          @case(4) <span class="badge badge-primary">BulkMedya</span> @break
-                          @default <span class="badge badge-secondary">Manual</span>
+                          @case(2) <span class="badge badge-pill" style="background: #7946E9; color: white; font-size: 10px;">BulkFollows</span> @break
+                          @case(3) <span class="badge badge-pill" style="background: #3AE3A4; color: white; font-size: 10px;">AmazingSMM</span> @break
+                          @default <span class="badge badge-pill badge-secondary" style="font-size: 10px;">Manual</span>
                         @endswitch
                       </td>
 
                       <td class="align-middle">
-                        <a href="javascript:void(0)" wire:click="userWalletDetails({{ $order->user_id }})" class="font-weight-bold d-block">
-                          {{ $order->name }}
-                        </a>
-                        <small class="text-muted">{{ $order->email }}</small>
+                        <div class="d-flex flex-column">
+                            <a href="javascript:void(0)" wire:click="userWalletDetails({{ $order->user_id }})" class="text-primary font-weight-bold mb-0">
+                              {{ $order->name }}
+                            </a>
+                            <small class="text-muted">{{ $order->email }}</small>
+                        </div>
                       </td>
 
                       <td class="align-middle">
-                        <span class="d-block truncate" style="max-width: 200px;" title="{{ $order->service }}">
-                          {{ $order->service }}
-                        </span>
-                        <a href="{{ $order->link }}" target="_blank" class="small text-info"><i class="fas fa-link"></i> View Link</a>
+                        <div style="max-width: 220px;">
+                            <span class="d-block text-truncate font-weight-normal" title="{{ $order->service }}">
+                              {{ $order->service }}
+                            </span>
+                            <a href="{{ $order->link }}" target="_blank" class="small text-info"><i class="fas fa-external-link-alt mr-1"></i>Visit Link</a>
+                        </div>
                       </td>
 
-                      <td class="align-middle"><strong>{{ number_format((int)($order->quantity ?? 0)) }}</strong></td>
+                      <td class="align-middle text-center">
+                        <span class="badge badge-light border font-weight-bold">{{ number_format((int)($order->quantity ?? 0)) }}</span>
+                      </td>
                       
-                      <td class="align-middle text-success font-weight-bold">${{ number_format((float)($order->charge ?? 0), 4) }}</td>
-
-                      <td class="align-middle small">
-                        Start: {{ $order->start_count }}<br>
-                        Left: <span class="text-danger">{{ $order->remains }}</span>
+                      <td class="align-middle">
+                        <span class="text-success font-weight-bold">${{ number_format((float)($order->charge ?? 0), 3) }}</span>
                       </td>
 
                       <td class="align-middle">
-                        <span class="badge {{ $currentBadge }} p-1 px-2">
-                          {{ $order->status_name ?? 'Status '.$order->status }}
+                        <span class="badge {{ $currentBadge }} px-2 py-1" style="font-size: 11px; min-width: 80px; text-align: center;">
+                          {{ strtoupper($order->status_name ?? 'Status '.$order->status) }}
                         </span>
+                        <small class="d-block text-muted mt-1">{{ $order->created_at->format('d M, H:i') }}</small>
                       </td>
 
-                      <td class="align-middle small text-muted">
-                        {{ $order->created_at->format('M d, Y') }}<br>
-                        {{ $order->created_at->format('H:i') }}
-                      </td>
-
-                      <td class="align-middle text-right">
-                        <div class="btn-group">
-                          <a href="{{ route('approve', $order->id) }}" class="btn btn-sm text-success" title="Approve"><i class="fa fa-check"></i></a>
-                          <a href="{{ route('admin.clientOrders.edit', $order->id) }}" class="btn btn-sm text-info" title="Edit"><i class="fa fa-edit"></i></a>
-                          <button onclick="confirm('Reverse this order?') || event.stopImmediatePropagation()" wire:click="reverseOrder({{ $order->id }})" class="btn btn-sm text-danger" title="Reverse">
+                      <td class="align-middle text-right px-3">
+                        <div class="btn-group shadow-sm">
+                          <a href="{{ route('approve', $order->id) }}" class="btn btn-sm btn-white text-success border" title="Approve"><i class="fa fa-check"></i></a>
+                          <a href="{{ route('admin.clientOrders.edit', $order->id) }}" class="btn btn-sm btn-white text-info border" title="Edit"><i class="fa fa-edit"></i></a>
+                          <button onclick="confirm('Reverse this order?') || event.stopImmediatePropagation()" wire:click="reverseOrder({{ $order->id }})" class="btn btn-sm btn-white text-danger border" title="Reverse">
                             <i class="fa fa-undo-alt"></i>
                           </button>
                         </div>
@@ -155,9 +153,11 @@
                     </tr>
                   @empty
                     <tr>
-                      <td colspan="11" class="text-center py-5 text-muted">
-                        <i class="fas fa-search fa-3x mb-3"></i>
-                        <p>No orders found matching your criteria.</p>
+                      <td colspan="9" class="text-center py-5">
+                        <div class="text-muted">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <p class="h5">No orders found.</p>
+                        </div>
                       </td>
                     </tr>
                   @endforelse
@@ -166,9 +166,12 @@
             </div>
           </div>
 
-          <div class="card-footer bg-white">
-            <div class="float-right">
-              {{ $orders->links() }} {{-- Changed from $funds to $orders --}}
+          <div class="card-footer bg-white py-3 border-top">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">Showing page {{ $orders->currentPage() }} of {{ $orders->lastPage() }}</small>
+                <div>
+                  {{ $orders->links() }}
+                </div>
             </div>
           </div>
         </div>
