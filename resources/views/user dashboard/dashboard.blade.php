@@ -43,20 +43,19 @@
         </div>
     </div>
 
-    <script src="{{ asset('user dashboard/assets/js/bundle.js?ver=2.2.0') }}"></script>
-    <script src="{{ asset('user dashboard/assets/js/scripts.js?ver=2.2.0') }}"></script>
+    <script src="{{ asset('user dashboard/assets/js/bundle.js') }}"></script>
+    <script src="{{ asset('user dashboard/assets/js/scripts.js') }}"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    @livewireScripts
-    @stack('scripts')
-
-    <script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+       <script>
         // Auto-close modals on Livewire events
         window.addEventListener('hide-modal', () => {
             $('.modal').modal('hide');
         });
     </script>
+    @livewireScripts
+    @stack('scripts')
 </body>
 </html>
