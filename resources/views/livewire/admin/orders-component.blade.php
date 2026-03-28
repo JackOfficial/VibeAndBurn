@@ -123,9 +123,9 @@
                         <a href="{{ $order->link }}" target="_blank" class="small text-info"><i class="fas fa-link"></i> View Link</a>
                       </td>
 
-                      <td class="align-middle"><strong>{{ number_format($order->quantity) }}</strong></td>
+                      <td class="align-middle"><strong>{{ number_format((int)($order->quantity ?? 0)) }}</strong></td>
                       
-                      <td class="align-middle text-success font-weight-bold">${{ number_format($order->charge, 4) }}</td>
+                      <td class="align-middle text-success font-weight-bold">${{ number_format((float)($order->charge ?? 0), 4) }}</td>
 
                       <td class="align-middle small">
                         Start: {{ $order->start_count }}<br>
