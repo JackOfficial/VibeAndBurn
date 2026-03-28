@@ -11,7 +11,12 @@ class wallet extends Model
     protected $fillable = ['user_id', 'money'];
     
     protected $casts = [
-        'money' => 'decimal:4', // Or 'float'
+        'money' => 'decimal:8',
     ];
+
+    public function setMoneyAttribute($value)
+{
+    $this->attributes['money'] = max(0, $value);
+}
     
 }
