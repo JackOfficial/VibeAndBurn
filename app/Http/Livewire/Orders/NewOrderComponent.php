@@ -192,7 +192,7 @@ class NewOrderComponent extends Component
             }
 
             session()->flash('addOrderSuccess', 'Order placed successfully!');
-            return redirect()->route('order.index');
+            return redirect()->to('/order');
         });
     } catch (\Exception $e) {
         // This keeps the user on the page and shows the error via Toastr
