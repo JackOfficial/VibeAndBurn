@@ -223,99 +223,201 @@
 
       <!-- Sidebar Menu -->
     <nav class="mt-2">
-  <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-    
-    <li class="nav-item">
-      <a href="{{ route('admin.dashboard.index') }}" class="nav-link {{ Route::is('admin.dashboard.*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-tachometer-alt"></i>
-        <p>Dashboard</p>
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a href="/admin/wholesalers" class="nav-link {{ request()->is('admin/wholesalers*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-plus"></i>
-        <p>Sources</p>
-      </a>
-    </li>
-
-    <li class="nav-item {{ Route::is('admin.socialmedia.*') ? 'menu-open' : '' }}">
-      <a href="#" class="nav-link {{ Route::is('admin.socialmedia.*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-copy"></i>
-        <p>
-          Social Media
-          <i class="fas fa-angle-left right"></i>
-          <span class="badge badge-info right">6</span>
-        </p>
-      </a>
-      <ul class="nav nav-treeview">
+    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        
         <li class="nav-item">
-          <a href="{{ route('admin.socialmedia.create') }}" class="nav-link {{ Route::is('admin.socialmedia.create') ? 'active' : '' }}">
-            <i class="far fa-circle nav-icon"></i>
-            <p>Add Social Media</p>
-          </a>
+            <a href="{{ route('admin.dashboard.index') }}" class="nav-link {{ Route::is('admin.dashboard.*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-tachometer-alt"></i>
+                <p>Dashboard</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="/admin/wholesalers" class="nav-link {{ request()->is('admin/wholesalers*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-plus"></i>
+                <p>Sources</p>
+            </a>
+        </li>
+
+        <li class="nav-item {{ Route::is('admin.socialmedia.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Route::is('admin.socialmedia.*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-copy"></i>
+                <p>
+                    Social Media
+                    <i class="fas fa-angle-left right"></i>
+                    <span class="badge badge-info right">6</span>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="{{ route('admin.socialmedia.create') }}" class="nav-link {{ Route::is('admin.socialmedia.create') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Add Social Media</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.socialmedia.index') }}" class="nav-link {{ Route::is('admin.socialmedia.index') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Manage Social Media</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-item {{ Route::is('admin.category.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Route::is('admin.category.*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-chart-pie"></i>
+                <p>Categories <i class="right fas fa-angle-left"></i></p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="{{ route('admin.category.create') }}" class="nav-link {{ Route::is('admin.category.create') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Add Category</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.category.index') }}" class="nav-link {{ Route::is('admin.category.index') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Manage Categories</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-item {{ Route::is('admin.service.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Route::is('admin.service.*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-tree"></i>
+                <p>Services <i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="{{ route('admin.service.create') }}" class="nav-link {{ Route::is('admin.service.create') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Add Service</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.service.index') }}" class="nav-link {{ Route::is('admin.service.index') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Manage Services</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('admin.clientOrders.index') }}" class="nav-link {{ Route::is('admin.clientOrders.index') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-th"></i>
+                <p>Orders <span class="right badge badge-danger">10</span></p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('admin.clientOrders.create') }}" class="nav-link {{ Route::is('admin.clientOrders.create') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-plus"></i>
+                <p>Add Fund</p>
+            </a>
+        </li>
+
+        <li class="nav-item {{ (Route::is('contactus.*') || Route::is('broadcast.*')) ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ (Route::is('contactus.*') || Route::is('broadcast.*')) ? 'active' : '' }}">
+                <i class="nav-icon fas fa-edit"></i>
+                <p>Messages <i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="{{ route('contactus.index') }}" class="nav-link {{ Route::is('contactus.index') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Inbox</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('broadcast.create') }}" class="nav-link {{ Route::is('broadcast.create') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Broadcast</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('broadcast.index') }}" class="nav-link {{ Route::is('broadcast.index') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Manage Broadcasts</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-item">
+            <a href="/admin/tickets" class="nav-link {{ request()->is('admin/tickets*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-plus"></i>
+                <p>Tickets</p>
+            </a>
+        </li>
+
+        <li class="nav-item {{ Route::is('admin.users.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Route::is('admin.users.*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-users"></i>
+                <p>Users <i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="{{ route('admin.users.index') }}" class="nav-link {{ Route::is('admin.users.index') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Manage Users</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('admin.wallet.index') }}" class="nav-link {{ Route::is('admin.wallet.index') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-wallet"></i>
+                <p>Wallets</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('admin.bfcurrency') }}" class="nav-link {{ Route::is('admin.bfcurrency') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-coins"></i>
+                <p>Set Currencies</p>
+            </a>
         </li>
         <li class="nav-item">
-          <a href="{{ route('admin.socialmedia.index') }}" class="nav-link {{ Route::is('admin.socialmedia.index') ? 'active' : '' }}">
-            <i class="far fa-circle nav-icon"></i>
-            <p>Manage Social Media</p>
-          </a>
-        </li>
-      </ul>
-    </li>
-
-    <li class="nav-item {{ Route::is('admin.category.*') ? 'menu-open' : '' }}">
-      <a href="#" class="nav-link {{ Route::is('admin.category.*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-chart-pie"></i>
-        <p>
-          Categories
-          <i class="right fas fa-angle-left"></i>
-        </p>
-      </a>
-      <ul class="nav nav-treeview">
-        <li class="nav-item">
-          <a href="{{ route('admin.category.create') }}" class="nav-link {{ Route::is('admin.category.create') ? 'active' : '' }}">
-            <i class="far fa-circle nav-icon"></i>
-            <p>Add Category</p>
-          </a>
+            <a href="{{ route('admin.fund') }}" class="nav-link {{ Route::is('admin.fund') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-wallet"></i>
+                <p>Earnings</p>
+            </a>
         </li>
         <li class="nav-item">
-          <a href="{{ route('admin.category.index') }}" class="nav-link {{ Route::is('admin.category.index') ? 'active' : '' }}">
-            <i class="far fa-circle nav-icon"></i>
-            <p>Manage Categories</p>
-          </a>
+            <a href="/admin/rate" class="nav-link {{ request()->is('admin/rate*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-money-bill-wave"></i>
+                <p>Set Rate</p>
+            </a>
         </li>
-      </ul>
-    </li>
 
-    <li class="nav-item">
-      <a href="{{ route('admin.clientOrders.index') }}" class="nav-link {{ Route::is('admin.clientOrders.index') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-th"></i>
-        <p>
-          Orders
-          <span class="right badge badge-danger">10</span>
-        </p>
-      </a>
-    </li>
+        <li class="nav-item">
+            <a href="{{ route('admin.update.index') }}" class="nav-link {{ Route::is('admin.update.index') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-th"></i>
+                <p>Updates</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('admin.terms.index') }}" class="nav-link {{ Route::is('admin.terms.index') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-th"></i>
+                <p>Terms</p>
+            </a>
+        </li>
 
-    <li class="nav-item">
-      <a href="{{ route('admin.wallet.index') }}" class="nav-link {{ Route::is('admin.wallet.index') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-wallet"></i>
-        <p>Wallets</p>
-      </a>
-    </li>
-
-    <li class="nav-item mt-3">
-      <a class="btn btn-danger btn-block text-white" href="{{ route('logout') }}" 
-         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-         <span><i class="fas fa-sign-out-alt"></i> Logout</span>
-      </a>
-      <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-        @csrf
-      </form>
-    </li>
-
-  </ul>
+        <li class="nav-item mt-3">
+            <a class="btn btn-danger btn-block text-white" href="{{ route('logout') }}" 
+               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <span><i class="fas fa-sign-out-alt"></i> Logout</span>
+            </a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+        </li>
+    </ul>
 </nav>
       <!-- /.sidebar-menu -->
     </div>
