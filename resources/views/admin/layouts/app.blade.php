@@ -200,14 +200,27 @@
     <!-- Sidebar -->
     <div class="sidebar">
       <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="{{ asset('back/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
-        </div>
-        <div class="info">
-          <a href="#" class="d-block">{{ Auth::user()->name }}</a>
-        </div>
-      </div>
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
+    <div class="image">
+        @if(Auth::user()->avatar && file_exists(public_path('storage/' . Auth::user()->avatar)))
+            <img src="{{ asset('storage/' . Auth::user()->avatar) }}" 
+                 class="img-circle elevation-2" 
+                 style="width: 34px; height: 34px; object-fit: cover;" 
+                 alt="User Image">
+        @else
+            <div class="img-circle elevation-2 d-flex align-items-center justify-content-center bg-primary text-white" 
+                 style="width: 34px; height: 34px; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                {{ substr(Auth::user()->name, 0, 1) }}
+            </div>
+        @endif
+    </div>
+    <div class="info">
+        <a href="#" class="d-block">{{ Auth::user()->name }}</a>
+        <small class="text-muted text-capitalize">
+            {{ Auth::user()->getRoleNames()->first() ?? 'No Role' }}
+        </small>
+    </div>
+</div>
 
       <!-- SidebarSearch Form -->
       <div class="form-inline">
