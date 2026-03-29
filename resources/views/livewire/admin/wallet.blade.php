@@ -1,7 +1,6 @@
 <div x-data="{ 
     showFeedback: true,
     init() {
-        // Auto-hide alerts after 5 seconds to keep the UI clean
         $watch('showFeedback', value => {
             if(value) setTimeout(() => this.showFeedback = false, 5000)
         })
@@ -36,10 +35,7 @@
                                 <i class="fas fa-spinner fa-spin text-primary" wire:loading wire:target="search"></i>
                             </span>
                         </div>
-                        <input type="text" 
-                               wire:model.debounce.400ms="search" 
-                               class="form-control border-left-0 bg-light" 
-                               placeholder="Search name or email...">
+                        <input type="text" wire:model.debounce.400ms="search" class="form-control border-left-0 bg-light" placeholder="Search name or email...">
                     </div>
 
                     <div class="stats-badges d-none d-md-block">
@@ -68,53 +64,82 @@
                     </thead>
                     <tbody>
                         @forelse ($wallets as $wallet)
-                        <tr wire:key="wallet-{{ $wallet->id }}" class="border-bottom">
+                        <tr wire:key="wallet-{{ $wallet->id }}" class="border-bottom" x-data="{ showHistory: false }">
                             <td class="align-middle pl-4 text-muted">
                                 {{ ($wallets->currentPage() - 1) * $wallets->perPage() + $loop->iteration }}
                             </td>
-                           <td class="align-middle">
-    <div class="d-flex align-items-center">
-        <div class="mr-3 shadow-sm rounded-circle d-flex align-items-center justify-content-center" 
-             style="width: 40px; height: 40px; overflow: hidden; 
-                    background-color: {{ $wallet->user->avatar ? 'transparent' : '#e7f1ff' }};">
-            
-            @if($wallet->user->avatar)
-                <img src="{{ $wallet->user->avatar }}" 
-                     alt="Avatar" 
-                     style="width: 100%; height: 100%; object-fit: cover;">
-            @else
-                <span class="font-weight-bold text-primary" style="font-size: 1.1rem;">
-                    {{ strtoupper(substr($wallet->user->name ?? 'U', 0, 1)) }}
-                </span>
-            @endif
-        </div>
+                            
+                            <td class="align-middle">
+                                <div class="d-flex align-items-center">
+                                    <div class="mr-3 shadow-sm rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 42px; height: 42px; min-width: 42px; overflow: hidden; background-color: {{ $wallet->user->avatar ? 'transparent' : '#e7f1ff' }}; border: 1px solid #dee2e6;">
+                                        @if($wallet->user->avatar)
+                                            <img src="{{ $wallet->user->avatar }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                                        @else
+                                            <span class="font-weight-bold text-primary" style="font-size: 1.1rem;">
+                                                {{ strtoupper(substr($wallet->user->name ?? 'U', 0, 1)) }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <span class="font-weight-bold text-dark">{{ $wallet->user->name ?? 'Deleted User' }}</span>
+                                        <small class="text-muted"><i class="fas fa-envelope fa-xs mr-1"></i>{{ $wallet->user->email ?? 'N/A' }}</small>
+                                        
+                                        @if($wallet->funds_max_created_at)
+                                            <span class="text-success mt-1" style="font-size: 0.72rem; font-weight: 600;">
+                                                <i class="fas fa-arrow-up mr-1"></i> Deposit: {{ \Carbon\Carbon::parse($wallet->funds_max_created_at)->diffForHumans() }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </td>
 
-        <div class="d-flex flex-column">
-            <span class="font-weight-bold text-dark">{{ $wallet->user->name ?? 'Deleted User' }}</span>
-            <small class="text-muted"><i class="fas fa-envelope fa-xs mr-1"></i>{{ $wallet->user->email ?? 'N/A' }}</small>
-        </div>
-    </div>
-</td>
                             <td class="align-middle">
                                 <span class="badge badge-light border py-2 px-3 font-weight-bold" style="font-size: 0.95rem;">
                                     <span class="text-success">$</span> {{ number_format($wallet->money, 2) }}
                                 </span>
                             </td>
+
                             <td class="align-middle text-muted small">
                                 <i class="far fa-calendar-alt mr-1"></i> {{ $wallet->created_at->format('M d, Y') }}
                             </td>
-                            <td class="text-right align-middle pr-4">
+
+                            <td class="text-right align-middle pr-4 position-relative">
                                 <div class="btn-group shadow-sm">
-                                    <button class="btn btn-white btn-sm border" 
-                                            wire:click="edit({{ $wallet->id }})" 
-                                            data-toggle="modal" 
-                                            data-target="#editWallet"
-                                            title="Adjust Funds">
+                                    <button class="btn btn-white btn-sm border" wire:click="edit({{ $wallet->id }})" data-toggle="modal" data-target="#editWallet" title="Adjust Funds">
                                         <i class="fa fa-pencil-alt text-primary"></i>
                                     </button>
-                                    <button class="btn btn-white btn-sm border" title="Transaction History">
-                                        <i class="fa fa-history text-muted"></i>
+                                    
+                                    <button class="btn btn-white btn-sm border" @click="showHistory = !showHistory" title="Recent History">
+                                        <i class="fa fa-history" :class="showHistory ? 'text-primary' : 'text-muted'"></i>
                                     </button>
+                                </div>
+
+                                <div x-show="showHistory" 
+                                     @click.away="showHistory = false"
+                                     x-transition:enter="transition ease-out duration-100"
+                                     x-transition:enter-start="opacity-0 transform scale-95"
+                                     class="position-absolute bg-white shadow-lg border rounded p-3" 
+                                     style="right: 40px; top: 100%; z-index: 1050; min-width: 260px;">
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-1">
+                                        <h6 class="small font-weight-bold mb-0 text-dark">Recent Transactions</h6>
+                                        <i class="fas fa-times text-muted" style="cursor:pointer" @click="showHistory = false"></i>
+                                    </div>
+
+                                    @forelse($wallet->funds as $fund)
+                                        <div class="d-flex justify-content-between align-items-center mb-2 text-left">
+                                            <div class="d-flex flex-column">
+                                                <span class="small font-weight-bold text-dark" style="font-size: 0.75rem;">{{ $fund->method }}</span>
+                                                <span class="text-muted" style="font-size: 0.65rem;">{{ $fund->created_at->format('d M, H:i') }}</span>
+                                            </div>
+                                            <span class="small font-weight-bold {{ $fund->amount > 0 ? 'text-success' : 'text-danger' }}">
+                                                {{ $fund->amount > 0 ? '+' : '' }}${{ number_format($fund->amount, 2) }}
+                                            </span>
+                                        </div>
+                                    @empty
+                                        <p class="text-center text-muted small py-2 mb-0">No transaction history found.</p>
+                                    @endforelse
                                 </div>
                             </td>
                         </tr>
@@ -138,13 +163,10 @@
                 <span class="text-muted small">
                     Showing {{ $wallets->firstItem() }} to {{ $wallets->lastItem() }} of {{ $wallets->total() }} entries
                 </span>
-                <div>
-                    {{ $wallets->links() }}
-                </div>
+                <div>{{ $wallets->links() }}</div>
             </div>
         </div>
     </div>
 
-    <div wire:ignore.self class="modal fade" id="editWallet" tabindex="-1" role="dialog">
-        </div>
+    <div wire:ignore.self class="modal fade" id="editWallet" tabindex="-1" role="dialog"></div>
 </div>

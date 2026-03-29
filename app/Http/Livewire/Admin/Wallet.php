@@ -122,19 +122,21 @@ class Wallet extends Component
         }
     }
     
-    public function render()
-    {
-        // Build search query
-        $query = Client_wallet::with('user')
-            ->whereHas('user', function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%');
-            });
+  public function render()
+{
+    $query = Client_wallet::with(['user', 'funds' => function($q) {
+            $q->latest()->take(5); 
+        }])
+        ->withAggregate('funds', 'created_at', 'max') 
+        ->whereHas('user', function ($q) {
+            $q->where('name', 'like', '%' . $this->search . '%')
+              ->orWhere('email', 'like', '%' . $this->search . '%');
+        });
 
-        return view('livewire.admin.wallet', [
-            'wallets' => $query->orderBy('money', 'ASC')->paginate(10),
-            'walletsCounter' => Client_wallet::count(),
-            'walletsTotal' => Client_wallet::sum('money'),
-        ]);
-    }
+    return view('livewire.admin.wallet', [
+        'wallets' => $query->orderBy('funds_max_created_at', 'DESC')->paginate(10),
+        'walletsCounter' => Client_wallet::count(),
+        'walletsTotal' => Client_wallet::sum('money'),
+    ]);
+}
 }
