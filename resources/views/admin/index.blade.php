@@ -89,7 +89,7 @@
                             <span class="text-dark font-weight-bold" style="font-size: 12px;">Awaiting Reply</span>
                         </div>
                         <div class="icon" style="opacity: 0.2;"><i class="fas fa-ticket-alt"></i></div>
-                        <a href="{{ route('admin.ticket.index') }}" class="small-box-footer" style="background: rgba(0,0,0,0.05)">Help Desk <i class="fas fa-arrow-right ml-1"></i></a>
+                        <a href="{{ route('admin.tickets') }}" class="small-box-footer" style="background: rgba(0,0,0,0.05)">Help Desk <i class="fas fa-arrow-right ml-1"></i></a>
                     </div>
                 </div>
             </div>
