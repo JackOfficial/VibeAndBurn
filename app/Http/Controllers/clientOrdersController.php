@@ -18,7 +18,7 @@ class clientOrdersController extends Controller
      */
     public function index(Request $request)
     {
-         return view('admin.manage.orders');
+         return view('admin.orders.index');
     }
 
     /**

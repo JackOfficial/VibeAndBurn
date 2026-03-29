@@ -154,7 +154,7 @@
                                                 </span>
                                                 <div class="d-flex align-items-center">
                                                     <a href="{{ $order->link }}" target="_blank" class="badge badge-light text-info mr-2">
-                                                        <i class="fas fa-link mr-1"></i> Visit
+                                                        {{ $order->link }} <span><i class="fas fa-link mr-1"></i> Visit</span>
                                                     </a>
                                                     <button 
                                                         @click="navigator.clipboard.writeText('{{ $order->link }}'); copied = true; setTimeout(() => copied = false, 2000)" 
