@@ -8,9 +8,9 @@
 }">
     <div class="p-2" x-show="showFeedback" x-transition:leave="transition ease-in duration-300">
         @if (session()->has('deleteWalletSuccess') || isset($feedback))
-            <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
+            <div class="alert {{ session()->has('deleteWalletSuccess') ? 'alert-success' : 'alert-danger' }} alert-dismissible fade show shadow-sm border-0" role="alert">
                 <div class="d-flex align-items-center">
-                    <i class="fas fa-check-circle mr-2"></i>
+                    <i class="fas {{ session()->has('deleteWalletSuccess') ? 'fa-check-circle' : 'fa-exclamation-circle' }} mr-2"></i>
                     <span>{{ session('deleteWalletSuccess') ?? $feedback }}</span>
                 </div>
                 <button type="button" class="close" @click="showFeedback = false">
@@ -87,7 +87,7 @@
                                         
                                         @if($wallet->funds_max_created_at)
                                             <span class="text-success mt-1" style="font-size: 0.72rem; font-weight: 600;">
-                                                <i class="fas fa-arrow-up mr-1"></i> Deposit: {{ \Carbon\Carbon::parse($wallet->funds_max_created_at)->diffForHumans() }}
+                                                <i class="fas fa-arrow-up mr-1"></i> Last: {{ \Carbon\Carbon::parse($wallet->funds_max_created_at)->diffForHumans() }}
                                             </span>
                                         @endif
                                     </div>
@@ -120,17 +120,17 @@
                                      x-transition:enter="transition ease-out duration-100"
                                      x-transition:enter-start="opacity-0 transform scale-95"
                                      class="position-absolute bg-white shadow-lg border rounded p-3" 
-                                     style="right: 40px; top: 100%; z-index: 1050; min-width: 260px;">
+                                     style="right: 40px; top: 100%; z-index: 1050; min-width: 280px; max-height: 400px; overflow-y: auto;">
                                     
                                     <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-1">
                                         <h6 class="small font-weight-bold mb-0 text-dark">Recent Transactions</h6>
-                                        <i class="fas fa-times text-muted" style="cursor:pointer" @click="showHistory = false"></i>
+                                        <i class="fas fa-times text-muted small" style="cursor:pointer" @click="showHistory = false"></i>
                                     </div>
 
                                     @forelse($wallet->funds as $fund)
-                                        <div class="d-flex justify-content-between align-items-center mb-2 text-left">
+                                        <div class="d-flex justify-content-between align-items-center mb-2 text-left border-bottom border-light pb-1">
                                             <div class="d-flex flex-column">
-                                                <span class="small font-weight-bold text-dark" style="font-size: 0.75rem;">{{ $fund->method }}</span>
+                                                <span class="small font-weight-bold text-dark" style="font-size: 0.75rem; line-height: 1;">{{ $fund->method }}</span>
                                                 <span class="text-muted" style="font-size: 0.65rem;">{{ $fund->created_at->format('d M, H:i') }}</span>
                                             </div>
                                             <span class="small font-weight-bold {{ $fund->amount > 0 ? 'text-success' : 'text-danger' }}">
@@ -140,6 +140,10 @@
                                     @empty
                                         <p class="text-center text-muted small py-2 mb-0">No transaction history found.</p>
                                     @endforelse
+                                    
+                                    <div class="text-center mt-2">
+                                        <a href="#" class="text-primary xsmall" style="font-size: 0.7rem;">View Full Statement</a>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -163,10 +167,13 @@
                 <span class="text-muted small">
                     Showing {{ $wallets->firstItem() }} to {{ $wallets->lastItem() }} of {{ $wallets->total() }} entries
                 </span>
-                <div>{{ $wallets->links() }}</div>
+                <div class="pagination-sm">
+                    {{ $wallets->links() }}
+                </div>
             </div>
         </div>
     </div>
 
-    <div wire:ignore.self class="modal fade" id="editWallet" tabindex="-1" role="dialog"></div>
+    <div wire:ignore.self class="modal fade" id="editWallet" tabindex="-1" role="dialog" aria-labelledby="editWalletLabel" aria-hidden="true">
+        </div>
 </div>

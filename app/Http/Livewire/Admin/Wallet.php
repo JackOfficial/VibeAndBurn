@@ -122,7 +122,7 @@ class Wallet extends Component
         }
     }
     
-  public function render()
+public function render()
 {
     $query = Client_wallet::with(['user', 'funds' => function($q) {
             $q->latest()->take(5); 
@@ -134,7 +134,11 @@ class Wallet extends Component
         });
 
     return view('livewire.admin.wallet', [
-        'wallets' => $query->orderBy('funds_max_created_at', 'DESC')->paginate(10),
+        // use 'desc nulls last' logic or simply desc. 
+        // Sorting by 'id' as a secondary sort keeps the list from jumping around.
+        'wallets' => $query->orderBy('funds_max_created_at', 'DESC')
+                           ->orderBy('id', 'DESC') 
+                           ->paginate(10),
         'walletsCounter' => Client_wallet::count(),
         'walletsTotal' => Client_wallet::sum('money'),
     ]);
