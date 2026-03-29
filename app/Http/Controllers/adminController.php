@@ -51,7 +51,7 @@ class AdminController extends Controller
         // 5. Recent Activity: Orders
         $recentOrders = order::with('user')
             ->latest()
-            ->take(10)
+            ->take(5)
             ->get();
 
         // 6. Support Tickets Logic
