@@ -72,17 +72,29 @@
                             <td class="align-middle pl-4 text-muted">
                                 {{ ($wallets->currentPage() - 1) * $wallets->perPage() + $loop->iteration }}
                             </td>
-                            <td class="align-middle">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-circle mr-3 bg-soft-primary text-primary d-flex align-items-center justify-content-center rounded-circle" style="width: 35px; height: 35px; background: #e7f1ff;">
-                                        {{ strtoupper(substr($wallet->user->name ?? 'U', 0, 1)) }}
-                                    </div>
-                                    <div class="d-flex flex-column">
-                                        <span class="font-weight-bold text-dark">{{ $wallet->user->name ?? 'Deleted User' }}</span>
-                                        <small class="text-muted">{{ $wallet->user->email ?? 'N/A' }}</small>
-                                    </div>
-                                </div>
-                            </td>
+                           <td class="align-middle">
+    <div class="d-flex align-items-center">
+        <div class="mr-3 shadow-sm rounded-circle d-flex align-items-center justify-content-center" 
+             style="width: 40px; height: 40px; overflow: hidden; 
+                    background-color: {{ $wallet->user->avatar ? 'transparent' : '#e7f1ff' }};">
+            
+            @if($wallet->user->avatar)
+                <img src="{{ $wallet->user->avatar }}" 
+                     alt="Avatar" 
+                     style="width: 100%; height: 100%; object-fit: cover;">
+            @else
+                <span class="font-weight-bold text-primary" style="font-size: 1.1rem;">
+                    {{ strtoupper(substr($wallet->user->name ?? 'U', 0, 1)) }}
+                </span>
+            @endif
+        </div>
+
+        <div class="d-flex flex-column">
+            <span class="font-weight-bold text-dark">{{ $wallet->user->name ?? 'Deleted User' }}</span>
+            <small class="text-muted"><i class="fas fa-envelope fa-xs mr-1"></i>{{ $wallet->user->email ?? 'N/A' }}</small>
+        </div>
+    </div>
+</td>
                             <td class="align-middle">
                                 <span class="badge badge-light border py-2 px-3 font-weight-bold" style="font-size: 0.95rem;">
                                     <span class="text-success">$</span> {{ number_format($wallet->money, 2) }}
