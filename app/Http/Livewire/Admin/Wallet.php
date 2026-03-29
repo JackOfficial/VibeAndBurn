@@ -70,35 +70,47 @@ class Wallet extends Component
         }
     }
     
-    public function decreaseFund()
-    {
-        $this->validate();
-        $result = $this->getConvertedAmount();
+  public function decreaseFund()
+{
+    $this->validate();
+    $result = $this->getConvertedAmount();
 
-        try {
-            DB::transaction(function () use ($result) {
-                $wallet = Client_wallet::where('user_id', $this->thisWallet->user_id)->firstOrFail();
-                
-                // 1. Atomic decrement
-                $wallet->decrement('money', $result);
+    try {
+        DB::transaction(function () use ($result) {
+            $wallet = Client_wallet::where('user_id', $this->thisWallet->user_id)->lockForUpdate()->firstOrFail();
+            
+            // SAFETY: Ensure we don't deduct more than the user actually has
+            // This prevents the funds table from saying we removed $50 when we only removed $30
+            $actualDeduction = $result;
+            if ($wallet->money < $result) {
+                $actualDeduction = $wallet->money;
+            }
 
-                // 2. Create NEGATIVE Fund record to keep history accurate
+            // 1. Atomic decrement (only if there is something to remove)
+            if ($actualDeduction > 0) {
+                $wallet->decrement('money', $actualDeduction);
+
+                // 2. Create NEGATIVE Fund record using the ACTUAL amount removed
                 fund::create([
-                    'user_id' => $this->thisWallet->user_id,
-                    'method' => $this->currency . ' (Admin Remove)',
-                    'amount' => -$result, // Note the negative sign
+                    'user_id'   => $this->thisWallet->user_id,
+                    'method'    => $this->currency . ' (Admin Remove)',
+                    'amount'    => -$actualDeduction, 
                     'Payedwith' => 'Manual Deduction',
                 ]);
-            });
+                
+                $this->feedback = "$" . number_format($actualDeduction, 2) . " removed successfully.";
+            } else {
+                $this->feedback = "User has no funds to remove.";
+            }
+        });
 
-            $this->feedback = "$" . number_format($result, 2) . " removed successfully.";
-            $this->dispatchBrowserEvent('closeEditWalletModel');
-            $this->emit('reloadBrowser');
+        $this->dispatchBrowserEvent('closeEditWalletModel');
+        $this->emit('reloadBrowser');
 
-        } catch (\Exception $e) {
-            $this->feedback = "Error: " . $e->getMessage();
-        }
+    } catch (\Exception $e) {
+        $this->feedback = "Error: " . $e->getMessage();
     }
+}
     
     public function render()
     {
