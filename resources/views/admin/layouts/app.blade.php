@@ -222,7 +222,7 @@
       </div>
 
       <!-- Sidebar Menu -->
-    <nav class="mt-2">
+     <nav class="mt-2">
     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
         
         <li class="nav-item">
@@ -267,7 +267,10 @@
         <li class="nav-item {{ Route::is('admin.category.*') ? 'menu-open' : '' }}">
             <a href="#" class="nav-link {{ Route::is('admin.category.*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-chart-pie"></i>
-                <p>Categories <i class="right fas fa-angle-left"></i></p>
+                <p>
+                    Categories
+                    <i class="right fas fa-angle-left"></i>
+                </p>
             </a>
             <ul class="nav nav-treeview">
                 <li class="nav-item">
@@ -288,7 +291,10 @@
         <li class="nav-item {{ Route::is('admin.service.*') ? 'menu-open' : '' }}">
             <a href="#" class="nav-link {{ Route::is('admin.service.*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-tree"></i>
-                <p>Services <i class="fas fa-angle-left right"></i></p>
+                <p>
+                    Services
+                    <i class="fas fa-angle-left right"></i>
+                </p>
             </a>
             <ul class="nav nav-treeview">
                 <li class="nav-item">
@@ -309,7 +315,10 @@
         <li class="nav-item">
             <a href="{{ route('admin.clientOrders.index') }}" class="nav-link {{ Route::is('admin.clientOrders.index') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-th"></i>
-                <p>Orders <span class="right badge badge-danger">10</span></p>
+                <p>
+                    Orders
+                    <span class="right badge badge-danger">10</span>
+                </p>
             </a>
         </li>
 
@@ -323,13 +332,22 @@
         <li class="nav-item {{ (Route::is('contactus.*') || Route::is('broadcast.*')) ? 'menu-open' : '' }}">
             <a href="#" class="nav-link {{ (Route::is('contactus.*') || Route::is('broadcast.*')) ? 'active' : '' }}">
                 <i class="nav-icon fas fa-edit"></i>
-                <p>Messages <i class="fas fa-angle-left right"></i></p>
+                <p>
+                    Messages
+                    <i class="fas fa-angle-left right"></i>
+                </p>
             </a>
             <ul class="nav nav-treeview">
                 <li class="nav-item">
+                    <a href="pages/forms/general.html" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Compose Message</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ route('contactus.index') }}" class="nav-link {{ Route::is('contactus.index') ? 'active' : '' }}">
                         <i class="far fa-circle nav-icon"></i>
-                        <p>Inbox</p>
+                        <p>Inbox </p>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -354,16 +372,55 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-table"></i>
+                <p>
+                    Testimonials
+                    <i class="fas fa-angle-left right"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Manage Testimonials</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
         <li class="nav-item {{ Route::is('admin.users.*') ? 'menu-open' : '' }}">
             <a href="#" class="nav-link {{ Route::is('admin.users.*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-users"></i>
-                <p>Users <i class="fas fa-angle-left right"></i></p>
+                <p>
+                    Users
+                    <i class="fas fa-angle-left right"></i>
+                </p>
             </a>
             <ul class="nav nav-treeview">
                 <li class="nav-item">
                     <a href="{{ route('admin.users.index') }}" class="nav-link {{ Route::is('admin.users.index') ? 'active' : '' }}">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Manage Users</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-item {{ Route::is('admin.subscription.*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Route::is('admin.subscription.*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-users"></i>
+                <p>
+                    Subscribers
+                    <i class="fas fa-angle-left right"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="{{ route('admin.subscription.index') }}" class="nav-link {{ Route::is('admin.subscription.index') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Manage Subscribers</p>
                     </a>
                 </li>
             </ul>
@@ -377,17 +434,36 @@
         </li>
 
         <li class="nav-item">
+            <a href="{{ route('admin.advert.index') }}" class="nav-link {{ Route::is('admin.advert.index') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-wallet"></i>
+                <p>Adverts</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
             <a href="{{ route('admin.bfcurrency') }}" class="nav-link {{ Route::is('admin.bfcurrency') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-coins"></i>
                 <p>Set Currencies</p>
             </a>
         </li>
+
         <li class="nav-item">
             <a href="{{ route('admin.fund') }}" class="nav-link {{ Route::is('admin.fund') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-wallet"></i>
-                <p>Earnings</p>
+                <p>
+                    Earnings
+                    <span class="right badge badge-danger"></span>
+                </p>
             </a>
         </li>
+
+        <li class="nav-item">
+            <a href="{{ route('admin.sharedlink.index') }}" class="nav-link {{ Route::is('admin.sharedlink.index') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-money-bill-wave"></i>
+                <p>Bonuses</p>
+            </a>
+        </li>
+
         <li class="nav-item">
             <a href="/admin/rate" class="nav-link {{ request()->is('admin/rate*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-money-bill-wave"></i>
@@ -401,6 +477,7 @@
                 <p>Updates</p>
             </a>
         </li>
+
         <li class="nav-item">
             <a href="{{ route('admin.terms.index') }}" class="nav-link {{ Route::is('admin.terms.index') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-th"></i>
@@ -408,8 +485,8 @@
             </a>
         </li>
 
-        <li class="nav-item mt-3">
-            <a class="btn btn-danger btn-block text-white" href="{{ route('logout') }}" 
+        <li class="nav-item mt-2">
+            <a class="btn btn-primary btn-block text-white" href="{{ route('logout') }}"
                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <span><i class="fas fa-sign-out-alt"></i> Logout</span>
             </a>
