@@ -29,7 +29,7 @@ class clientOrdersController extends Controller
     public function create(Request $request)
     {
         $users = User::orderBy('name', 'ASC')->get();
-        return view('admin.add.fund', compact('users'));
+        return view('admin.funds.create', compact('users'));
     }
 
     /**
@@ -115,7 +115,7 @@ if($result != false){
     public function edit($id)
     {
         $orderID = $id;
-        return view('admin.edit.order', compact('orderID'));
+        return view('admin.orders.edit', compact('orderID'));
     }
 
     /**
