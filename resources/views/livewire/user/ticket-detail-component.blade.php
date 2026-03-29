@@ -74,12 +74,8 @@
                             wire:target="sendMessage" 
                             class="btn btn-primary btn-lg px-5 btn-round">
                         
-                        <span wire:loading.remove wire:target="sendMessage">
+                        <span wire:target="sendMessage">
                             <em class="icon ni ni-send-alt"></em> <span>Send Reply</span>
-                        </span>
-                        
-                        <span wire:loading wire:target="sendMessage">
-                            <em class="icon ni ni-loader spin"></em> <span>Sending...</span>
                         </span>
                     </button>
                 </div>
