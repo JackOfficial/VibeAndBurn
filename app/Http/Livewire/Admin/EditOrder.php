@@ -17,6 +17,7 @@ class EditOrder extends Component
     public $link, $status, $comment;
     public $username, $email, $phone, $avatar;
     public $startCount, $remains, $orderId; // $orderID (DB PK) vs $orderId (API ID)
+    public $description;
 
     protected $rules = [
         'startCount' => 'nullable|numeric',
@@ -54,6 +55,7 @@ class EditOrder extends Component
         $this->email       = $orderData->user->email ?? 'N/A';
         $this->phone       = $orderData->user->phone ?? 'N/A';
         $this->avatar      = $orderData->user->avatar ?? '';
+        $this->description = $orderData->service->description ?? '';
 
         $statuses = [
             1 => "Completed", 2 => "Canceled", 3 => "Processing", 
