@@ -110,6 +110,7 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
+                        {{ $avatar }}
     <div class="bg-soft-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm" 
          style="width: 60px; height: 60px; overflow: hidden;">
         
