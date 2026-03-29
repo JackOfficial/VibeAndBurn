@@ -17,7 +17,7 @@ class socialmediaController extends Controller
     {
         $socialmedia = socialmedia::orderBy('socialmedia', 'ASC')->get();
         $socialmediaCounter = socialmedia::count();
-       return view('admin.manage.socialmedia', compact('socialmedia', 'socialmediaCounter')); 
+       return view('admin.social-media.index', compact('socialmedia', 'socialmediaCounter')); 
     }
 
     /**
@@ -27,7 +27,7 @@ class socialmediaController extends Controller
      */
     public function create(Request $request)
     {
-        return view('admin.add.socialmedia');
+        return view('admin.social-media.create');
     }
 
     /**
