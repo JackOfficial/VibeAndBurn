@@ -13,10 +13,11 @@ class OrderStatus extends Command
     public function handle()
 {
     $sources = [
+        1 => 'Mine',
+        2 => 'Bulkfollows',
         3 => 'Amazing',
         4 => 'Bulkmedya',
-        5 => 'Smmsun',
-        'default' => 'Bulkfollows' 
+        5 => 'Smmsun'
     ];
 
     // Increased to 90 days to ensure older pending orders are caught
@@ -28,17 +29,13 @@ class OrderStatus extends Command
 
        $query = order::whereIn('status', [0, 3, 4]) 
               ->where('created_at', '>', now()->subDays(90))
+              ->where('source_id', $sourceId)
               ->where(function ($q) {
                   $q->whereNotNull('orderId')
                     ->where('orderId', '!=', '')
                     ->where('orderId', '!=', '0'); // Safety check for 0 IDs
               });
               
-        if ($sourceId === 'default') {
-            $query->whereNotIn('source_id', [3, 4, 5]);
-        } else {
-            $query->where('source_id', $sourceId);
-        }
 
         // Use chunk to process EVERYTHING, not just 100
         $count = $query->count();
@@ -94,7 +91,11 @@ private function processProviderBatch($providerName, $orders)
 
             if (isset($data->error)) {
                 $this->error("    -> ID $id: API Error -> " . $data->error);
-                continue;
+                if (str_contains(strtolower($data->error), 'id')) {
+               $order->update(['status' => 2]);
+               $this->warn("       -> [CLEANUP] Order #$id auto-canceled because API doesn't recognize it.");
+            }
+               continue;
             }
 
             if (isset($data->status)) {
