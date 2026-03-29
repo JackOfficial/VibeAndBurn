@@ -19,15 +19,16 @@ class OrderStatus extends Command
         'default' => 'Bulkfollows' 
     ];
 
-    $this->info("Checking for orders created after: " . now()->subDays(30)->toDateTimeString());
+    // Increased to 90 days to ensure older pending orders are caught
+    $this->info("Checking for orders created after: " . now()->subDays(90)->toDateTimeString());
 
     foreach ($sources as $sourceId => $providerName) {
-        $this->comment("--> Checking Provider: $providerName (ID: $sourceId)");
+        $this->comment("--> Checking Provider: $providerName");
 
         $query = order::whereNotIn('status', [1, 2, 5])
                       ->whereNotNull('orderId')
                       ->where('orderId', '!=', '')
-                      ->where('created_at', '>', now()->subDays(30));
+                      ->where('created_at', '>', now()->subDays(90));
 
         if ($sourceId === 'default') {
             $query->whereNotIn('source_id', [3, 4, 5]);
@@ -35,15 +36,18 @@ class OrderStatus extends Command
             $query->where('source_id', $sourceId);
         }
 
-        $orders = $query->limit(100)->get();
-
-        if ($orders->isEmpty()) {
-            $this->line("    Result: 0 orders found in DB for $providerName.");
-            continue; 
+        // Use chunk to process EVERYTHING, not just 100
+        $count = $query->count();
+        if ($count === 0) {
+            $this->line("    Result: 0 orders found.");
+            continue;
         }
 
-        $this->info("    Result: " . $orders->count() . " orders found. Sending to Controller...");
-        $this->processProviderBatch($providerName, $orders);
+        $this->info("    Result: $count orders found. Processing in batches...");
+        
+        $query->chunk(100, function ($orders) use ($providerName) {
+            $this->processProviderBatch($providerName, $orders);
+        });
     }
 
     $this->info("Command finished execution.");
