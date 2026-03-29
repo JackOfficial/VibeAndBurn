@@ -118,10 +118,11 @@ class OrderController extends Controller
         }
 
         return match ((int)$service->source_id) {
+            2 => (new BulkfollowsController())->order($params),
             3 => (new AmazingController())->order($params),
             4 => (new BulkmedyaController())->order($params),
             5 => (new SmmsunController())->order($params),
-            default => (new BulkfollowsController())->order($params),
+            default => throw new \Exception("Invalid source provider ID."),
         };
     }
 
