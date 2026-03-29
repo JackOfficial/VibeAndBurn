@@ -151,21 +151,37 @@
 </td>
 
                                             <td x-data="{ copied: false }">
-                                                <span class="d-block text-truncate text-dark mb-1" style="max-width: 150px; font-size: 0.85rem;" title="{{ $order->service->service ?? '' }}">
-                                                    {{ $order->service->service ?? 'Service Deleted' }}
-                                                </span>
-                                                <div class="d-flex align-items-center">
-                                                    <a href="{{ $order->link }}" target="_blank" class="badge badge-light text-info mr-2">
-                                                        {{ Str::limit($order->link, 50) }} <span><i class="fas fa-link mr-1"></i> Visit</span>
-                                                    </a>
-                                                    <button 
-                                                        @click="navigator.clipboard.writeText('{{ $order->link }}'); copied = true; setTimeout(() => copied = false, 2000)" 
-                                                        class="btn btn-link btn-sm p-0 text-muted" style="text-decoration: none;">
-                                                        <i :class="copied ? 'fas fa-check text-success' : 'far fa-copy'"></i>
-                                                        <span x-show="copied" x-cloak class="small ml-1 text-success">Copied!</span>
-                                                    </button>
-                                                </div>
-                                            </td>
+    <span class="d-block text-truncate text-dark mb-1" style="max-width: 150px; font-size: 0.85rem;" title="{{ $order->service->service ?? '' }}">
+        {{ $order->service->service ?? 'Service Deleted' }}
+    </span>
+
+    <div class="d-flex align-items-center mb-1">
+        <a href="{{ $order->link }}" target="_blank" class="badge badge-light text-info mr-2">
+            {{ Str::limit($order->link, 30) }} <span><i class="fas fa-link mr-1"></i> Visit</span>
+        </a>
+        <button 
+            @click="navigator.clipboard.writeText('{{ $order->link }}'); copied = true; setTimeout(() => copied = false, 2000)" 
+            class="btn btn-link btn-sm p-0 text-muted" style="text-decoration: none;">
+            <i :class="copied ? 'fas fa-check text-success' : 'far fa-copy'"></i>
+            <span x-show="copied" x-cloak class="small ml-1 text-success">Copied!</span>
+        </button>
+    </div>
+
+    <div class="d-flex align-items-center" style="gap: 5px;">
+        <span class="badge badge-soft-secondary py-1 px-2" style="font-size: 0.75rem; font-weight: 500;" title="Start Count">
+            <i class="fas fa-play-circle mr-1 text-muted"></i> Start: {{ number_format($order->start_count ?? 0) }}
+        </span>
+        <span class="badge badge-soft-warning py-1 px-2" style="font-size: 0.75rem; font-weight: 500;" title="Remaining">
+            <i class="fas fa-hourglass-half mr-1 text-muted"></i> Remains: {{ number_format($order->remains ?? 0) }}
+        </span>
+    </div>
+</td>
+
+<style>
+    /* Adding soft badge styles if they aren't in your CSS yet */
+    .badge-soft-secondary { background-color: #f1f3f5; color: #495057; border: 1px solid #e9ecef; }
+    .badge-soft-warning { background-color: #fff9db; color: #856404; border: 1px solid #ffe066; }
+</style>
 
                                             <td class="text-center">
                                                 <small class="text-muted d-block">Rate: ${{ number_format((float)($order->service->rate_per_1000 ?? 0), 2) }}</small>
