@@ -60,31 +60,45 @@ class EditOrder extends Component
         $this->status = $statuses[$orderData->status] ?? "Unknown";
     }
 
-    public function updateOrder()
-    {
-        $this->validate();
+public function updateOrder()
+{
+    $this->validate();
 
-        try {
-            $orderModel = order::findOrFail($this->orderID);
+    try {
+        $orderModel = order::findOrFail($this->orderID);
 
-            $orderModel->start_count = $this->startCount;
-            $orderModel->remains     = $this->remains;
-            // Clean the charge and format it back to your standard '$0.00' string
-            $cleanCharge = (float)str_replace('$', '', $this->charge);
-            $orderModel->charge      = '$' . number_format($cleanCharge, 2, '.', '');
-            $orderModel->orderId     = $this->orderId;
-            
-            // If you change status to 2 here, remember it won't refund automatically 
-            // unless you call manualRefund().
-            $orderModel->status      = 7; 
+        // 1. Clean the input (remove $, commas, and spaces)
+        $cleanCharge = (float) str_replace(['$', ',', ' '], '', $this->charge);
 
-            $orderModel->save(); 
-
-            session()->flash('editOrderSuccess', "Order #{$this->orderID} updated successfully.");
-        } catch (\Exception $e) {
-            session()->flash('editOrderFail', "Error: " . $e->getMessage());
+        // 2. Safety Check to prevent accidental 0.00 saves
+        if ($cleanCharge <= 0 && $orderModel->charge > 0) {
+            throw new \Exception("Charge cannot be zero. Please enter the amount paid.");
         }
+
+        // 3. Assign values to the model
+        $orderModel->start_count = $this->startCount;
+        $orderModel->remains     = $this->remains;
+        $orderModel->orderId     = $this->orderId; // External API ID
+        
+        // Save as a pure decimal (8 places) to match your DB precision
+        $orderModel->charge      = number_format($cleanCharge, 8, '.', '');
+
+        // 4. Update Status (This will be detected by your Observer)
+        $orderModel->status = 7; 
+
+        // 5. Save the model
+        // The Observer will catch this 'updated' event
+        $orderModel->save(); 
+
+        // 6. Sync the local Livewire state with the saved DB value
+        $this->charge = $orderModel->charge;
+
+        session()->flash('editOrderSuccess', "Order #{$this->orderID} updated and synced.");
+        
+    } catch (\Exception $e) {
+        session()->flash('editOrderFail', "Error: " . $e->getMessage());
     }
+}
 
     public function manualRefund()
     {
