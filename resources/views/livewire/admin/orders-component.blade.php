@@ -84,6 +84,8 @@
                                                             <option value="1">Complete</option>
                                                             <option value="2">Reverse</option>
                                                             <option value="3">Process</option>
+                                                            <option value="4">In Progress</option>
+                                                            <option value="5">Partial</option>
                                                         </select>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-outline-secondary" wire:click="changeStatus({{$order->id}})"><i class="fas fa-check fa-xs"></i></button>
