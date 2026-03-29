@@ -202,8 +202,8 @@
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
     <div class="image">
-        @if(Auth::user()->avatar && file_exists(public_path('storage/' . Auth::user()->avatar)))
-            <img src="{{ asset('storage/' . Auth::user()->avatar) }}" 
+        @if(Auth::user()->avatar)
+            <img src="{{ Auth::user()->avatar }}" 
                  class="img-circle elevation-2" 
                  style="width: 34px; height: 34px; object-fit: cover;" 
                  alt="User Image">
