@@ -13,7 +13,7 @@ class OrderStatus extends Command
     public function handle()
 {
     $sources = [
-        1 => 'Mine',
+        // 1 => 'Mine',
         2 => 'Bulkfollows',
         3 => 'Amazing',
         4 => 'Bulkmedya',
