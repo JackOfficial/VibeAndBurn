@@ -151,7 +151,7 @@
 </td>
 
                                             <td x-data="{ copied: false }">
-                                                <span class="d-block text-truncate text-dark mb-1" style="max-width: 170px; font-size: 0.85rem;" title="{{ $order->service->service ?? '' }}">
+                                                <span class="d-block text-truncate text-dark mb-1" style="max-width: 150px; font-size: 0.85rem;" title="{{ $order->service->service ?? '' }}">
                                                     {{ $order->service->service ?? 'Service Deleted' }}
                                                 </span>
                                                 <div class="d-flex align-items-center">
