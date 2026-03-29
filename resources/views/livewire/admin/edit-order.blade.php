@@ -25,39 +25,48 @@
 
                 <form wire:submit.prevent="updateOrder">
                     <div class="card-body">
-                        <div class="bg-light p-4 rounded mb-4 border-left-primary">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="small font-weight-bold text-muted uppercase d-block">Category</label>
-                                    <span class="text-dark font-weight-600">
-                                        {{ $categories->where('id', $category)->first()->category ?? 'N/A' }}
-                                    </span>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="small font-weight-bold text-muted uppercase d-block">API Provider ID</label>
-                                    <div class="input-group input-group-sm mt-1">
-                                        <input type="text" wire:model="orderId" class="form-control bg-white shadow-none" placeholder="External ID">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text badge-secondary border-0 text-white">Service: {{ $service }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12" x-data="{ copyLink() { navigator.clipboard.writeText('{{ $link }}'); } }">
-                                    <label class="small font-weight-bold text-muted uppercase">Target Link</label>
-                                    <div class="input-group input-group-sm mt-1">
-                                        <input type="text" class="form-control bg-white shadow-none" value="{{ $link }}" readonly>
-                                        <div class="input-group-append">
-                                            <button type="button" @click="copyLink(); $el.innerHTML = '<i class=\'fas fa-check\'></i>'; setTimeout(() => $el.innerHTML = '<i class=\'fas fa-copy\'></i>', 2000)" class="btn btn-outline-primary" title="Copy Link">
-                                                <i class="fas fa-copy"></i>
-                                            </button>
-                                            <a href="{{ $link }}" target="_blank" class="btn btn-primary shadow-none">
-                                                <i class="fas fa-external-link-alt"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                      <div class="bg-light p-4 rounded mb-4 border-left-primary">
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="small font-weight-bold text-muted uppercase d-block">Category</label>
+            <span class="text-dark font-weight-600">
+                {{ $categories->where('id', $category)->first()->category ?? 'N/A' }}
+            </span>
+        </div>
+
+        <div class="col-md-8 mb-3">
+            <label class="small font-weight-bold text-muted uppercase d-block">Service Name</label>
+            <span class="text-primary font-weight-bold">
+                {{ $services->where('id', $service)->first()->service ?? 'Unknown Service' }}
+            </span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="small font-weight-bold text-muted uppercase d-block">API Provider ID</label>
+            <div class="input-group input-group-sm mt-1">
+                <input type="text" wire:model="orderId" class="form-control bg-white shadow-none" placeholder="External ID">
+                <div class="input-group-append">
+                    <span class="input-group-text badge-secondary border-0 text-white">ID: {{ $service }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3" x-data="{ copyLink() { navigator.clipboard.writeText('{{ $link }}'); } }">
+            <label class="small font-weight-bold text-muted uppercase d-block">Target Link</label>
+            <div class="input-group input-group-sm mt-1">
+                <input type="text" class="form-control bg-white shadow-none" value="{{ $link }}" readonly>
+                <div class="input-group-append">
+                    <button type="button" @click="copyLink(); $el.innerHTML = '<i class=\'fas fa-check\'></i>'; setTimeout(() => $el.innerHTML = '<i class=\'fas fa-copy\'></i>', 2000)" class="btn btn-outline-primary" title="Copy Link">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <a href="{{ $link }}" target="_blank" class="btn btn-primary shadow-none">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
                         <div class="row">
                             <div class="col-md-6">
