@@ -2,10 +2,10 @@
 
 namespace App\Http\Livewire\Admin;
 
-use Livewire\Component;
-use Livewire\WithPagination; // Required for pagination in Livewire
-use App\Models\Supports;
+use App\Models\Support;
 use App\Models\Ticket;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class TicketComponent extends Component
 {
@@ -14,75 +14,53 @@ class TicketComponent extends Component
     public $ticketID;
     public $msg;
 
-    protected $paginationTheme = 'bootstrap'; // Or 'tailwind' depending on your CSS
+    protected $paginationTheme = 'bootstrap';
 
     public function sendReply()
     {
-        // 1. Validation
         $this->validate([
             'msg' => 'required|min:1',
             'ticketID' => 'required|exists:tickets,id'
         ]);
 
-        // 2. Create the Support Reply
-        $reply = Supports::create([
-            'ticket_id' => $this->ticketID, // Standardized naming
+        // Use the relationship to create the reply
+        $ticket = Ticket::findOrFail($this->ticketID);
+        
+        $reply = $ticket->supports()->create([
             'reply' => $this->msg
         ]);
 
-        if($reply) {
-            // 3. Update Ticket status to 'Answered'
-            Ticket::where('id', $this->ticketID)->update(['status' => 'answered']);
+        if ($reply) {
+            $ticket->update(['status' => 'answered']);
             
-            $this->msg = ''; // Clear input field
+            $this->reset('msg');
             session()->flash('sendReplySuccess', 'Message was sent!');
         } else {
-            session()->flash('sendReplyFail', 'Message was not sent. Try again!');
+            session()->flash('sendReplyFail', 'Failed to send message.');
         }
     }
 
-  public function render()
-{
-    // 1. Fetch the conversation for the selected ticket
-    // If ticketID is null, we still call paginate so the ->links() method exists
-    $ticketMessages = Supports::join('tickets', 'supports.ticket_id', '=', 'tickets.id')
-        ->join('users', 'tickets.user_id', '=', 'users.id')
-        ->when($this->ticketID, function($query) {
-            return $query->where('tickets.id', $this->ticketID);
-        }, function($query) {
-            // If no ID, force an empty result but keep it as a Paginator
-            return $query->where('tickets.id', 0); 
-        })
-        ->select([
-            'tickets.id as ticket_id',
-            'tickets.subject',
-            'tickets.status',
-            'supports.id as support_id',
-            'supports.message',
-            'supports.reply',
-            'supports.created_at as message_date',
-            'users.google_id',
-            'users.avatar'
-        ])
-        ->latest('supports.created_at')
-        ->paginate(10, ['*'], 'chatPage'); // Naming the page helps prevent conflicts
+    public function render()
+    {
+        // 1. Fetch conversation for the selected ticket using relationships
+        // Assuming Ticket hasMany Support
+        $ticketMessages = Support::with(['ticket.user'])
+            ->when($this->ticketID, function($query) {
+                $query->where('ticket_id', $this->ticketID);
+            }, function($query) {
+                $query->where('id', 0); 
+            })
+            ->latest()
+            ->paginate(10, ['*'], 'chatPage');
 
-    // 2. Fetch all tickets for the sidebar
-    $allTickets = Ticket::join('users', 'tickets.user_id', '=', 'users.id')
-        ->select(
-            'tickets.*', 
-            'tickets.id as ticket_id', 
-            'users.name', 
-            'users.email', 
-            'users.google_id', 
-            'users.avatar'
-        )
-        ->orderBy('tickets.id', 'DESC')
-        ->paginate(15, ['*'], 'ticketsPage');
+        // 2. Fetch all tickets for the sidebar using Eager Loading
+        $allTickets = Ticket::with('user')
+            ->latest('id')
+            ->paginate(15, ['*'], 'ticketsPage');
 
-    return view('livewire.admin.ticket-component', [
-        'ticket' => $ticketMessages,
-        'chats' => $allTickets
-    ]);
-}
+        return view('livewire.admin.ticket-component', [
+            'ticket' => $ticketMessages,
+            'chats' => $allTickets
+        ]);
+    }
 }
