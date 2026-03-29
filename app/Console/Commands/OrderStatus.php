@@ -41,57 +41,65 @@ class OrderStatus extends Command
     }
 
     private function processProviderBatch($providerName, $orders)
-    {
-        $controllerClass = "App\\Http\\Controllers\\apis\\{$providerName}Controller";
-        
-        if (!class_exists($controllerClass)) {
-            $this->error("Controller $controllerClass not found!");
+{
+    $controllerClass = "App\\Http\\Controllers\\apis\\{$providerName}Controller";
+    
+    if (!class_exists($controllerClass)) {
+        $this->error("CRITICAL: Controller $controllerClass not found!");
+        return;
+    }
+
+    $api = new $controllerClass();
+    $externalIds = $orders->pluck('orderId')->toArray();
+
+    try {
+        $response = $api->multiStatus($externalIds);
+
+        if (!$response) {
+            $this->error("[$providerName] API returned an empty or null response for " . count($externalIds) . " IDs.");
             return;
         }
 
-        $api = new $controllerClass();
-        $externalIds = $orders->pluck('orderId')->toArray();
+        foreach ($orders as $order) {
+            $id = $order->orderId;
 
-        try {
-            $response = $api->multiStatus($externalIds);
-
-            if ($response) {
-                foreach ($orders as $order) {
-                    $id = $order->orderId;
-
-                    if (isset($response->{$id})) {
-                        $data = $response->{$id};
-
-                        // Check if data is valid and contains a status
-                        if (is_object($data) && isset($data->status)) {
-                            $newStatus = $this->mapStatus($data->status);
-
-                            $order->update([
-                                'status'      => $newStatus,
-                                'start_count' => $data->start_count ?? $order->start_count,
-                                'remains'     => $data->remains ?? $order->remains,
-                            ]);
-
-                            $this->info("Order #{$order->id} (API ID: $id) updated to $newStatus ({$data->status})");
-                        } else {
-                            $this->warn("Order ID $id returned invalid data: " . json_encode($data));
-                            
-                            // If the provider explicitly says the ID is wrong, mark as Canceled (2) 
-                            // to stop checking it in future cron runs.
-                            if (isset($data->error) && $data->error === 'Incorrect order ID') {
-                                $order->update(['status' => 2]);
-                                $this->error("Order #{$order->id} auto-canceled: Incorrect API ID.");
-                            }
-                        }
-                    } else {
-                        $this->warn("Order ID $id not found in {$providerName} response.");
-                    }
-                }
+            // REASON 1: ID missing from API response keys
+            if (!isset($response->{$id})) {
+                $this->warn("MISSING: Order ID $id exists in your DB but was NOT returned by {$providerName} API.");
+                continue;
             }
-        } catch (\Exception $e) {
-            $this->error("API Error with {$providerName}: " . $e->getMessage());
+
+            $data = $response->{$id};
+
+            // REASON 2: API returned an error object for this specific ID
+            if (isset($data->error)) {
+                $this->error("API ERROR: Order #{$order->id} (API ID: $id) -> " . ($data->error));
+                
+                if ($data->error === 'Incorrect order ID') {
+                    $order->update(['status' => 2]);
+                    $this->line("   -> Action: Auto-canceled in local DB.");
+                }
+                continue;
+            }
+
+            // REASON 3: Data is returned but 'status' field is missing or malformed
+            if (!is_object($data) || !isset($data->status)) {
+                $this->error("DATA MALFORMED: Order ID $id returned invalid structure: " . json_encode($data));
+                continue;
+            }
+
+            // Optional: Show status mapping issues (if API returns a status not in your match list)
+            $mappedStatus = $this->mapStatus($data->status);
+            if ($mappedStatus === 0 && strtolower(trim($data->status)) !== 'pending') {
+                $this->warn("UNMAPPED STATUS: Order #{$order->id} returned '{$data->status}', which maps to 0 (Default/Pending). Check if this is correct.");
+            }
+
+            // Success is silent now...
         }
+    } catch (\Exception $e) {
+        $this->error("EXCEPTION [{$providerName}]: " . $e->getMessage());
     }
+}
 
     private function mapStatus($statusName)
     {
