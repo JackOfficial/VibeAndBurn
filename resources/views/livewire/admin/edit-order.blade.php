@@ -110,12 +110,23 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
-                        <div class="bg-soft-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
-                            <span class="h4 text-primary font-weight-bold mb-0">{{ strtoupper(substr($username, 0, 1)) }}</span>
-                        </div>
-                        <h6 class="font-weight-bold mb-0">{{ $username }}</h6>
-                        <small class="text-muted">{{ $email }}</small>
-                    </div>
+    <div class="bg-soft-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm" 
+         style="width: 60px; height: 60px; overflow: hidden;">
+        
+        @if(isset($avatar) && $avatar != '')
+            <img src="{{ $avatar }}" 
+                 alt="{{ $username }}" 
+                 style="width: 100%; height: 100%; object-fit: cover;">
+        @else
+            <span class="h4 text-primary font-weight-bold mb-0">
+                {{ strtoupper(substr($username, 0, 1)) }}
+            </span>
+        @endif
+        
+    </div>
+    <h6 class="font-weight-bold mb-0 text-dark">{{ $username }}</h6>
+    <small class="text-muted">{{ $email }}</small>
+</div>
                     <hr>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Status:</span>

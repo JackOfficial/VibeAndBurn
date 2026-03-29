@@ -24,7 +24,7 @@ class EditOrder extends Component
   public $quantityToggler = 0;
   public $custom_comments = [90, 113, 182, 183, 192, 198];
   public $link, $status;
-  public $userID, $username, $email, $phone;
+  public $userID, $username, $email, $phone, $avatar;
   public $startCount, $remains, $orderId;
   
   public function updatedComment(){
@@ -70,6 +70,7 @@ class EditOrder extends Component
    $this->link = $order->link;
    $this->username = $order->name;
    $this->email = $order->email;
+   $this->avatar = $order->avatar ?? '';
    $this->phone = $order->phone;
    $this->startCount = $order->start_count;
    $this->remains = $order->remains;
