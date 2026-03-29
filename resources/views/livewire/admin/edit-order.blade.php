@@ -1,15 +1,15 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-8 col-md-8 col-sm-12 col-12">
+        <div class="col-lg-8 col-md-12">
             
             <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 5000)" x-show="show" x-transition.opacity>
                 @if (Session::has('editOrderSuccess'))
-                    <div class="alert alert-success border-0 shadow-sm d-flex align-items-center">
+                    <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4">
                         <i class="fas fa-check-circle mr-2"></i>
                         {{ Session::get('editOrderSuccess') }}
                     </div>
                 @elseif(Session::has('editOrderFail'))
-                    <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center">
+                    <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
                         {{ Session::get('editOrderFail') }}
                     </div>
@@ -17,32 +17,37 @@
             </div>
 
             <div class="card card-outline card-primary shadow-sm border-0">
-                <div class="card-header bg-white py-3">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="card-title font-weight-bold mb-0">
                         <i class="fas fa-shopping-cart text-primary mr-2"></i>
-                        Edit Order #{{ $orderId }} 
-                        <span class="badge badge-soft-info ml-2">{{ strtoupper($status) }}</span>
+                        Order #{{ $orderId }}
                     </h5>
+                    <span class="badge badge-soft-info p-2 px-3">{{ strtoupper($status) }}</span>
                 </div>
 
                 <form wire:submit.prevent="updateOrder">
                     <div class="card-body">
-                        <div class="bg-light p-3 rounded mb-4 border">
+                        <div class="bg-light p-4 rounded mb-4 border-left-primary">
                             <div class="row">
-                                <div class="col-md-6">
-                                    <label class="small font-weight-bold text-muted uppercase">Category</label>
-                                    <p class="mb-2 text-dark">{{ $categories->find($category)->category ?? 'N/A' }}</p>
+                                <div class="col-md-6 mb-3">
+                                    <label class="small font-weight-bold text-muted uppercase d-block">Category</label>
+                                    <span class="text-dark font-weight-600">{{ $categories->find($category)->category ?? 'N/A' }}</span>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="small font-weight-bold text-muted uppercase">Service ID</label>
-                                    <p class="mb-2 text-dark">{{ $service }}</p>
+                                <div class="col-md-6 mb-3">
+                                    <label class="small font-weight-bold text-muted uppercase d-block">Service ID</label>
+                                    <span class="badge badge-secondary">ID: {{ $service }}</span>
                                 </div>
-                                <div class="col-12">
+                                <div class="col-12" x-data="{ copyLink() { navigator.clipboard.writeText('{{ $link }}'); } }">
                                     <label class="small font-weight-bold text-muted uppercase">Target Link</label>
-                                    <div class="input-group input-group-sm">
-                                        <input type="text" class="form-control bg-white" value="{{ $link }}" readonly>
+                                    <div class="input-group input-group-sm mt-1">
+                                        <input type="text" class="form-control bg-white shadow-none" value="{{ $link }}" readonly>
                                         <div class="input-group-append">
-                                            <a href="{{ $link }}" target="_blank" class="btn btn-outline-secondary"><i class="fas fa-external-link-alt"></i></a>
+                                            <button type="button" @click="copyLink(); $el.innerHTML = '<i class=\'fas fa-check\'></i>'; setTimeout(() => $el.innerHTML = '<i class=\'fas fa-copy\'></i>', 2000)" class="btn btn-outline-primary" title="Copy Link">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                            <a href="{{ $link }}" target="_blank" class="btn btn-primary shadow-none">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -53,32 +58,32 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="font-weight-bold">Start Count</label>
-                                    <input type="number" wire:model="startCount" class="form-control @error('startCount') is-invalid @enderror" placeholder="0"> 
+                                    <input type="number" wire:model="startCount" class="form-control shadow-none @error('startCount') is-invalid @enderror" placeholder="0"> 
                                     @error('startCount') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="font-weight-bold">Remains</label>
-                                    <input type="number" wire:model="remains" class="form-control @error('remains') is-invalid @enderror" placeholder="0"> 
+                                    <input type="number" wire:model="remains" class="form-control shadow-none @error('remains') is-invalid @enderror" placeholder="0"> 
                                     @error('remains') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row mt-2">
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="font-weight-bold">Quantity</label>
-                                    <input type="number" wire:model="quantity" class="form-control" readonly>
+                                    <input type="number" wire:model="quantity" class="form-control bg-light shadow-none" readonly title="Quantity cannot be changed after order">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="font-weight-bold">Charge ($)</label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                                        <input type="text" wire:model="charge" class="form-control @error('charge') is-invalid @enderror">
+                                        <div class="input-group-prepend"><span class="input-group-text bg-white border-right-0">$</span></div>
+                                        <input type="text" wire:model="charge" class="form-control shadow-none border-left-0 @error('charge') is-invalid @enderror">
                                     </div>
                                     @error('charge') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
@@ -86,67 +91,77 @@
                         </div>
 
                         @if($comment)
-                        <div class="form-group mt-2">
-                            <label class="font-weight-bold text-muted">Customer Comments</label>
-                            <textarea rows="3" wire:model="comment" readonly class="form-control bg-light border-0" style="font-family: monospace; font-size: 0.9rem;"></textarea> 
+                        <div class="form-group mt-3">
+                            <label class="font-weight-bold text-muted small uppercase">Customer Customization/Comments</label>
+                            <div class="p-3 bg-light rounded border text-monospace small" style="white-space: pre-wrap;">{{ $comment }}</div>
                         </div>
                         @endif
                     </div>
 
-                    <div class="card-footer bg-white border-top-0">
-                        <button type="submit" wire:loading.attr="disabled" class="btn btn-primary btn-lg btn-block shadow-sm">
-                            <span wire:loading.remove wire:target="updateOrder"><i class="fa fa-save mr-2"></i> Update Order Details</span>
-                            <span wire:loading wire:target="updateOrder"><i class="fas fa-circle-notch fa-spin mr-2"></i> Saving Changes...</span>
+                    <div class="card-footer bg-white border-top-0 pt-0">
+                        <button type="submit" wire:loading.attr="disabled" class="btn btn-primary btn-block py-3 font-weight-bold shadow-sm">
+                            <span wire:loading.remove wire:target="updateOrder"><i class="fa fa-save mr-2"></i> Save Changes</span>
+                            <span wire:loading wire:target="updateOrder"><i class="fas fa-circle-notch fa-spin mr-2"></i> Syncing Data...</span>
                         </button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+        <div class="col-lg-4 col-md-12">
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-white py-3">
-                    <h5 class="card-title font-weight-bold mb-0">User Profile</h5>
+                    <h6 class="font-weight-bold mb-0">Buyer Information</h6>
                 </div>
                 <div class="card-body">
-                    <div class="text-center mb-3">
-    <div class="bg-soft-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm" 
-         style="width: 60px; height: 60px; overflow: hidden;">
-        
-        @if(isset($avatar) && $avatar != '')
-            <img src="{{ $avatar }}" 
-                 alt="{{ $username }}" 
-                 style="width: 100%; height: 100%; object-fit: cover;">
-        @else
-            <span class="h4 text-primary font-weight-bold mb-0">
-                {{ strtoupper(substr($username, 0, 1)) }}
-            </span>
-        @endif
-        
-    </div>
-    <h6 class="font-weight-bold mb-0 text-dark">{{ $username }}</h6>
-    <small class="text-muted">{{ $email }}</small>
-</div>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-soft-primary rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 50px; height: 50px;">
+                            @if(isset($avatar) && $avatar != '')
+                                <img src="{{ $avatar }}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+                            @else
+                                <span class="h5 text-primary font-weight-bold mb-0">{{ strtoupper(substr($username, 0, 1)) }}</span>
+                            @endif
+                        </div>
+                        <div>
+                            <h6 class="font-weight-bold mb-0 text-dark">{{ $username }}</h6>
+                            <small class="text-muted">{{ $email }}</small>
+                        </div>
+                    </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Status:</span>
-                        <span class="badge badge-success">Active Customer</span>
+                        <span class="text-muted small">Account:</span>
+                        <span class="badge badge-success px-2">Active</span>
                     </div>
                     @if($phone)
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Phone:</span>
-                        <span class="font-weight-bold">{{ $phone }}</span>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small">Phone:</span>
+                        <span class="font-weight-bold small">{{ $phone }}</span>
                     </div>
                     @endif
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4 bg-light border-left-danger">
+                <div class="card-body">
+                    <h6 class="font-weight-bold text-danger mb-2">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Manual Refund
+                    </h6>
+                    <p class="small text-muted mb-3">Return the total cost of <strong>${{ $charge }}</strong> to this user's wallet. This action is tracked in logs.</p>
+                    <button type="button" 
+                            wire:click="manualRefund" 
+                            wire:confirm="This will immediately add ${{ $charge }} to {{ $username }}'s balance. Proceed?"
+                            class="btn btn-danger btn-sm btn-block shadow-sm py-2">
+                        <i class="fas fa-undo-alt mr-2"></i> Process Full Refund
+                    </button>
                 </div>
             </div>
 
             @if(isset($description) && $description != '')
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3">
-                    <h5 class="card-title font-weight-bold mb-0">Service Instructions</h5>
+                    <h6 class="font-weight-bold mb-0">Original Service Details</h6>
                 </div>
-                <div class="card-body small text-muted">
+                <div class="card-body small text-muted overflow-auto" style="max-height: 300px;">
                     {!! $description !!}
                 </div>
             </div>
@@ -159,4 +174,7 @@
     .badge-soft-info { background-color: #e1f5fe; color: #01579b; border: 1px solid #b3e5fc; }
     .bg-soft-primary { background-color: rgba(0, 123, 255, 0.1); }
     .uppercase { text-transform: uppercase; letter-spacing: 0.5px; }
+    .border-left-primary { border-left: 4px solid #007bff; }
+    .border-left-danger { border-left: 4px solid #dc3545; }
+    .font-weight-600 { font-weight: 600; }
 </style>
