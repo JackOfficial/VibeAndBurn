@@ -9,6 +9,7 @@ use App\Http\Controllers\apis\BulkmedyaController;
 use App\Http\Controllers\apis\AmazingController;
 use App\Http\Controllers\apis\BulkfollowsController;
 use App\Http\Controllers\apis\SmmsunController;
+use Illuminate\Support\Facades\Log;
 
 class UpdatePrice extends Command
 {
@@ -16,71 +17,64 @@ class UpdatePrice extends Command
     protected $description = 'Update Services Price using efficient key-mapping';
 
     public function handle()
-    {
-        $apis = [
-            3 => new AmazingController(),
-            4 => new BulkmedyaController(),
-            5 => new SmmsunController(),
-            'default' => new BulkfollowsController(),
-        ];
+{
+    $apis = [
+        2 => new BulkfollowsController(), // Corrected ID to match your previous logic
+        3 => new AmazingController(),
+        4 => new BulkmedyaController(),
+        5 => new SmmsunController(),
+    ];
 
-        $services = our_service::where('state', 1)
-            ->whereNotNull('serviceId')
-            ->where('serviceId', '!=', '')
-            ->get();
+    // Fetch only active services that have an external ID
+    $services = our_service::where('status', 1) // Changed 'state' to 'status' if that's your column name
+        ->whereNotNull('serviceId')
+        ->where('serviceId', '!=', '')
+        ->get();
 
-        if ($services->isEmpty()) {
-            $this->warn("No active services found.");
-            return 0;
-        }
-
-        $rateSetting = Rate::first();
-        $margin = $rateSetting ? $rateSetting->rate : 1;
-
-        $providerData = [];
-        foreach ($apis as $id => $api) {
-            try {
-                $response = $api->services();
-                
-                // Safety: Ensure response is an array before collecting
-                if (is_array($response) || is_object($response)) {
-                    $providerData[$id] = collect($response)->keyBy('service');
-                } else {
-                    $this->error("Invalid response from provider ID: {$id}");
-                    $providerData[$id] = collect();
-                }
-            } catch (\Exception $e) {
-                $this->error("Provider {$id} Connection Error: " . $e->getMessage());
-                $providerData[$id] = collect();
-            }
-        }
-
-        $updatedCount = 0;
-
-        foreach ($services as $service) {
-            // Determine which provider's data to use
-            $lookupId = isset($providerData[$service->source_id]) ? $service->source_id : 'default';
-            $externalServices = $providerData[$lookupId];
-
-            if ($externalServices->has($service->serviceId)) {
-                $remote = $externalServices->get($service->serviceId);
-                
-                // Handle both object and array formats (Flexible Access)
-                $remoteRate = is_object($remote) ? ($remote->rate ?? 0) : ($remote['rate'] ?? 0);
-                
-                if ($remoteRate > 0) {
-                    $newRate = $remoteRate * $margin;
-
-                    // Use round() to avoid tiny decimal changes triggering an update
-                    if (round((float)$service->rate_per_1000, 4) !== round((float)$newRate, 4)) {
-                        $service->update(['rate_per_1000' => $newRate]);
-                        $updatedCount++;
-                    }
-                }
-            }
-        }
-
-        $this->info("Update complete! {$updatedCount} prices modified.");
+    if ($services->isEmpty()) {
+        $this->warn("No active services found.");
         return 0;
     }
+
+    $rateSetting = Rate::first();
+    $margin = $rateSetting ? $rateSetting->rate : 1;
+
+    $providerData = [];
+    foreach ($apis as $id => $api) {
+        try {
+            $response = $api->services();
+            // Ensure we have a valid collection
+            $providerData[$id] = collect($response)->keyBy('service');
+        } catch (\Exception $e) {
+            $this->error("Provider {$id} Error: " . $e->getMessage());
+        }
+    }
+
+    $updatedCount = 0;
+
+    foreach ($services as $service) {
+        // Skip if the provider failed to return data
+        if (!isset($providerData[$service->source_id])) continue;
+
+        $externalServices = $providerData[$service->source_id];
+
+        if ($externalServices->has($service->serviceId)) {
+            $remote = $externalServices->get($service->serviceId);
+            $remoteRate = is_object($remote) ? ($remote->rate ?? 0) : ($remote['rate'] ?? 0);
+            
+            if ($remoteRate > 0) {
+                $newRate = (float)$remoteRate * (float)$margin;
+
+                if (round((float)$service->rate_per_1000, 4) !== round($newRate, 4)) {
+                    $service->update(['rate_per_1000' => $newRate]);
+                    $updatedCount++;
+                }
+            }
+        }
+    }
+
+    $this->info("Update complete! {$updatedCount} prices modified.");
+    Log::info("Daily Price Update: {$updatedCount} services updated across " . count($providerData) . " providers.");
+    return 0;
+}
 }

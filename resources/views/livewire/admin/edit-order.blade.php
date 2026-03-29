@@ -88,7 +88,7 @@
                                     <label class="font-weight-bold">Charge ($)</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend"><span class="input-group-text bg-white border-right-0">$</span></div>
-                                        <input type="number" step="0.01" wire:model="charge" class="form-control shadow-none border-left-0 @error('charge') is-invalid @enderror">
+                                        <input type="number" step="any" wire:model="charge" class="form-control shadow-none border-left-0 @error('charge') is-invalid @enderror">
                                     </div>
                                     @error('charge') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
