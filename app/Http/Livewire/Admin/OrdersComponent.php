@@ -78,20 +78,31 @@ class OrdersComponent extends Component
         session()->flash("breathDetails", "The total funds paid by {$user->name} is: {$fundAmount}, the total amount charged: {$sum} and the balance should be: {$remain}");
     }
     
-    public function changeStatus($orderId)
-    {
-        $updated = order::where('id', $orderId)->update(['status' => $this->status]);
-          
-        if($updated) {
-            $statuses = [
-                0 => "pending", 1 => "completed", 2 => "reversed", 
-                3 => "processing", 4 => "in progress", 5 => "partial"
-            ];
-            
-            $feedback = "This order marked " . ($statuses[$this->status] ?? 'updated') . "!";
-            $this->dispatchBrowserEvent('toastr:success', ['message' => $feedback]);
-        }
+  public function changeStatus($orderId)
+{
+    $this->validate([
+        'status' => 'required|integer|in:0,1,2,3,4,5'
+    ]);
+    
+    $order = order::findOrFail($orderId);
+    $updated = $order->update(['status' => $this->status]);
+      
+    if($updated) {
+        $statuses = [
+            0 => "pending", 
+            1 => "completed", 
+            2 => "reversed", 
+            3 => "processing", 
+            4 => "in progress", 
+            5 => "partial"
+        ];
+        
+        $statusName = $statuses[$this->status] ?? 'updated';
+        $feedback = "Order #{$orderId} marked as " . strtoupper($statusName) . "!";
+        
+        $this->dispatchBrowserEvent('toastr:success', ['message' => $feedback]);
     }
+}
     
     public function render()
     {
