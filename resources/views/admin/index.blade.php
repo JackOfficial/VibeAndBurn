@@ -116,69 +116,105 @@
         </div>
     </div>
     
+   <div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <h3 class="card-title font-weight-bold text-dark mb-0">Live Order Stream</h3>
+            <span class="badge badge-pill badge-light border text-muted mt-1">Showing last {{ count($recentOrders) }} activities</span>
+        </div>
+        <div class="card-tools">
+            <button onclick="window.location.reload()" class="btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-sync-alt mr-1"></i> Refresh Stream
+            </button>
+        </div>
+    </div>
+    
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="border-collapse: separate; border-spacing: 0 8px;">
-                <thead class="bg-light">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">
                     <tr>
-                        <th class="pl-4 border-0 text-muted small" style="width: 15%">ORDER ID</th>
-                        <th class="border-0 text-muted small">SERVICE DETAILS</th>
-                        <th class="border-0 text-muted small">STATUS</th>
-                        <th class="text-right pr-4 border-0 text-muted small">TOTAL CHARGE</th>
+                        <th class="pl-4 py-3">Order Info</th>
+                        <th>User & Link</th>
+                        <th>Service & Provider</th>
+                        <th class="text-center">Quantity</th>
+                        <th>Status</th>
+                        <th class="text-right pr-4">Cost</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($recentOrders as $order)
-                    <tr class="bg-white shadow-none">
+                    <tr>
                         <td class="pl-4 py-3">
                             <div class="d-flex align-items-center">
                                 @if($loop->first)
-                                    <span class="mr-2" title="Latest Activity">
-                                        <span class="spinner-grow spinner-grow-sm text-primary" role="status" style="width: 8px; height: 8px;"></span>
-                                    </span>
+                                    <span class="mr-2"><i class="fas fa-circle text-primary pulse-small" style="font-size: 8px;"></i></span>
                                 @endif
                                 <div>
-                                    <a href="{{ route('admin.clientOrders.show', $order->id) }}" class="text-dark font-weight-bold">#{{ $order->id }}</a>
-                                    <div class="text-muted" style="font-size: 11px;">{{ $order->created_at->diffForHumans() }}</div>
+                                    <a href="{{ route('admin.clientOrders.show', $order->id) }}" class="text-primary font-weight-bold">#{{ $order->id }}</a>
+                                    <div class="text-muted small">{{ $order->created_at->format('M d, H:i') }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3">
-                            <span class="d-block text-dark font-weight-600" style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                {{ $order->service_name }}
-                            </span>
-                            <span class="text-muted small"><i class="far fa-user mr-1 text-xs"></i> {{ $order->user->name ?? 'System Guest' }}</span>
+
+                        <td>
+                            <div class="text-dark font-weight-bold">{{ $order->user->name ?? 'Guest' }}</div>
+                            <div class="text-muted small" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                <i class="fas fa-link mr-1 text-xs"></i><a href="{{ $order->link }}" target="_blank" class="text-muted">{{ $order->link }}</a>
+                            </div>
                         </td>
-                        <td class="py-3">
+
+                        <td>
+                            <div class="text-dark truncate-text" title="{{ $order->service_name }}">
+                                {{ Str::limit($order->service_name, 30) }}
+                            </div>
+                            <span class="badge badge-light border text-uppercase" style="font-size: 9px;">
+                                <i class="fas fa-server mr-1"></i> {{ $order->api_provider_name ?? 'Manual' }}
+                            </span>
+                        </td>
+
+                        <td class="text-center">
+                            <span class="badge badge-secondary font-weight-bold px-2">{{ number_format($order->quantity) }}</span>
+                        </td>
+
+                        <td>
                             @php
-                                $statusMap = match($order->status) {
-                                    'pending', '0' => ['color' => 'warning', 'label' => 'Awaiting'],
-                                    'completed' => ['color' => 'success', 'label' => 'Success'],
-                                    'processing' => ['color' => 'primary', 'label' => 'Active'],
-                                    'canceled' => ['color' => 'danger', 'label' => 'Canceled'],
-                                    default => ['color' => 'secondary', 'label' => $order->status]
+                                $statusStyle = match($order->status) {
+                                    'pending', '0' => 'warning',
+                                    'completed' => 'success',
+                                    'processing' => 'info',
+                                    'partial' => 'primary',
+                                    'canceled', 'cancelled' => 'danger',
+                                    default => 'secondary'
                                 };
                             @endphp
-                            <span class="badge badge-{{ $statusMap['color'] }} px-3 py-2" style="border-radius: 6px; font-size: 10px; letter-spacing: 0.5px;">
-                                {{ strtoupper($statusMap['label']) }}
+                            <span class="badge bg-{{ $statusStyle }} text-uppercase px-2 py-1" style="font-size: 10px;">
+                                {{ $order->status }}
                             </span>
                         </td>
+
                         <td class="text-right pr-4 py-3">
-                            <h6 class="mb-0 font-weight-bold text-dark">${{ number_format($order->charge, 2) }}</h6>
+                            <div class="font-weight-bold text-dark">${{ number_format($order->charge, 3) }}</div>
+                            <div class="text-muted small" style="font-size: 10px;">Profit: ${{ number_format($order->charge - ($order->api_cost ?? 0), 3) }}</div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="text-center py-5">
-                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="opacity-50 mb-3" style="filter: grayscale(1);">
-                            <p class="text-muted mt-2">No live orders found in the system.</p>
-                        </td>
+                        <td colspan="6" class="text-center py-5 text-muted">No orders found.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+</div>
+
+<style>
+    .truncate-text { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 500; }
+    .pulse-small { animation: pulse-animation 2s infinite; }
+    @keyframes pulse-animation { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    .table td { vertical-align: middle !important; border-top: 1px solid #f4f6f9; }
+</style>
     
     <div class="card-footer bg-white border-top-0 text-center py-3">
         <a href="{{ route('admin.clientOrders.index') }}" class="btn btn-sm btn-outline-primary px-4" style="border-radius: 20px;">
