@@ -272,39 +272,70 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-    const ctx = document.getElementById('revenueChart').getContext('2d');
+document.addEventListener("DOMContentLoaded", function() {
+    const canvas = document.getElementById('revenueChart');
+    if (!canvas) return; // Exit if canvas doesn't exist to prevent errors
+
+    const ctx = canvas.getContext('2d');
     
-    // Create Gradient
-    let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(40, 167, 69, 0.4)');
-    gradient.addColorStop(1, 'rgba(40, 167, 69, 0)');
+    // Prepare Data from Laravel
+    const labels = {!! json_encode($monthlyRevenue->pluck('month') ?? []) !!};
+    const dataValues = {!! json_encode($monthlyRevenue->pluck('amount') ?? []) !!};
+
+    // If no data, show a console warning instead of crashing
+    if (labels.length === 0) {
+        console.warn("VibeAndBurn Analytics: No monthly revenue data found.");
+    }
+
+    // Create Gradient Background
+    let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(40, 167, 69, 0.3)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: {!! json_encode($monthlyRevenue->pluck('month')) !!},
+            labels: labels,
             datasets: [{
-                label: 'Earnings',
-                data: {!! json_encode($monthlyRevenue->pluck('amount')) !!},
+                label: 'Monthly Revenue ($)',
+                data: dataValues,
                 backgroundColor: gradient,
                 borderColor: '#28a745',
                 borderWidth: 3,
-                pointBackgroundColor: '#fff',
+                pointBackgroundColor: '#ffffff',
                 pointBorderColor: '#28a745',
+                pointBorderWidth: 2,
+                pointRadius: 4,
                 pointHoverRadius: 6,
-                tension: 0.4,
+                tension: 0.4, // Smooth curves
                 fill: true
             }]
         },
         options: {
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            responsive: true,
+            plugins: {
+                legend: { display: false } // Cleaner look
+            },
             scales: {
-                y: { grid: { display: false }, ticks: { callback: value => '$' + value } },
-                x: { grid: { display: false } }
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false },
+                    ticks: {
+                        callback: function(value) { return '$' + value; },
+                        font: { size: 11 }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 11 } }
+                }
             }
         }
     });
+});
 </script>
 @endpush
+@endsection
