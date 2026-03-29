@@ -34,11 +34,9 @@ class NewOrderComponent extends Component
      */
     private function calculateCharge()
     {
-        if (is_numeric($this->quantity) && is_numeric($this->rate_per_1000)) {
-            $this->charge = ($this->rate_per_1000 * $this->quantity) / 1000;
-        } else {
-            $this->charge = 0;
-        }
+       if (!empty($this->rate_per_1000) && !empty($this->quantity)) {
+        $this->charge = ($this->rate_per_1000 * $this->quantity) / 1000;
+       }
     }
 
     public function updatedComment()
@@ -144,7 +142,7 @@ class NewOrderComponent extends Component
         'category' => 'required',
         'service' => 'required|exists:services,id',
         'link' => 'required|url',
-        'quantity' => "required|numeric|min:{$this->min_order}|max:{$this->max_order}",
+        'quantity' => "required|integer|min:{$this->min_order}|max:{$this->max_order}",
     ]);
 
     $service = service::findOrFail($this->service);

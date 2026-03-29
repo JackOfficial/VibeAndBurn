@@ -119,7 +119,7 @@
                                                     </label>
                                                     <div class="form-control-wrap">
                                                         <div class="form-icon form-icon-left"><em class="icon ni ni-sign-usd"></em></div>
-                                                        <input type="text" wire:model="charge" class="form-control form-control-lg" id="charge" readonly> 
+                                                        <input type="number" wire:model="charge" class="form-control form-control-lg" id="charge" readonly> 
                                                     </div>
                                                 </div>
                                             </div>

@@ -11,6 +11,13 @@ class order extends Model
     use HasFactory;
     protected $fillable = ['user_id', 'source_id', 'service_id', 'link', 'orderId', 'quantity', 'comment', 'charge', 'start_count', 'remains', 'status'];
 
+    protected $casts = [
+    'charge' => 'decimal:8',
+    'quantity' => 'integer',
+    'start_count' => 'integer',
+    'remains' => 'integer',
+];
+
 public function service()
 {
     return $this->belongsTo(service::class, 'service_id');
