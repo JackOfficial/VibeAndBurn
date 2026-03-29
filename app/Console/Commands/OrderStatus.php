@@ -33,7 +33,7 @@ class OrderStatus extends Command
                     ->where('orderId', '!=', '')
                     ->where('orderId', '!=', '0'); // Safety check for 0 IDs
               });
-              dd($query->get());
+              
         if ($sourceId === 'default') {
             $query->whereNotIn('source_id', [3, 4, 5]);
         } else {
