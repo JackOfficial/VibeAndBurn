@@ -8,21 +8,24 @@ use Illuminate\Support\Facades\DB;
 class FixOrderNumericColumns extends Migration
 {
     public function up()
-    {
-        // Safety: Clean any accidental spaces or non-numeric characters first
-        DB::statement("UPDATE orders SET quantity = REPLACE(quantity, ' ', '') WHERE quantity REGEXP '[^0-9]'");
-        DB::statement("UPDATE orders SET start_count = REPLACE(start_count, ' ', '') WHERE start_count REGEXP '[^0-9]'");
-        DB::statement("UPDATE orders SET remains = REPLACE(remains, ' ', '') WHERE remains REGEXP '[^0-9]'");
+{
+    // 1. Force all empty strings or nulls to '0' so the conversion can happen
+    DB::statement("UPDATE orders SET quantity = '0' WHERE quantity = '' OR quantity IS NULL");
+    DB::statement("UPDATE orders SET start_count = '0' WHERE start_count = '' OR start_count IS NULL");
+    DB::statement("UPDATE orders SET remains = '0' WHERE remains = '' OR remains IS NULL");
 
-        Schema::table('orders', function (Blueprint $table) {
-            // Quantity is usually a whole number
-            $table->integer('quantity')->default(0)->change();
+    // 2. Remove any accidental non-numeric characters (like spaces or dots)
+    DB::statement("UPDATE orders SET quantity = REPLACE(quantity, ' ', '')");
+    DB::statement("UPDATE orders SET start_count = REPLACE(start_count, ' ', '')");
+    DB::statement("UPDATE orders SET remains = REPLACE(remains, ' ', '')");
 
-            // start_count and remains can be very large (e.g. 100M views)
-            $table->bigInteger('start_count')->default(0)->change();
-            $table->bigInteger('remains')->default(0)->change();
-        });
-    }
+    // 3. Now run the type change
+    Schema::table('orders', function (Blueprint $table) {
+        $table->integer('quantity')->default(0)->change();
+        $table->bigInteger('start_count')->default(0)->change();
+        $table->bigInteger('remains')->default(0)->change();
+    });
+}
 
     public function down()
     {
