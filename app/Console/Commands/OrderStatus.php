@@ -25,11 +25,15 @@ class OrderStatus extends Command
     foreach ($sources as $sourceId => $providerName) {
         $this->comment("--> Checking Provider: $providerName");
 
-        $query = order::whereNotIn('status', [1, 2, 5])
-                      ->whereNotNull('orderId')
-                      ->where('orderId', '!=', '')
-                      ->where('created_at', '>', now()->subDays(90));
 
+       $query = order::whereIn('status', [0, 3, 4]) 
+              ->where('created_at', '>', now()->subDays(90))
+              ->where(function ($q) {
+                  $q->whereNotNull('orderId')
+                    ->where('orderId', '!=', '')
+                    ->where('orderId', '!=', '0'); // Safety check for 0 IDs
+              });
+              
         if ($sourceId === 'default') {
             $query->whereNotIn('source_id', [3, 4, 5]);
         } else {
