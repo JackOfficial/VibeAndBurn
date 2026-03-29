@@ -43,7 +43,7 @@
                             </h3>
                         </div>
                         
-                        <form method="POST" action="{{ route('socialmedia.store') }}" enctype="multipart/form-data" @submit="submitting = true">
+                        <form method="POST" action="{{ route('admin.socialmedia.store') }}" enctype="multipart/form-data" @submit="submitting = true">
                             @csrf
                             <div class="card-body py-4">
                                 <div class="form-group">

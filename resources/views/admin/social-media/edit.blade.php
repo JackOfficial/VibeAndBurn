@@ -43,7 +43,7 @@
                             </h3>
                         </div>
                         
-                        <form method="POST" action="{{ route('socialmedia.update', $socialmedia->id) }}" @submit="updating = true">
+                        <form method="POST" action="{{ route('admin.socialmedia.update', $socialmedia->id) }}" @submit="updating = true">
                             @csrf
                             @method('PUT')
                             <div class="card-body py-4">
