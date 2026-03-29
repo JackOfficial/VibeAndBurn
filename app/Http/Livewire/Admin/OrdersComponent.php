@@ -27,12 +27,11 @@ class OrdersComponent extends Component
     /**
      * Refunding the money back to the user
      */
-   public function reverseOrder($orderId)
+    public function reverseOrder($orderId)
 {
-    // 1. Find the order
     $order = order::findOrFail($orderId);
 
-    // 2. Prevent double refunding (Status 2 = Reversed)
+    // Prevent double refunding
     if ((int)$order->status === 2) {
         $this->dispatchBrowserEvent('toastr:info', ['message' => 'This order was already reversed.']);
         return;
@@ -40,18 +39,23 @@ class OrdersComponent extends Component
 
     try {
         DB::transaction(function () use ($order) {
-            // 3. Mark Order as Reversed in the orders table
-            $order->update(['status' => 2]);
+            // STRATEGY: Use property assignment + save() to trigger ALL Observer events
+            $order->status = 2;
+            $order->save(); // This definitely triggers 'updating' and 'updated' in the Observer
 
+            // Wallet Update
             $wallet = wallet::where('user_id', $order->user_id)->firstOrFail();
-            $wallet->increment('money', $order->charge);
+            
+            // Ensure $order->charge is treated as a clean float (removing '$' if it exists)
+            $refundAmount = (float) str_replace('$', '', $order->charge);
+            $wallet->increment('money', $refundAmount);
 
-            // 5. Create a record in your 'funds' table for the user's history
+            // Record in funds table
             fund::create([
-                'user_id'  => $order->user_id,
-                'method'   => 'Refund',
-                'amount'   => $order->charge,
-                'Payedwith' => 'Order #' . $order->id, // Tracking source of refund
+                'user_id'   => $order->user_id,
+                'method'    => 'Refund',
+                'amount'    => $refundAmount,
+                'Payedwith' => 'Order #' . $order->id, 
             ]);
         });
 
@@ -66,23 +70,44 @@ class OrdersComponent extends Component
     }
 }
 
-    public function userWalletDetails($userId)
-    {
-        $user = User::findOrFail($userId);
-        
-        // SQL-based summing is much more efficient
-        $sum = order::where('user_id', $userId)->sum('charge');
-        $fundAmount = fund::where('user_id', $userId)->sum('amount');
-        $remain = $fundAmount - $sum;
-        
-        session()->flash("breathDetails", "The total funds paid by {$user->name} is: {$fundAmount}, the total amount charged: {$sum} and the balance should be: {$remain}");
-    }
+   public function userWalletDetails($userId)
+{
+    $user = User::findOrFail($userId);
+    
+    // 1. Financial Overview
+    $totalCharged = order::where('user_id', $userId)->sum('charge');
+    $totalDeposits = fund::where('user_id', $userId)->sum('amount');
+    $currentBalance = $totalDeposits - $totalCharged;
+
+    // 2. Profit Calculation 
+    // (User Price - Your Cost = Your Pocket Money)
+    $totalCost = order::where('user_id', $userId)->sum('cost'); 
+    $totalProfit = $totalCharged - $totalCost;
+
+    // 3. Status Breakdown for Context
+    $completedOrders = order::where('user_id', $userId)->where('status', 1)->count();
+    $refundedOrders = order::where('user_id', $userId)->where('status', 2)->count();
+
+    $message = "Financial Profile for {$user->name}:
+                - Total Deposits: {$totalDeposits}
+                - Total Spent: {$totalCharged}
+                - Estimated Profit: {$totalProfit}
+                - Current Wallet: {$currentBalance}
+                - Activity: {$completedOrders} Completed / {$refundedOrders} Refunded";
+
+    session()->flash("breathDetails", $message);
+}
     
   public function changeStatus($orderId)
 {
-    $this->validate([
+   $this->validate([
         'status' => 'required|integer|in:0,1,2,3,4,5'
     ]);
+
+    // If they picked status 2 (Reversed), redirect them to the proper refund logic
+    if ((int)$this->status === 2) {
+        return $this->reverseOrder($orderId);
+    }
     
     $order = order::findOrFail($orderId);
     $updated = $order->update(['status' => $this->status]);

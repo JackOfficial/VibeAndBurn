@@ -16,6 +16,12 @@
                     </div>
                 @endif
 
+                @if (session()->has('breathDetails'))
+    <div class="alert alert-info shadow-sm border-left-info">
+        {!! nl2br(e(session('breathDetails'))) !!}
+    </div>
+@endif
+
                 <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
                     <div class="card-header bg-white py-3 border-bottom-0">
                         <div class="d-flex flex-wrap justify-content-between align-items-center">
