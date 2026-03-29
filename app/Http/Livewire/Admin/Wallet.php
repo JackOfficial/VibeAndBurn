@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\WithPagination; // Required for pagination
 use App\Models\wallet as Client_wallet;
 use App\Models\fund;
 use App\Models\BFCurency;
@@ -11,33 +12,55 @@ use Illuminate\Support\Facades\DB;
 
 class Wallet extends Component
 {
-    public $currency, $money;
+    use WithPagination;
+
+    // Properties for Funds Adjustment
+    public $currency = 'USD', $money;
     public $thisWallet;
     public $feedback;
     public $bf;
-    
+
+    // Properties for Search & UI
+    public $search = '';
+    protected $paginationTheme = 'bootstrap';
+
     protected $rules = [
        'currency' => 'required',
        'money' => 'required|numeric|min:0.01',
     ];
 
-    public function mount(){
-        $this->currency = "USD";
+    // Reset pagination when search query changes
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function mount()
+    {
         $this->bf = BFCurency::where('id', 1)->value('currency');
     }
     
-    public function edit($id){
-        // Using with() is cleaner than a manual join for a single record
+    public function edit($id)
+    {
+        // Load with user relationship to avoid "User details show nothing"
         $this->thisWallet = Client_wallet::with('user')->findOrFail($id);
+        $this->money = null; // Clear previous input
+        $this->feedback = null;
     }
 
-    // Shared conversion logic to keep code DRY (Don't Repeat Yourself)
-    private function getConvertedAmount() {
-        if(in_array($this->currency, ["BIF", "KES"])) {
-            $rate = Currencies::where('currency', $this->currency)->value('currency_value');
-            return $rate > 0 ? ($this->money / $rate) : $this->money;
+    /**
+     * Converts selected currency amount to USD based on DB rates
+     */
+    private function getConvertedAmount() 
+    {
+        if ($this->currency === "USD") {
+            return (float) $this->money;
         }
-        return (float) $this->money;
+
+        $rate = Currencies::where('currency', $this->currency)->value('currency_value');
+        
+        // If rate exists and > 0, divide. Otherwise, fallback to direct amount.
+        return ($rate && $rate > 0) ? ($this->money / $rate) : (float) $this->money;
     }
     
     public function increaseFund()
@@ -47,12 +70,9 @@ class Wallet extends Component
 
         try {
             DB::transaction(function () use ($result) {
-                $wallet = Client_wallet::where('user_id', $this->thisWallet->user_id)->firstOrFail();
-                
-                // 1. Atomic increment (Prevents overwriting simultaneous orders)
+                $wallet = Client_wallet::where('user_id', $this->thisWallet->user_id)->lockForUpdate()->firstOrFail();
                 $wallet->increment('money', $result);
 
-                // 2. Create Fund record for accounting
                 fund::create([
                     'user_id' => $this->thisWallet->user_id,
                     'method' => $this->currency . ' (Admin Add)',
@@ -61,64 +81,60 @@ class Wallet extends Component
                 ]);
             });
 
-            $this->feedback = "$" . number_format($result, 2) . " added successfully.";
+            session()->flash('deleteWalletSuccess', "$" . number_format($result, 2) . " added successfully.");
             $this->dispatchBrowserEvent('closeEditWalletModel');
-            $this->emit('reloadBrowser');
-
+            // No need for emit(reloadBrowser) if using standard Livewire reactivity
         } catch (\Exception $e) {
             $this->feedback = "Error: " . $e->getMessage();
         }
     }
     
-  public function decreaseFund()
-{
-    $this->validate();
-    $result = $this->getConvertedAmount();
+    public function decreaseFund()
+    {
+        $this->validate();
+        $result = $this->getConvertedAmount();
 
-    try {
-        DB::transaction(function () use ($result) {
-            $wallet = Client_wallet::where('user_id', $this->thisWallet->user_id)->lockForUpdate()->firstOrFail();
-            
-            // SAFETY: Ensure we don't deduct more than the user actually has
-            // This prevents the funds table from saying we removed $50 when we only removed $30
-            $actualDeduction = $result;
-            if ($wallet->money < $result) {
-                $actualDeduction = $wallet->money;
-            }
-
-            // 1. Atomic decrement (only if there is something to remove)
-            if ($actualDeduction > 0) {
-                $wallet->decrement('money', $actualDeduction);
-
-                // 2. Create NEGATIVE Fund record using the ACTUAL amount removed
-                fund::create([
-                    'user_id'   => $this->thisWallet->user_id,
-                    'method'    => $this->currency . ' (Admin Remove)',
-                    'amount'    => -$actualDeduction, 
-                    'Payedwith' => 'Manual Deduction',
-                ]);
+        try {
+            DB::transaction(function () use ($result) {
+                $wallet = Client_wallet::where('user_id', $this->thisWallet->user_id)->lockForUpdate()->firstOrFail();
                 
-                $this->feedback = "$" . number_format($actualDeduction, 2) . " removed successfully.";
-            } else {
-                $this->feedback = "User has no funds to remove.";
-            }
-        });
+                $actualDeduction = min($result, $wallet->money);
 
-        $this->dispatchBrowserEvent('closeEditWalletModel');
-        $this->emit('reloadBrowser');
+                if ($actualDeduction > 0) {
+                    $wallet->decrement('money', $actualDeduction);
 
-    } catch (\Exception $e) {
-        $this->feedback = "Error: " . $e->getMessage();
+                    fund::create([
+                        'user_id'   => $this->thisWallet->user_id,
+                        'method'    => $this->currency . ' (Admin Remove)',
+                        'amount'    => -$actualDeduction, 
+                        'Payedwith' => 'Manual Deduction',
+                    ]);
+                    
+                    session()->flash('deleteWalletSuccess', "$" . number_format($actualDeduction, 2) . " removed successfully.");
+                } else {
+                    $this->feedback = "User has no funds to remove.";
+                }
+            });
+
+            $this->dispatchBrowserEvent('closeEditWalletModel');
+        } catch (\Exception $e) {
+            $this->feedback = "Error: " . $e->getMessage();
+        }
     }
-}
     
     public function render()
     {
-        // Simple and clean query for the table
-        $wallets = Client_wallet::with('user')->orderBy('money', 'ASC')->get();
-        $walletsCounter = Client_wallet::count();
-        $walletsTotal = Client_wallet::sum('money');
-     
-        return view('livewire.admin.wallet', compact('wallets', 'walletsCounter', 'walletsTotal'));
+        // Build search query
+        $query = Client_wallet::with('user')
+            ->whereHas('user', function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%');
+            });
+
+        return view('livewire.admin.wallet', [
+            'wallets' => $query->orderBy('money', 'ASC')->paginate(10),
+            'walletsCounter' => Client_wallet::count(),
+            'walletsTotal' => Client_wallet::sum('money'),
+        ]);
     }
 }

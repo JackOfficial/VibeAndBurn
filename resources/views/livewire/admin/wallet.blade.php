@@ -1,142 +1,138 @@
-<div>
-    <div class="p-2">
+<div x-data="{ 
+    showFeedback: true,
+    init() {
+        // Auto-hide alerts after 5 seconds to keep the UI clean
+        $watch('showFeedback', value => {
+            if(value) setTimeout(() => this.showFeedback = false, 5000)
+        })
+    }
+}">
+    <div class="p-2" x-show="showFeedback" x-transition:leave="transition ease-in duration-300">
         @if (session()->has('deleteWalletSuccess') || isset($feedback))
-            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-                <strong><i class="fas fa-check-circle"></i> Success!</strong> 
-                {{ session('deleteWalletSuccess') ?? $feedback }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
-
-        @if(session()->has('deleteWalletFail'))
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-                <strong><i class="fas fa-exclamation-triangle"></i> Error:</strong> 
-                {{ session('deleteWalletFail') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>{{ session('deleteWalletSuccess') ?? $feedback }}</span>
+                </div>
+                <button type="button" class="close" @click="showFeedback = false">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
         @endif
     </div>
 
-    <div class="card card-outline card-primary shadow">
-        <div class="card-header border-0">
-            <h3 class="card-title font-weight-bold">
-                <i class="fas fa-wallet mr-1"></i> Wallet Management
-            </h3>
-            <div class="card-tools">
-                <span class="badge badge-info p-2 mr-2">{{ $walletsCounter }} Users</span>
-                <span class="badge badge-success p-2">Total System Balance: ${{ number_format($walletsTotal, 2) }}</span>
+    <div class="card card-outline card-primary shadow-lg border-0">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="card-title font-weight-bold text-dark">
+                    <i class="fas fa-wallet text-primary mr-2"></i> Wallet Management
+                </h3>
+                
+                <div class="card-tools d-flex align-items-center">
+                    <div class="input-group input-group-sm mr-3" style="width: 280px;">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-light border-right-0">
+                                <i class="fas fa-search text-muted" wire:loading.remove wire:target="search"></i>
+                                <i class="fas fa-spinner fa-spin text-primary" wire:loading wire:target="search"></i>
+                            </span>
+                        </div>
+                        <input type="text" 
+                               wire:model.debounce.400ms="search" 
+                               class="form-control border-left-0 bg-light" 
+                               placeholder="Search name or email...">
+                    </div>
+
+                    <div class="stats-badges d-none d-md-block">
+                        <span class="badge badge-pill badge-info py-2 px-3 mr-2 shadow-sm">
+                            <i class="fas fa-users mr-1"></i> {{ $walletsCounter }} Users
+                        </span>
+                        <span class="badge badge-pill badge-success py-2 px-3 shadow-sm">
+                            <i class="fas fa-chart-line mr-1"></i> Total: ${{ number_format($walletsTotal, 2) }}
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover table-striped mb-0">
-                    <thead class="thead-light">
+                <table class="table table-hover table-borderless mb-0">
+                    <thead class="bg-light text-uppercase small font-weight-bold">
                         <tr>
-                            <th>#</th>
+                            <th class="pl-4">#</th>
                             <th>User Details</th>
                             <th>Current Balance</th>
-                            <th>Registered</th>
-                            <th class="text-right">Actions</th>
+                            <th>Date Joined</th>
+                            <th class="text-right pr-4">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($wallets as $wallet)
-                        <tr>
-                            <td class="align-middle">{{ $loop->iteration }}</td>
+                        @forelse ($wallets as $wallet)
+                        <tr wire:key="wallet-{{ $wallet->id }}" class="border-bottom">
+                            <td class="align-middle pl-4 text-muted">
+                                {{ ($wallets->currentPage() - 1) * $wallets->perPage() + $loop->iteration }}
+                            </td>
                             <td class="align-middle">
-    <div class="d-flex flex-column">
-        <span class="font-weight-bold">{{ $wallet->user->name ?? 'N/A' }}</span>
-        <small class="text-muted">{{ $wallet->user->email ?? 'N/A' }}</small>
-    </div>
-</td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle mr-3 bg-soft-primary text-primary d-flex align-items-center justify-content-center rounded-circle" style="width: 35px; height: 35px; background: #e7f1ff;">
+                                        {{ strtoupper(substr($wallet->user->name ?? 'U', 0, 1)) }}
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <span class="font-weight-bold text-dark">{{ $wallet->user->name ?? 'Deleted User' }}</span>
+                                        <small class="text-muted">{{ $wallet->user->email ?? 'N/A' }}</small>
+                                    </div>
+                                </div>
+                            </td>
                             <td class="align-middle">
-                                <span class="badge badge-pill badge-light border px-3 py-2" style="font-size: 0.9rem;">
-                                    <strong>${{ number_format($wallet->money, 2) }}</strong>
+                                <span class="badge badge-light border py-2 px-3 font-weight-bold" style="font-size: 0.95rem;">
+                                    <span class="text-success">$</span> {{ number_format($wallet->money, 2) }}
                                 </span>
                             </td>
-                            <td class="align-middle text-muted">{{ $wallet->created_at->format('d M Y') }}</td>
-                            <td class="text-right align-middle">
-                                <button class="btn btn-outline-primary btn-sm" wire:click.prevent="edit({{ $wallet->id }})" data-toggle="modal" data-target="#editWallet">
-                                    <i class="fa fa-edit"></i> Adjust Funds
-                                </button>
-                                <button class="btn btn-outline-secondary btn-sm" title="History">
-                                    <i class="fa fa-history"></i>
-                                </button>
+                            <td class="align-middle text-muted small">
+                                <i class="far fa-calendar-alt mr-1"></i> {{ $wallet->created_at->format('M d, Y') }}
+                            </td>
+                            <td class="text-right align-middle pr-4">
+                                <div class="btn-group shadow-sm">
+                                    <button class="btn btn-white btn-sm border" 
+                                            wire:click="edit({{ $wallet->id }})" 
+                                            data-toggle="modal" 
+                                            data-target="#editWallet"
+                                            title="Adjust Funds">
+                                        <i class="fa fa-pencil-alt text-primary"></i>
+                                    </button>
+                                    <button class="btn btn-white btn-sm border" title="Transaction History">
+                                        <i class="fa fa-history text-muted"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-search-minus fa-3x mb-3 opacity-50"></i>
+                                    <p>No wallets found matching your search criteria.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
-
-    <div wire:ignore.self class="modal fade" id="editWallet" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content shadow-lg border-0">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title font-weight-bold"><i class="fas fa-coins text-warning mr-2"></i> Adjust User Funds</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+        
+        <div class="card-footer bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted small">
+                    Showing {{ $wallets->firstItem() }} to {{ $wallets->lastItem() }} of {{ $wallets->total() }} entries
+                </span>
+                <div>
+                    {{ $wallets->links() }}
                 </div>
-
-                <div class="modal-body">
-                    <div wire:loading class="text-center p-4">
-                        <div class="spinner-border text-primary" role="status"></div>
-                        <p class="mt-2 text-muted">Fetching wallet data...</p>
-                    </div>
-
-                    <div wire:loading.remove>
-                        @if($thisWallet)
-                        <div class="user-preview p-3 mb-3 bg-light rounded text-center">
-                            <h6 class="mb-1 font-weight-bold">{{ $thisWallet->name }}</h6>
-                            <p class="text-muted small mb-0">{{ $thisWallet->email }}</p>
-                            <hr>
-                            <small class="text-uppercase text-muted d-block mb-1">Current Balance</small>
-                            <h4 class="text-primary font-weight-bold">${{ number_format($thisWallet->money, 2) }}</h4>
-                        </div>
-                        @endif
-
-                        <div class="form-group">
-                            <label for="currency" class="small font-weight-bold">Select Currency & Amount</label>
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <select class="custom-select" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" wire:model.defer="currency">
-                                        <option value="USD">USD</option>
-                                        <option value="RWF">RWF</option>
-                                        <option value="KES">KES</option>
-                                        <option value="BIF">BIF</option>
-                                        </select>
-                                </div>
-                                <input type="number" step="0.01" wire:model.defer="money" class="form-control @error('money') is-invalid @enderror" placeholder="0.00">
-                            </div>
-                            @error('money') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer bg-light justify-content-between">
-    <button type="button" 
-            class="btn btn-outline-danger btn-sm px-4" 
-            wire:click="decreaseFund" 
-            wire:loading.attr="disabled"
-            data-dismiss="modal"> <i class="fa fa-minus-circle mr-1"></i> Deduct
-    </button>
-    
-    <button type="button" 
-            class="btn btn-primary btn-sm px-4" 
-            wire:click="increaseFund" 
-            wire:loading.attr="disabled"
-            data-dismiss="modal"> <i class="fa fa-plus-circle mr-1"></i> Add Funds
-    </button>
-</div>
             </div>
         </div>
     </div>
+
+    <div wire:ignore.self class="modal fade" id="editWallet" tabindex="-1" role="dialog">
+        </div>
 </div>
