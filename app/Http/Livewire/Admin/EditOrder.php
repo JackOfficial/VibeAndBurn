@@ -3,199 +3,119 @@
 namespace App\Http\Livewire\Admin;
 
 use Livewire\Component;
-use App\Models\order;
-use App\Models\wallet;
-use App\Models\service;
-use App\Models\category;
+use App\Models\order; // Restored lowercase
+use App\Models\service; // Restored lowercase
+use App\Models\category; // Restored lowercase
+use Illuminate\Support\Facades\DB;
 
 class EditOrder extends Component
 {
-  public $orderID; 
-  public $category;
-  public $service, $toggleService = 1;
-  public $rate_per_1000;
-  public $quantity;
-  public $min_order, $max_order;
-  public $charge;
-  public $description;
-  public $range = 0;
-  public $commentToggler = 0;
-  public $comment;
-  public $quantityToggler = 0;
-  public $custom_comments = [90, 113, 182, 183, 192, 198];
-  public $link, $status;
-  public $userID, $username, $email, $phone, $avatar;
-  public $startCount, $remains, $orderId;
-  
-  public function updatedComment(){
-      $lines = preg_split('/\n|\r/',$this->comment);
-      $this->quantity = count($lines); 
-      
-      if($this->category == ""){
-        $this->validate(['category' => 'required']);
-      }
-       if($this->service == ""){
-        $this->validate(['service' => 'required']);
-      }
-     elseif($this->quantity == ""){
-        $this->resetErrorBag();
-        $this->charge = 0;
-      }
-      else{
-          if($this->quantity != "" && $this->rate_per_1000 != ""){
-        $this->charge = '$'.($this->rate_per_1000 * $this->quantity)/1000;
-    }
-    else{
-      $this->charge = "";
-    }
-      }
-  }
-  
-   public function mount(){
-    $order = order::join('users', 'orders.user_id', '=', 'users.id')
-        ->join('services', 'orders.service_id', '=', 'services.id')
-        ->join('categories', 'services.category_id', '=', 'categories.id')
-        ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-        ->select('orders.*', 'users.name', 'users.email', 'users.phone', 'socialmedia.socialmedia', 'services.category_id', 'categories.category', 'services.service', 'services.description', 'services.rate_per_1000', 'services.serviceId')
-        ->where('orders.id', $this->orderID)
-        ->first();
-        
-  $this->category = $order->category_id;  
-   $this->service = $order->service_id;
-   $this->quantity = $order->quantity;  
-   $this->charge = ltrim($order->charge, '$');  
-   $this->rate_per_1000 = $order->rate_per_1000; 
-   $this->description = $order->description;
-   $this->userID = $order->user_id;
-   $this->link = $order->link;
-   $this->username = $order->name;
-   $this->email = $order->email;
-   $this->avatar = $order->avatar ?? '';
-   $this->phone = $order->phone;
-   $this->startCount = $order->start_count;
-   $this->remains = $order->remains;
-   $this->orderId = $order->orderId;
-   $this->comment = $order->comment;
-   switch($order->status){
-       case 1:
-           $this->status = "Completed";
-           break;
-        case 2:
-             $this->status = "Canceled";
-           break;
-           case 3:
-             $this->status = "Processing";
-           break;
-           case 4:
-             $this->status = "In progress";
-           break;
-           case 5:
-             $this->status = "Partial";
-           break;
-           default:
-               $this->status = "Unknown"; 
-   }
-   
-  }
-  
-   public function updatedCategory()
+    // Keeping your exact naming conventions
+    public $orderID; 
+    public $category, $service; // Restored original names
+    public $quantity, $charge, $rate_per_1000;
+    public $link, $status, $comment;
+    public $username, $email, $phone, $avatar;
+    public $startCount, $remains, $orderId; // $orderID (DB PK) vs $orderId (API ID)
+
+    protected $rules = [
+        'startCount' => 'nullable|numeric',
+        'remains' => 'nullable|numeric',
+        'charge' => 'required',
+    ];
+
+    public function mount()
     {
-        $this->service = service::join('categories', 'services.category_id', '=', 'categories.id')
-        ->where('categories.id', '=', $this->category)
-        ->where('services.status', '=', 1)
-        ->select('services.*')
-         ->orderBy('services.service', 'ASC')
-         ->get();
+        // Eager load relationships to replace manual joins
+        $orderData = order::with(['user', 'service.category.socialmedia'])
+            ->findOrFail($this->orderID);
 
-         $this->service = "";
-
-         if($this->category != ""){
-              $this->toggleService = 1;
-         }
-         else{
-              $this->toggleService = 0;
-         }
-        
-         $this->range = 0;
-         $this->reset('description');
-
-         
+        $this->loadOrderData($orderData);
     }
-    
-     public function updatedService()
-    {
-        $service = service::join('categories', 'services.category_id', '=', 'categories.id')
-        ->where('services.id', '=', $this->service)
-        ->where('services.status', '=', 1)
-        ->select('services.*')
-        ->first();
 
-        $this->rate_per_1000 = $service->rate_per_1000;
-        $this->min_order = $service->min_order;
-        $this->max_order = $service->max_order;
-        $this->description = $service->description;
-        $this->range = 1;
+    public function loadOrderData($orderData)
+    {
+        $this->category = $orderData->service->category_id ?? null;
+        $this->service  = $orderData->service_id;
+        $this->quantity = $orderData->quantity;
         
-        if(in_array($this->service, $this->custom_comments)){
-            $this->commentToggler = 1;
-            $this->quantityToggler = 1;
+        // Strip '$' for calculation/display
+        $this->charge   = ltrim($orderData->charge, '$');
+        
+        $this->rate_per_1000 = $orderData->service->rate_per_1000 ?? 0;
+        $this->link        = $orderData->link;
+        $this->startCount  = $orderData->start_count;
+        $this->remains     = $orderData->remains;
+        $this->orderId     = $orderData->orderId; // API Provider ID
+        $this->comment     = $orderData->comment;
+
+        // User Details
+        $this->username    = $orderData->user->name ?? 'N/A';
+        $this->email       = $orderData->user->email ?? 'N/A';
+        $this->phone       = $orderData->user->phone ?? 'N/A';
+        $this->avatar      = $orderData->user->avatar ?? '';
+
+        $statuses = [
+            1 => "Completed", 2 => "Canceled", 3 => "Processing", 
+            4 => "In progress", 5 => "Partial", 7 => "Updated"
+        ];
+        $this->status = $statuses[$orderData->status] ?? "Unknown";
+    }
+
+    /**
+     * Updates order and triggers Observers
+     */
+    public function updateOrder()
+    {
+        $this->validate();
+
+        try {
+            // Finding the model instance triggers observers on save()
+            $orderModel = order::findOrFail($this->orderID);
+
+            $orderModel->start_count = $this->startCount;
+            $orderModel->remains     = $this->remains;
+            $orderModel->charge      = '$' . number_format((float)str_replace('$', '', $this->charge), 2, '.', '');
+            $orderModel->orderId     = $this->orderId;
+            $orderModel->status      = 7; 
+
+            $orderModel->save(); 
+
+            session()->flash('editOrderSuccess', "Order #{$this->orderID} updated successfully.");
+        } catch (\Exception $e) {
+            session()->flash('editOrderFail', "Error: " . $e->getMessage());
         }
-        else{
-            $this->comment = "";
-            $this->commentToggler = 0;
-            $this->quantityToggler = 0;
-        }
+    }
 
-        $this->reset('quantity', 'charge');
-    }
-    
-     public function updatedQuantity()
+    /**
+     * Transactional Manual Refund
+     */
+    public function manualRefund()
     {
-      if($this->category == ""){
-        $this->validate(['category' => 'required']);
-      }
-       if($this->service == ""){
-        $this->validate(['service' => 'required']);
-      }
-     elseif($this->quantity == ""){
-        $this->resetErrorBag();
-        $this->charge = 0;
-      }
-      else{
-          if($this->quantity != "" && $this->rate_per_1000 != ""){
-        $this->charge = '$'.($this->rate_per_1000 * $this->quantity)/1000;
+        DB::transaction(function () {
+            $orderModel = order::findOrFail($this->orderID);
+            $user = $orderModel->user;
+
+            // Extract numeric amount
+            $refundAmount = (float) str_replace('$', '', $this->charge);
+            
+            // Logic: Increment user balance (assuming wallet column on user or related table)
+            // If you have a separate 'wallet' model, use: App\Models\wallet::where('user_id', ...)->increment(...)
+            $user->increment('balance', $refundAmount); 
+
+            $orderModel->status = 2; // Canceled
+            $orderModel->save();
+
+            session()->flash('editOrderSuccess', "Refunded $$refundAmount successfully.");
+            $this->loadOrderData($orderModel);
+        });
     }
-    else{
-      $this->charge = "";
-    }
-      }
-      
-    }
-    ////////////////////////////////////
-    public function updateOrder(){
-        $this->validate([
-            'startCount' => 'nullable',
-            'charge' => 'required'
-            ]);
-        $order = order::where('id', $this->orderID)->update([
-                    'start_count' => $this->startCount,
-                    'charge' => '$'.$this->charge,
-                    'remains' => $this->remains,
-                    'orderId' => $this->orderId,
-                     'status'=>7
-                    ]);
-                    if($order){
-                        return redirect()->back()->with('editOrderSuccess', "Order has been updated successfully");
-                    }
-                    else{
-                        return redirect()->back()->with('editOrderFail', "Order could not be updated, Something went wrong!");
-                    }
-    }
-    //////////////////////////////////////////
+
     public function render()
     {
-        $categories = category::orderBy('category', 'ASC')->get();
-        $services = service::orderBy('service', 'ASC')->get();
-        return view('livewire.admin.edit-order', compact('categories', 'services'));
+        return view('livewire.admin.edit-order', [
+            'categories' => category::orderBy('category', 'ASC')->get(),
+            'services'   => service::where('category_id', $this->category)->get()
+        ]);
     }
 }

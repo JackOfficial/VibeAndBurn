@@ -1,7 +1,6 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-8 col-md-12">
-            
             <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 5000)" x-show="show" x-transition.opacity>
                 @if (Session::has('editOrderSuccess'))
                     <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4">
@@ -20,8 +19,7 @@
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="card-title font-weight-bold mb-0">
                         <i class="fas fa-shopping-cart text-primary mr-2"></i>
-                        Order #{{ $orderId }}
-                    </h5>
+                        Order #{{ $orderID }} </h5>
                     <span class="badge badge-soft-info p-2 px-3">{{ strtoupper($status) }}</span>
                 </div>
 
@@ -31,11 +29,18 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="small font-weight-bold text-muted uppercase d-block">Category</label>
-                                    <span class="text-dark font-weight-600">{{ $categories->find($category)->category ?? 'N/A' }}</span>
+                                    <span class="text-dark font-weight-600">
+                                        {{ $categories->where('id', $category)->first()->category ?? 'N/A' }}
+                                    </span>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="small font-weight-bold text-muted uppercase d-block">Service ID</label>
-                                    <span class="badge badge-secondary">ID: {{ $service }}</span>
+                                    <label class="small font-weight-bold text-muted uppercase d-block">API Provider ID</label>
+                                    <div class="input-group input-group-sm mt-1">
+                                        <input type="text" wire:model="orderId" class="form-control bg-white shadow-none" placeholder="External ID">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text badge-secondary border-0 text-white">Service: {{ $service }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-12" x-data="{ copyLink() { navigator.clipboard.writeText('{{ $link }}'); } }">
                                     <label class="small font-weight-bold text-muted uppercase">Target Link</label>
@@ -58,14 +63,14 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="font-weight-bold">Start Count</label>
-                                    <input type="number" wire:model="startCount" class="form-control shadow-none @error('startCount') is-invalid @enderror" placeholder="0"> 
+                                    <input type="number" wire:model="startCount" class="form-control shadow-none @error('startCount') is-invalid @enderror"> 
                                     @error('startCount') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="font-weight-bold">Remains</label>
-                                    <input type="number" wire:model="remains" class="form-control shadow-none @error('remains') is-invalid @enderror" placeholder="0"> 
+                                    <input type="number" wire:model="remains" class="form-control shadow-none @error('remains') is-invalid @enderror"> 
                                     @error('remains') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
                             </div>
@@ -75,7 +80,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="font-weight-bold">Quantity</label>
-                                    <input type="number" wire:model="quantity" class="form-control bg-light shadow-none" readonly title="Quantity cannot be changed after order">
+                                    <input type="number" wire:model="quantity" class="form-control bg-light shadow-none" readonly>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -83,7 +88,7 @@
                                     <label class="font-weight-bold">Charge ($)</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend"><span class="input-group-text bg-white border-right-0">$</span></div>
-                                        <input type="text" wire:model="charge" class="form-control shadow-none border-left-0 @error('charge') is-invalid @enderror">
+                                        <input type="number" step="0.01" wire:model="charge" class="form-control shadow-none border-left-0 @error('charge') is-invalid @enderror">
                                     </div>
                                     @error('charge') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
@@ -116,7 +121,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
                         <div class="bg-soft-primary rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 50px; height: 50px;">
-                            @if(isset($avatar) && $avatar != '')
+                            @if($avatar)
                                 <img src="{{ $avatar }}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
                             @else
                                 <span class="h5 text-primary font-weight-bold mb-0">{{ strtoupper(substr($username, 0, 1)) }}</span>
@@ -129,15 +134,9 @@
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted small">Account:</span>
-                        <span class="badge badge-success px-2">Active</span>
-                    </div>
-                    @if($phone)
-                    <div class="d-flex justify-content-between">
                         <span class="text-muted small">Phone:</span>
                         <span class="font-weight-bold small">{{ $phone }}</span>
                     </div>
-                    @endif
                 </div>
             </div>
 
@@ -146,17 +145,17 @@
                     <h6 class="font-weight-bold text-danger mb-2">
                         <i class="fas fa-exclamation-triangle mr-2"></i>Manual Refund
                     </h6>
-                    <p class="small text-muted mb-3">Return the total cost of <strong>${{ $charge }}</strong> to this user's wallet. This action is tracked in logs.</p>
+                    <p class="small text-muted mb-3">Return <strong>${{ $charge }}</strong> to {{ $username }}.</p>
                     <button type="button" 
                             wire:click="manualRefund" 
-                            wire:confirm="This will immediately add ${{ $charge }} to {{ $username }}'s balance. Proceed?"
+                            wire:confirm="This will immediately refund ${{ $charge }}. Proceed?"
                             class="btn btn-danger btn-sm btn-block shadow-sm py-2">
                         <i class="fas fa-undo-alt mr-2"></i> Process Full Refund
                     </button>
                 </div>
             </div>
 
-            @if(isset($description) && $description != '')
+            @if($description)
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3">
                     <h6 class="font-weight-bold mb-0">Original Service Details</h6>
