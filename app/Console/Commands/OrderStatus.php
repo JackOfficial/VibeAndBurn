@@ -34,7 +34,7 @@ class OrderStatus extends Command
                   $q->whereNotNull('orderId')
                     ->where('orderId', '!=', '')
                     ->where('orderId', '!=', '0'); // Safety check for 0 IDs
-              });
+              })->latest();
               
 
         // Use chunk to process EVERYTHING, not just 100
