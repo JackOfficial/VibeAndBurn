@@ -60,16 +60,18 @@
                 </div>
 
                 <div class="col-lg-3 col-6">
-                    <div class="small-box revenue-gradient shadow-sm text-white">
-                        <div class="inner p-4">
-                            <p class="text-white-50 mb-1 text-uppercase font-weight-bold" style="font-size: 11px;">Revenue</p>
-                            <h3>${{ number_format($orderStats->total_revenue, 2) }}</h3>
-                            <span class="text-white-50" style="font-size: 12px;">Lifetime Earnings</span>
-                        </div>
-                        <div class="icon" style="color: rgba(255,255,255,0.2)"><i class="fas fa-hand-holding-usd"></i></div>
-                        <a href="{{route('admin.wallet.index')}}" class="small-box-footer" style="background: rgba(0,0,0,0.1)">Audit Logs <i class="fas fa-arrow-right ml-1"></i></a>
-                    </div>
-                </div>
+    <div class="small-box bg-success shadow-sm" style="background: linear-gradient(45deg, #28a745, #218838) !important;">
+        <div class="inner p-4">
+            <p class="text-white-50 mb-1 text-uppercase font-weight-bold" style="font-size: 11px;">Revenue</p>
+            <h3 class="text-white">${{ number_format($orderStats->total_revenue ?? 0, 2) }}</h3>
+            <span class="text-white-50" style="font-size: 12px;">Lifetime Earnings</span>
+        </div>
+        <div class="icon" style="color: rgba(255,255,255,0.3)"><i class="fas fa-hand-holding-usd"></i></div>
+        <a href="{{route('admin.wallet.index')}}" class="small-box-footer" style="background: rgba(0,0,0,0.1) !important;">
+            Audit Logs <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+    </div>
+</div>
 
                 <div class="col-lg-3 col-6">
                     <div class="small-box bg-dark shadow-sm text-white">
