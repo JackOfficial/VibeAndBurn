@@ -49,64 +49,62 @@ class OrderStatus extends Command
     $this->info("Command finished execution.");
 }
 
-    private function processProviderBatch($providerName, $orders)
+private function processProviderBatch($providerName, $orders)
 {
+    $this->line("    -> Loading Controller for $providerName...");
     $controllerClass = "App\\Http\\Controllers\\apis\\{$providerName}Controller";
     
     if (!class_exists($controllerClass)) {
-        $this->error("CRITICAL: Controller $controllerClass not found!");
+        $this->error("    -> ERROR: class $controllerClass does not exist!");
         return;
     }
 
-    $api = new $controllerClass();
-    $externalIds = $orders->pluck('orderId')->toArray();
-
     try {
+        $api = new $controllerClass();
+        $externalIds = $orders->pluck('orderId')->toArray();
+        
+        $this->line("    -> Calling multiStatus for IDs: " . implode(',', $externalIds));
+        
         $response = $api->multiStatus($externalIds);
 
-        if (!$response) {
-            $this->error("[$providerName] API returned an empty or null response for " . count($externalIds) . " IDs.");
+        if (is_null($response)) {
+            $this->error("    -> ERROR: API returned NULL. Check your API Key or Connection.");
             return;
         }
+
+        $this->info("    -> API Responded. Analyzing " . count((array)$response) . " keys...");
 
         foreach ($orders as $order) {
             $id = $order->orderId;
 
-            // REASON 1: ID missing from API response keys
             if (!isset($response->{$id})) {
-                $this->warn("MISSING: Order ID $id exists in your DB but was NOT returned by {$providerName} API.");
+                $this->warn("    -> ID $id: Missing from API response.");
                 continue;
             }
 
             $data = $response->{$id};
 
-            // REASON 2: API returned an error object for this specific ID
             if (isset($data->error)) {
-                $this->error("API ERROR: Order #{$order->id} (API ID: $id) -> " . ($data->error));
+                $this->error("    -> ID $id: API Error -> " . $data->error);
+                continue;
+            }
+
+            if (isset($data->status)) {
+                $newStatus = $this->mapStatus($data->status);
                 
-                if ($data->error === 'Incorrect order ID') {
-                    $order->update(['status' => 2]);
-                    $this->line("   -> Action: Auto-canceled in local DB.");
+                // FORCE UPDATE CHECK
+                $updated = $order->update(['status' => $newStatus]);
+                
+                if($updated) {
+                    $this->info("    -> ID $id: Updated to $newStatus ({$data->status})");
+                } else {
+                    $this->error("    -> ID $id: Database UPDATE FAILED.");
                 }
-                continue;
             }
-
-            // REASON 3: Data is returned but 'status' field is missing or malformed
-            if (!is_object($data) || !isset($data->status)) {
-                $this->error("DATA MALFORMED: Order ID $id returned invalid structure: " . json_encode($data));
-                continue;
-            }
-
-            // Optional: Show status mapping issues (if API returns a status not in your match list)
-            $mappedStatus = $this->mapStatus($data->status);
-            if ($mappedStatus === 0 && strtolower(trim($data->status)) !== 'pending') {
-                $this->warn("UNMAPPED STATUS: Order #{$order->id} returned '{$data->status}', which maps to 0 (Default/Pending). Check if this is correct.");
-            }
-
-            // Success is silent now...
         }
-    } catch (\Exception $e) {
-        $this->error("EXCEPTION [{$providerName}]: " . $e->getMessage());
+    } catch (\Throwable $e) { // Use Throwable to catch BOTH Errors and Exceptions
+        $this->error("    -> CRITICAL FAILURE in $providerName: " . $e->getMessage());
+        $this->error("    -> File: " . $e->getFile() . " on line " . $e->getLine());
     }
 }
 
