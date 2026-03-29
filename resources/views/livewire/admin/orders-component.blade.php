@@ -151,11 +151,11 @@
 </td>
 
                                             <td x-data="{ copied: false }">
-                                                <span class="d-block text-truncate text-dark mb-1" style="max-width: 200px; font-size: 0.85rem;" title="{{ $order->service->service ?? '' }}">
+                                                <span class="d-block text-truncate text-dark mb-1" style="max-width: 170px; font-size: 0.85rem;" title="{{ $order->service->service ?? '' }}">
                                                     {{ $order->service->service ?? 'Service Deleted' }}
                                                 </span>
                                                 <div class="d-flex align-items-center">
-                                                    <a href="{{ $order->link }}" target="_blank" class="badge badge-light text-info mr-2">
+                                                    <a href="{{ Str::limit($order->link, 50) }}" target="_blank" class="badge badge-light text-info mr-2">
                                                         {{ $order->link }} <span><i class="fas fa-link mr-1"></i> Visit</span>
                                                     </a>
                                                     <button 
