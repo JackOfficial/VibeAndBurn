@@ -100,7 +100,7 @@ class EditOrder extends Component
   
    public function updatedCategory()
     {
-        $this->services = service::join('categories', 'services.category_id', '=', 'categories.id')
+        $this->service = service::join('categories', 'services.category_id', '=', 'categories.id')
         ->where('categories.id', '=', $this->category)
         ->where('services.status', '=', 1)
         ->select('services.*')
