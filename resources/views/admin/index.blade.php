@@ -105,55 +105,87 @@
                         </div>
                     </div>
 
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white border-0 py-3">
-                            <h3 class="card-title font-weight-bold text-dark">Live Order Stream</h3>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th class="pl-4">ORDER</th>
-                                            <th>SERVICE</th>
-                                            <th>STATUS</th>
-                                            <th class="text-right pr-4">CHARGE</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($recentOrders as $order)
-                                        <tr>
-                                            <td class="pl-4">
-                                                <a href="{{ route('admin.clientOrders.show', $order->id) }}" class="text-primary font-weight-bold">#{{ $order->id }}</a>
-                                                <div class="text-muted" style="font-size: 10px;">{{ $order->created_at->diffForHumans() }}</div>
-                                            </td>
-                                            <td>
-                                                <span class="text-dark">{{ Str::limit($order->service_name, 35) }}</span>
-                                                <div class="text-muted small">{{ $order->user->name ?? 'Guest' }}</div>
-                                            </td>
-                                            <td>
-                                                @php
-                                                    $color = match($order->status) {
-                                                        'pending', '0' => 'warning',
-                                                        'completed' => 'success',
-                                                        'processing' => 'primary',
-                                                        default => 'secondary'
-                                                    };
-                                                @endphp
-                                                <span class="badge badge-{{ $color }} text-uppercase" style="font-size: 10px;">{{ $order->status }}</span>
-                                            </td>
-                                            <td class="text-right pr-4">
-                                                <span class="font-weight-bold text-dark">${{ number_format($order->charge, 2) }}</span>
-                                            </td>
-                                        </tr>
-                                        @empty
-                                        <tr><td colspan="4" class="text-center py-5 text-muted">No activities found.</td></tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                   <div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <h3 class="card-title font-weight-bold text-dark mb-0">Live Order Stream</h3>
+            <p class="text-muted mb-0 small">Real-time monitoring of VibeAndBurn activity</p>
+        </div>
+        <div class="card-tools">
+            <button class="btn btn-xs btn-light text-primary border"><i class="fas fa-sync-alt mr-1"></i> Auto-refresh</button>
+        </div>
+    </div>
+    
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="border-collapse: separate; border-spacing: 0 8px;">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="pl-4 border-0 text-muted small" style="width: 15%">ORDER ID</th>
+                        <th class="border-0 text-muted small">SERVICE DETAILS</th>
+                        <th class="border-0 text-muted small">STATUS</th>
+                        <th class="text-right pr-4 border-0 text-muted small">TOTAL CHARGE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($recentOrders as $order)
+                    <tr class="bg-white shadow-none">
+                        <td class="pl-4 py-3">
+                            <div class="d-flex align-items-center">
+                                @if($loop->first)
+                                    <span class="mr-2" title="Latest Activity">
+                                        <span class="spinner-grow spinner-grow-sm text-primary" role="status" style="width: 8px; height: 8px;"></span>
+                                    </span>
+                                @endif
+                                <div>
+                                    <a href="{{ route('admin.clientOrders.show', $order->id) }}" class="text-dark font-weight-bold">#{{ $order->id }}</a>
+                                    <div class="text-muted" style="font-size: 11px;">{{ $order->created_at->diffForHumans() }}</div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        </td>
+                        <td class="py-3">
+                            <span class="d-block text-dark font-weight-600" style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {{ $order->service_name }}
+                            </span>
+                            <span class="text-muted small"><i class="far fa-user mr-1 text-xs"></i> {{ $order->user->name ?? 'System Guest' }}</span>
+                        </td>
+                        <td class="py-3">
+                            @php
+                                $statusMap = match($order->status) {
+                                    'pending', '0' => ['color' => 'warning', 'label' => 'Awaiting'],
+                                    'completed' => ['color' => 'success', 'label' => 'Success'],
+                                    'processing' => ['color' => 'primary', 'label' => 'Active'],
+                                    'canceled' => ['color' => 'danger', 'label' => 'Canceled'],
+                                    default => ['color' => 'secondary', 'label' => $order->status]
+                                };
+                            @endphp
+                            <span class="badge badge-{{ $statusMap['color'] }} px-3 py-2" style="border-radius: 6px; font-size: 10px; letter-spacing: 0.5px;">
+                                {{ strtoupper($statusMap['label']) }}
+                            </span>
+                        </td>
+                        <td class="text-right pr-4 py-3">
+                            <h6 class="mb-0 font-weight-bold text-dark">${{ number_format($order->charge, 2) }}</h6>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="opacity-50 mb-3" style="filter: grayscale(1);">
+                            <p class="text-muted mt-2">No live orders found in the system.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="card-footer bg-white border-top-0 text-center py-3">
+        <a href="{{ route('admin.clientOrders.index') }}" class="btn btn-sm btn-outline-primary px-4" style="border-radius: 20px;">
+            Open Order Management <i class="fas fa-chevron-right ml-2 text-xs"></i>
+        </a>
+    </div>
+</div>
                 </div>
 
                 <div class="col-lg-4">
