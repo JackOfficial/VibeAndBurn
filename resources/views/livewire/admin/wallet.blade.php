@@ -49,11 +49,11 @@
                         <tr>
                             <td class="align-middle">{{ $loop->iteration }}</td>
                             <td class="align-middle">
-                                <div class="d-flex flex-column">
-                                    <span class="font-weight-bold">{{ $wallet->name }}</span>
-                                    <small class="text-muted">{{ $wallet->email }}</small>
-                                </div>
-                            </td>
+    <div class="d-flex flex-column">
+        <span class="font-weight-bold">{{ $wallet->user->name ?? 'N/A' }}</span>
+        <small class="text-muted">{{ $wallet->user->email ?? 'N/A' }}</small>
+    </div>
+</td>
                             <td class="align-middle">
                                 <span class="badge badge-pill badge-light border px-3 py-2" style="font-size: 0.9rem;">
                                     <strong>${{ number_format($wallet->money, 2) }}</strong>
@@ -122,13 +122,20 @@
                 </div>
 
                 <div class="modal-footer bg-light justify-content-between">
-                    <button type="button" class="btn btn-outline-danger btn-sm px-4" wire:click="decreaseFund" wire:loading.attr="disabled">
-                        <i class="fa fa-minus-circle mr-1"></i> Deduct
-                    </button>
-                    <button type="button" class="btn btn-primary btn-sm px-4" wire:click="increaseFund" wire:loading.attr="disabled">
-                        <i class="fa fa-plus-circle mr-1"></i> Add Funds
-                    </button>
-                </div>
+    <button type="button" 
+            class="btn btn-outline-danger btn-sm px-4" 
+            wire:click="decreaseFund" 
+            wire:loading.attr="disabled"
+            data-dismiss="modal"> <i class="fa fa-minus-circle mr-1"></i> Deduct
+    </button>
+    
+    <button type="button" 
+            class="btn btn-primary btn-sm px-4" 
+            wire:click="increaseFund" 
+            wire:loading.attr="disabled"
+            data-dismiss="modal"> <i class="fa fa-plus-circle mr-1"></i> Add Funds
+    </button>
+</div>
             </div>
         </div>
     </div>
