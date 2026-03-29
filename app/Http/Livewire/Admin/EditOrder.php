@@ -68,10 +68,8 @@ public function updateOrder()
         $orderModel = order::findOrFail($this->orderID);
 
         // 1. Clean the input (remove $, commas, and spaces)
-        $cleanCharge = (float) str_replace(['$', ',', ' '], '', $this->charge);
-
-        // 2. Safety Check to prevent accidental 0.00 saves
-        if ($cleanCharge <= 0 && $orderModel->charge > 0) {
+       // 2. Safety Check to prevent accidental 0.00 saves
+        if ($this->charge <= 0 && $orderModel->charge > 0) {
             throw new \Exception("Charge cannot be zero. Please enter the amount paid.");
         }
 
@@ -81,7 +79,7 @@ public function updateOrder()
         $orderModel->orderId     = $this->orderId; // External API ID
         
         // Save as a pure decimal (8 places) to match your DB precision
-        $orderModel->charge      = number_format($cleanCharge, 8, '.', '');
+        $orderModel->charge      = $this->charge;
 
         // 4. Update Status (This will be detected by your Observer)
         $orderModel->status = 7; 
@@ -90,10 +88,9 @@ public function updateOrder()
         // The Observer will catch this 'updated' event
         $orderModel->save(); 
 
-        // 6. Sync the local Livewire state with the saved DB value
-        $this->charge = $orderModel->charge;
-
         session()->flash('editOrderSuccess', "Order #{$this->orderID} updated and synced.");
+
+        return redirect()->route('admin.clientOrders.index');
         
     } catch (\Exception $e) {
         session()->flash('editOrderFail', "Error: " . $e->getMessage());
