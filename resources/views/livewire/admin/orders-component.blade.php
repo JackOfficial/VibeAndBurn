@@ -79,7 +79,7 @@
                                                 7 => ['bg' => '#f8f9fa', 'text' => '#6c757d'], 
                                             ];
                                             $style = $statusColors[$order->status] ?? ['bg' => '#eee', 'text' => '#333'];
-                                            $statusName = [0=>'Pending', 1=>'Completed', 2=>'Reversed', 3=>'Processing', 4=>'In Progress', 5=>'Partial', , 7=>'Updated'][$order->status] ?? 'Unknown';
+                                            $statusName = [0=>'Pending', 1=>'Completed', 2=>'Reversed', 3=>'Processing', 4=>'In Progress', 5=>'Partial', 7=>'Updated'][$order->status] ?? 'Unknown';
                                         @endphp
                                         <tr style="transition: all 0.2s ease;">
                                             <td class="px-4">
