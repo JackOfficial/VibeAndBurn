@@ -175,10 +175,10 @@
 
     <div class="d-flex align-items-center" style="gap: 5px;">
         <span class="badge badge-soft-secondary py-1 px-2" style="font-size: 0.75rem; font-weight: 500;" title="Start Count">
-            <i class="fas fa-play-circle mr-1 text-muted"></i> Start: {{ number_format($order->start_count ?? 0) }}
+            <i class="fas fa-play-circle mr-1 text-muted"></i> Start: {{ number_format((float)($order->start_count ?? 0)) }}
         </span>
         <span class="badge badge-soft-warning py-1 px-2" style="font-size: 0.75rem; font-weight: 500;" title="Remaining">
-            <i class="fas fa-hourglass-half mr-1 text-muted"></i> Remains: {{ number_format($order->remains ?? 0) }}
+            <i class="fas fa-hourglass-half mr-1 text-muted"></i> Remains: {{ number_format((float)($order->remains ?? 0)) }}
         </span>
     </div>
 </td>
