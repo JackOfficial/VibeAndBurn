@@ -11,34 +11,43 @@ class OrderStatus extends Command
     protected $description = 'Batch update order statuses and auto-cancel invalid IDs';
 
     public function handle()
-    {
-        $sources = [
-            3 => 'Amazing',
-            4 => 'Bulkmedya',
-            5 => 'Smmsun',
-            'default' => 'Bulkfollows' 
-        ];
+{
+    $sources = [
+        3 => 'Amazing',
+        4 => 'Bulkmedya',
+        5 => 'Smmsun',
+        'default' => 'Bulkfollows' 
+    ];
 
-        foreach ($sources as $sourceId => $providerName) {
-            // Filter: Active orders only, with valid IDs, created in the last 30 days
-            $query = order::whereNotIn('status', [1, 2, 5])
-                          ->whereNotNull('orderId')
-                          ->where('orderId', '!=', '')
-                          ->where('created_at', '>', now()->subDays(30));
+    $this->info("Checking for orders created after: " . now()->subDays(30)->toDateTimeString());
 
-            if ($sourceId === 'default') {
-                $query->whereNotIn('source_id', [3, 4, 5]);
-            } else {
-                $query->where('source_id', $sourceId);
-            }
+    foreach ($sources as $sourceId => $providerName) {
+        $this->comment("--> Checking Provider: $providerName (ID: $sourceId)");
 
-            $orders = $query->limit(100)->get();
+        $query = order::whereNotIn('status', [1, 2, 5])
+                      ->whereNotNull('orderId')
+                      ->where('orderId', '!=', '')
+                      ->where('created_at', '>', now()->subDays(30));
 
-            if ($orders->isEmpty()) continue;
-
-            $this->processProviderBatch($providerName, $orders);
+        if ($sourceId === 'default') {
+            $query->whereNotIn('source_id', [3, 4, 5]);
+        } else {
+            $query->where('source_id', $sourceId);
         }
+
+        $orders = $query->limit(100)->get();
+
+        if ($orders->isEmpty()) {
+            $this->line("    Result: 0 orders found in DB for $providerName.");
+            continue; 
+        }
+
+        $this->info("    Result: " . $orders->count() . " orders found. Sending to Controller...");
+        $this->processProviderBatch($providerName, $orders);
     }
+
+    $this->info("Command finished execution.");
+}
 
     private function processProviderBatch($providerName, $orders)
 {
