@@ -168,32 +168,48 @@
                 </p>
 
                <div class="d-flex flex-column align-items-center align-items-lg-start mb-4">
-    <div class="w-100" style="max-width: 400px;">
-        @if(!Auth::check())
-            <a href="{{ url('/redirect') }}" class="btn btn-light btn-block shadow-lg d-flex align-items-center p-2 google-btn-structured">
-                <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
-                    <img src="https://www.google.com/favicon.ico" alt="Google" width="18">
-                </div>
-                <div class="flex-grow-1 text-center">
-                    <span class="d-block font-weight-bold text-dark mb-0" style="letter-spacing: 0.5px; font-size: 0.95rem;">Continue with Google</span>
-                </div>
-            </a>
-
-            <div class="d-flex align-items-center mt-3 ml-lg-2 opacity-75">
-                <span class="badge badge-pill badge-dark border border-secondary py-1 px-2 mr-2">
-                    <i class="fas fa-shield-alt text-success"></i>
-                </span>
-                <p class="small text-muted mb-0 font-weight-normal">
-                    Secure 1-click access. <span class="text-white-50">No password needed.</span>
-                </p>
+  <div class="w-100" style="max-width: 400px;">
+    @guest
+        {{-- Google Login Button --}}
+        <a href="{{ url('/redirect') }}" class="btn btn-light btn-block shadow-lg d-flex align-items-center p-2 google-btn-structured">
+            <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
+                <img src="https://www.google.com/favicon.ico" alt="Google" width="18">
             </div>
-        @else
-            <a href="{{ url('/dashboard') }}" class="btn btn-vibe btn-block shadow-lg py-3">
-                <i class="fas fa-rocket mr-2"></i> 
-                <span class="font-weight-bold">ENTER DASHBOARD</span>
+            <div class="flex-grow-1 text-center">
+                <span class="d-block font-weight-bold text-dark mb-0" style="letter-spacing: 0.5px; font-size: 0.95rem;">Continue with Google</span>
+            </div>
+        </a>
+
+        <div class="d-flex align-items-center mt-3 ml-lg-2 opacity-75">
+            <span class="badge badge-pill badge-dark border border-secondary py-1 px-2 mr-2">
+                <i class="fas fa-shield-alt text-success"></i>
+            </span>
+            <p class="small text-muted mb-0 font-weight-normal">
+                Secure 1-click access. <span class="text-white-50">No password needed.</span>
+            </p>
+        </div>
+    @else
+        {{-- Logged In Options --}}
+        @hasanyrole('Admin|User Admin')
+            {{-- Primary Button for Admins --}}
+            <a href="/admin/dashboard" class="btn btn-primary btn-block shadow-lg py-3 mb-2">
+                <i class="fas fa-user-shield mr-2"></i> 
+                <span class="font-weight-bold text-uppercase">Admin Control Panel</span>
             </a>
-        @endif
-    </div>
+            
+            {{-- Secondary link for Admins to access User Side --}}
+            <a href="/home" class="btn btn-outline-light btn-block border-secondary py-2 small opacity-75">
+                <i class="fas fa-user mr-2"></i> Switch to User Dashboard
+            </a>
+        @else
+            {{-- Standard Button for Normal Users --}}
+            <a href="/home" class="btn btn-vibe btn-block shadow-lg py-3">
+                <i class="fas fa-rocket mr-2"></i> 
+                <span class="font-weight-bold text-uppercase">Enter Dashboard</span>
+            </a>
+        @endhasanyrole
+    @endguest
+</div>
 </div>
             </div>
 
