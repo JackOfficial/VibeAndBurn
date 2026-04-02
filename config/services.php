@@ -58,4 +58,9 @@ return [
         'key' => env('SMMSUN_API_KEY'),
     ],
 
+    'exchangerates' => [
+    'key' => env('EXCHANGERATES_API_KEY'),
+    'url' => env('EXCHANGERATES_BASE_URL'),
+    ],
+
 ];

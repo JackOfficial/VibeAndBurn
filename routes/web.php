@@ -37,6 +37,9 @@ use App\Http\Controllers\AfriPay\ProcessPaymentController;
 use App\Http\Controllers\BinanceController;
 use App\Http\Controllers\WholesalersController;
 use App\Http\Controllers\admin\RateController;
+use App\Http\Controllers\CurrencyController;
+use App\Services\CurrencyService;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,6 +136,8 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
 });
 
 Route::get('/toggle-service/{id}', [serviceController::class, 'toggler']);
+
+Route::get('/api/convert-currency', CurrencyController::class);
 
 
 Route::resource('broadcast', broadcastController::class);
