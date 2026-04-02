@@ -303,7 +303,7 @@
                 <div class="dropdown-menu dropdown-menu-right shadow-lg mt-3">
                     
                     {{-- 1. ADMIN OPTIONS (Shown to Admin or User Admin) --}}
-                    @hasanyrole('admin|user admin')
+                    @hasanyrole('Admin|Super Admin')
                         <a class="dropdown-item py-2 font-weight-bold text-primary" href="/admin/dashboard">
                             <i class="bx bx-shield-quarter mr-2"></i> Admin Panel
                         </a>
