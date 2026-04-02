@@ -27,30 +27,26 @@ class OrdersComponent extends Component
     /**
      * Refunding the money back to the user
      */
-    public function reverseOrder($orderId)
+public function reverseOrder($orderId)
 {
     $order = order::findOrFail($orderId);
 
-    // Prevent double refunding
     if ((int)$order->status === 2) {
-        $this->dispatchBrowserEvent('toastr:info', ['message' => 'This order was already reversed.']);
+        $this->dispatchBrowserEvent('toastr:info', ['message' => 'Already reversed.']);
         return;
     }
 
     try {
         DB::transaction(function () use ($order) {
-            // STRATEGY: Use property assignment + save() to trigger ALL Observer events
+            // Update status without triggering any potential "updating" observers
             $order->status = 2;
-            $order->save(); // This definitely triggers 'updating' and 'updated' in the Observer
+            $order->saveQuietly(); 
 
-            // Wallet Update
-            $wallet = wallet::where('user_id', $order->user_id)->firstOrFail();
+            $wallet = wallet::where('user_id', $order->user_id)->lockForUpdate()->firstOrFail();
             
-            // Ensure $order->charge is treated as a clean float (removing '$' if it exists)
             $refundAmount = (float) str_replace('$', '', $order->charge);
             $wallet->increment('money', $refundAmount);
 
-            // Record in funds table
             fund::create([
                 'user_id'   => $order->user_id,
                 'method'    => 'Refund',
@@ -59,14 +55,10 @@ class OrdersComponent extends Component
             ]);
         });
 
-        $this->dispatchBrowserEvent('toastr:success', [
-            'message' => "Success: Order #{$orderId} reversed and funds returned!"
-        ]);
+        $this->dispatchBrowserEvent('toastr:success', ['message' => "Order #{$orderId} reversed!"]);
         
     } catch (\Exception $e) {
-        $this->dispatchBrowserEvent('toastr:error', [
-            'message' => 'Refund failed: ' . $e->getMessage()
-        ]);
+        $this->dispatchBrowserEvent('toastr:error', ['message' => 'Refund failed: ' . $e->getMessage()]);
     }
 }
 
