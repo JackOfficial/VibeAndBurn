@@ -5,7 +5,7 @@ namespace App\Http\Livewire\Admin;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\wallet as ClientWallet; // Standardized casing
-use App\Models\Fund;
+use App\Models\fund as Fund;
 use App\Models\BFCurency;
 use App\Models\Currencies;
 use Illuminate\Support\Facades\DB;
