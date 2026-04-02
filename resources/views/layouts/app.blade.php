@@ -281,28 +281,51 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('contactus.create') }}">Contact</a></li>
                     </ul>
 
-                    <div class="nav-btns d-flex align-items-center">
-                        @guest
-                            <a href="{{route('login')}}" class="nav-link mr-3">Sign In</a>
-                            <a href="{{ route('register') }}" class="btn btn-nav-signup">Get Famous</a>
-                        @endguest
+                    <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('our-services.index') }}">Services</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('faq.index') }}">Help</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('contactus.create') }}">Contact</a></li>
+    </ul>
 
-                        @auth
-                            <div class="dropdown">
-                                <a href="#" class="btn btn-outline-light rounded-pill dropdown-toggle px-4 border-secondary" data-toggle="dropdown">
-                                    <i class="bx bx-user-circle mr-1"></i> {{ Auth::user()->name }}
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right shadow-lg mt-3">
-                                    <a class="dropdown-item py-2" href="/home"><i class="bx bx-grid-alt mr-2"></i> Dashboard</a>
-                                    <div class="dropdown-divider border-secondary"></div>
-                                    <a class="dropdown-item text-vibe-red py-2" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        <i class="bx bx-log-out mr-2"></i> Logout
-                                    </a>
-                                </div>
-                            </div>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
-                        @endauth
-                    </div>
+    <div class="nav-btns d-flex align-items-center">
+        @guest
+            <a href="{{route('login')}}" class="nav-link mr-3">Sign In</a>
+            <a href="{{ route('register') }}" class="btn btn-nav-signup">Get Famous</a>
+        @endguest
+
+        @auth
+            <div class="dropdown">
+                <a href="#" class="btn btn-outline-light rounded-pill dropdown-toggle px-4 border-secondary" data-toggle="dropdown">
+                    <i class="bx bx-user-circle mr-1"></i> {{ Auth::user()->name }}
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow-lg mt-3">
+                    
+                    {{-- 1. ADMIN OPTIONS (Shown to Admin or User Admin) --}}
+                    @hasanyrole('Admin|User Admin')
+                        <a class="dropdown-item py-2 font-weight-bold text-primary" href="/admin/dashboard">
+                            <i class="bx bx-shield-quarter mr-2"></i> Admin Panel
+                        </a>
+                    @endhasanyrole
+
+                    {{-- 2. USER DASHBOARD (Shown to everyone logged in) --}}
+                    <a class="dropdown-item py-2" href="/home">
+                        <i class="bx bx-grid-alt mr-2"></i> User Dashboard
+                    </a>
+
+                    <div class="dropdown-divider border-secondary"></div>
+                    
+                    <a class="dropdown-item text-vibe-red py-2" href="{{ route('logout') }}" 
+                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="bx bx-log-out mr-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
+        @endauth
+    </div>
+</div>
                 </div>
             </div>
         </nav>
