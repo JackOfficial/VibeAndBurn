@@ -23,6 +23,7 @@ class usersController extends Controller
 
 public function show(User $user)
 {
+    dd($user->id);
     return view('admin.users.show', compact('user'));
 }
 
