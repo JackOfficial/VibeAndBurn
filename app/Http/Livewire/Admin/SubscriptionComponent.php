@@ -12,6 +12,13 @@ class SubscriptionComponent extends Component
 
     // Use Bootstrap styling for pagination links
     protected $paginationTheme = 'bootstrap';
+    public $search = '';
+
+    // Reset pagination when searching
+public function updatingSearch()
+{
+    $this->resetPage();
+}
 
     /**
      * Delete a subscriber and stay on the same page.
@@ -25,9 +32,13 @@ class SubscriptionComponent extends Component
 
     public function render()
     {
-        return view('livewire.admin.subscription-component', [
-            'subscribers' => Subscription::latest()->paginate(15),
-            'subscribersCounter' => Subscription::count(),
-        ]);
+        $subscribers = Subscription::where('email', 'like', '%' . $this->search . '%')
+        ->latest()
+        ->paginate(15);
+
+    return view('livewire.admin.subscription-component', [
+        'subscribers' => $subscribers,
+        'subscribersCounter' => Subscription::count(),
+    ]);
     }
 }
