@@ -17,7 +17,45 @@
     <link rel="stylesheet" href="{{ asset('back/plugins/fontawesome-free/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('back/plugins/toastr/toastr.min.css') }}">
 
-    @include('partials.crisp_chat')
+    <style>
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 40px;
+            right: 40px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 2px 2px 3px #999;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-float:hover {
+            background-color: #128C7E;
+            color: #FFF;
+            transform: scale(1.1);
+        }
+
+        /* Adjust for mobile if needed */
+        @media screen and (max-width: 767px) {
+            .whatsapp-float {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                right: 20px;
+                font-size: 25px;
+            }
+        }
+    </style>
+
+    {{-- @include('partials.crisp_chat') --}}
     @livewireStyles
     @stack('styles')
 </head>
@@ -57,5 +95,12 @@
     </script>
     @livewireScripts
     @stack('scripts')
+
+    <a href="https://wa.me/250791888471?text=Hello%20Vibe%20and%20Burn%20Support,%20I%20need%20help%20with..." 
+       class="whatsapp-float" 
+       target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
 </body>
 </html>
