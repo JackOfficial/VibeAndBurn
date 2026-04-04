@@ -20,7 +20,7 @@ class CategoryController extends Controller
 
         $categoryCounter = $categories->count();
 
-        return view('admin.manage.categories', compact('categories', 'categoryCounter')); 
+        return view('admin.categories.index', compact('categories', 'categoryCounter')); 
     }
 
     /**
@@ -29,7 +29,7 @@ class CategoryController extends Controller
     public function create()
     {
         $socialmedia = Socialmedia::orderBy('socialmedia', 'ASC')->get();
-        return view('admin.add.category', compact('socialmedia')); 
+        return view('admin.categories.create', compact('socialmedia')); 
     }
 
     /**
@@ -63,7 +63,7 @@ class CategoryController extends Controller
         $category = Category::with('socialmedia')->findOrFail($id);
         $socialmedia = Socialmedia::orderBy('socialmedia', 'ASC')->get();
 
-        return view('admin.edit.category', compact('category', 'socialmedia'));
+        return view('admin.categories.edit', compact('category', 'socialmedia'));
     }
 
     /**
