@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Notifications\NewTicketOpened;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 class UserTicketComponent extends Component
@@ -94,13 +95,22 @@ class UserTicketComponent extends Component
             'is_admin' => false,
         ]);
 
-        $admins = User::role(['Admin', 'Super Admin'])
-            ->whereNotNull('email')
-            ->get();
+        try {
+    $admins = User::role(['Admin', 'Super Admin'])
+        ->whereNotNull('email')
+        ->where('email', '!=', '')
+        ->get();
 
-        if ($admins->isNotEmpty()) {
-            Notification::send($admins, new NewTicketOpened($ticket));
-        }
+    if ($admins->isNotEmpty()) {
+        // This adds the job to your 'jobs' table. 
+        // If the 'jobs' table fails, the catch block will handle it.
+        Notification::send($admins, new NewTicketOpened($ticket));
+    }
+} catch (\Exception $e) {
+    // We log the error so you can see it in storage/logs/laravel.log
+    // but we do NOT show it to the user.
+    Log::error("Ticket Notification Failed for Ticket #{$ticket->id}: " . $e->getMessage());
+}
 
         session()->flash('success', 'Ticket opened successfully!');
         $this->toggleCreate();
