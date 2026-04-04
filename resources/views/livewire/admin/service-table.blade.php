@@ -139,7 +139,7 @@
                                 ${{ number_format($service->rate_per_1000, 4) }}
                             </div>
                             <div class="text-xs text-muted font-italic" title="Provider Cost">
-                                Cost: ${{ number_format($service->price_per_1000, 4) }}
+                                Cost: ${{ number_format($service->rate_per_1000, 4) }}
                             </div>
                         </td>
                         <td class="text-right pr-4">
