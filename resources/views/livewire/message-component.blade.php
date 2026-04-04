@@ -81,7 +81,7 @@
                                         </td>
                                         <td class="mailbox-star"><i class="fas fa-star text-warning"></i></td>
                                         <td class="mailbox-name">
-                                            <a href="{{ route('contactus.show', $message->id) }}" class="text-dark font-weight-bold">
+                                            <a href="{{ route('admin.messages.show', $message->id) }}" class="text-dark font-weight-bold">
                                                 {{ ucfirst($message->name) }}
                                             </a>
                                         </td>
