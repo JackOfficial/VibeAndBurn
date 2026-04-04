@@ -10,35 +10,38 @@ class SubscriptionComponent extends Component
 {
     use WithPagination;
 
-    // Use Bootstrap styling for pagination links
+    // Standard Bootstrap theme for Laravel 8 pagination
     protected $paginationTheme = 'bootstrap';
+    
     public $search = '';
 
-    // Reset pagination when searching
-public function updatingSearch()
-{
-    $this->resetPage();
-}
-
     /**
-     * Delete a subscriber and stay on the same page.
+     * Livewire 2 hook: Resets pagination when $search changes.
      */
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
     public function deleteSubscriber($id)
     {
-        Subscription::findOrFail($id)->delete();
-        
-        session()->flash('message', 'Subscriber removed successfully.');
+        $subscriber = Subscription::find($id);
+        if ($subscriber) {
+            $subscriber->delete();
+            session()->flash('message', 'Subscriber removed successfully.');
+        }
     }
 
     public function render()
     {
+        // Filter logic for Laravel 8
         $subscribers = Subscription::where('email', 'like', '%' . $this->search . '%')
-        ->latest()
-        ->paginate(15);
+            ->latest()
+            ->paginate(15);
 
-    return view('livewire.admin.subscription-component', [
-        'subscribers' => $subscribers,
-        'subscribersCounter' => Subscription::count(),
-    ]);
+        return view('livewire.admin.subscription-component', [
+            'subscribers' => $subscribers,
+            'subscribersCounter' => Subscription::count(),
+        ]);
     }
 }
