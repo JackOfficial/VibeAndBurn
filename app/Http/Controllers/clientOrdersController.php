@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\wallet;
 use App\Models\fund;
 use App\Models\BFCurency;
+use Illuminate\Support\Facades\DB;
 
 class clientOrdersController extends Controller
 {
@@ -39,60 +40,51 @@ class clientOrdersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-       $request->validate([
-           'user' => ['required'],
-          'currency' => ['required'],
-            'money' => ['required'],
-           ]);
-
-       $userID = $request->user;
-       $currency = $request->currency;
-       $amount = $request->money;
-       $bf = BFCurency::where('id', 1)->value('currency');
-       
-        if($currency == "BIF"){
-              $result = $amount/$bf;
-            }
-            elseif($currency == "USD"){
-              $result = $amount;  
-            }
-            else{
-                $result = false; 
-            }
-
-if($result != false){
-    $wallet = wallet::where('user_id', '=', $userID)->count();
-       if($wallet == 0){
-        wallet::create([
-            'user_id' => $userID,
-            'money' => $result,
-        ]); 
-       }
-       else{
-        $mywallet = wallet::where('user_id', '=', $userID)->sum('money');
-        wallet::where('user_id', '=', $userID)->update([
-            'money' => $mywallet + $result,
-        ]);
-       }
-
-       $fund = fund::create([
-        'user_id' => $userID,
-        'method' => $currency,
-        'amount' => $result,
+{
+    $request->validate([
+        'user'     => ['required', 'exists:users,id'], // Added exists check for safety
+        'currency' => ['required', 'in:BIF,USD'],      // Validates currency immediately
+        'money'    => ['required', 'numeric', 'min:0.01'],
     ]);
 
-    if($fund){
-    return redirect()->back()->with('adminAddFundSuccess','Fund has been added successfully');
- }
- else{
-     return redirect()->back()->with('adminAddFundFail','Fund could not be added');
- }
-}
- else{
-    return redirect()->back()->with('adminAddFundFail','BIF and USD are the only currency supported currently!'); 
- }
- 
+    $userID   = $request->user;
+    $currency = $request->currency;
+    $amount   = (float) $request->money;
+    
+    // 1. Calculate the result based on currency
+    if ($currency === "BIF") {
+        $bf = BFCurency::where('id', 1)->value('currency') ?: 1; // Avoid division by zero
+        $result = $amount / $bf;
+    } else {
+        $result = $amount; // Since validation limits currency to BIF/USD, else is always USD
+    }
+
+    // 2. Use a Database Transaction for data integrity
+    return DB::transaction(function () use ($userID, $currency, $result) {
+        
+        // 3. Update or Create Wallet (Replaces count, sum, and manual update)
+        // This handles both the 'first time' deposit and 'subsequent' deposits
+        $wallet = Wallet::updateOrCreate(
+            ['user_id' => $userID],
+            ['money' => 0] // Default if not found
+        );
+        
+        // Use increment for atomic database updates (prevents race conditions)
+        $wallet->increment('money', $result);
+
+        // 4. Create Fund Record
+        $fund = Fund::create([
+            'user_id' => $userID,
+            'method'  => $currency,
+            'amount'  => $result,
+        ]);
+
+        if ($fund) {
+            return redirect()->back()->with('adminAddFundSuccess', 'Fund has been added successfully');
+        }
+
+        return redirect()->back()->with('adminAddFundFail', 'Fund could not be added');
+    });
 }
 
     /**
