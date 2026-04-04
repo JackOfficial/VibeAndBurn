@@ -102,9 +102,19 @@
                     <td>
                         <div class="d-flex align-items-center">
                             {{-- Placeholder for Social Media Icon based on your previous data --}}
-                            <div class="mr-2 rounded-circle bg-soft-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                <i class="fa fa-users text-primary small"></i>
-                            </div>
+                           <div class="mr-2 rounded-circle bg-soft-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+    @php
+        $icon = match($service->category->socialmedia_id ?? 0) {
+            1 => 'fa-instagram',
+            2 => 'fa-facebook',
+            3 => 'fa-twitter',
+            4 => 'fa-youtube',
+            5 => 'fa-tiktok',
+            default => 'fa-users'
+        };
+    @endphp
+    <i class="fab {{ $icon }} text-primary small"></i>
+</div>
                             <span class="font-weight-bold text-dark">{{ $service->category->category ?? 'Uncategorized' }}</span>
                         </div>
                     </td>
