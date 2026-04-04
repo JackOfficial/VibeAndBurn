@@ -20,25 +20,34 @@
                         <p class="text-muted small mb-0">Total: {{ number_format($subscribersCounter) }} registered emails</p>
                     </div>
                     
-                    <div class="mt-3 mt-md-0 position-relative" style="min-width: 300px;">
-                        <div class="input-group shadow-sm" style="border-radius: 10px; overflow: hidden;">
-                            <div class="input-group-prepend">
-                                <span class="input-group text bg-white border-right-0 px-3">
-                                    <i class="fas fa-search text-muted"></i>
-                                </span>
-                            </div>
-                            <input wire:model.live.debounce.300ms="search" 
-                                   type="text" 
-                                   class="form-control border-left-0 pl-0" 
-                                   placeholder="Search by email..."
-                                   style="height: 45px; border-radius: 0 10px 10px 0;">
-                            
-                            {{-- Livewire Loading Spinner --}}
-                            <div wire:loading wire:target="search" class="position-absolute" style="right: 15px; top: 12px; z-index: 5;">
-                                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                            </div>
-                        </div>
-                    </div>
+                   <div class="mt-3 mt-md-0 position-relative" style="min-width: 300px;">
+    {{-- Search Input Container --}}
+    <div class="position-relative shadow-sm" style="border-radius: 10px;">
+        
+        {{-- Search Icon (Left) --}}
+        <div class="position-absolute d-flex align-items-center justify-content-center" 
+             style="left: 15px; top: 0; bottom: 0; z-index: 5; pointer-events: none;">
+            <i class="fas fa-search text-muted"></i>
+        </div>
+
+        {{-- The Input Field --}}
+        <input wire:model.live.debounce.300ms="search" 
+               type="text" 
+               class="form-control border-0 px-5" {{-- Left padding px-5 gives room for the icon --}}
+               placeholder="Search by email..."
+               style="height: 48px; border-radius: 10px; font-size: 0.95rem; background-color: #f8f9fa;">
+
+        {{-- Livewire Loading Spinner (Right) --}}
+        <div wire:loading wire:target="search" 
+             class="position-absolute d-flex align-items-center" 
+             style="right: 15px; top: 0; bottom: 0; z-index: 5;">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        
+    </div>
+</div>
                 </div>
             </div>
 
