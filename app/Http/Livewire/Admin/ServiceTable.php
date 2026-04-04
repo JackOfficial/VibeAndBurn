@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\service as Service;
 use App\Models\category as Category;
 use App\Models\Source; // Imported for provider filtering
+use App\Models\Rate;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Artisan;
 
@@ -101,7 +102,8 @@ class ServiceTable extends Component
             'services' => $services,
             'categories' => Category::orderBy('category', 'asc')->get(),
             'sources' => Source::all(), // For the provider filter dropdown
-            'servicesCounter' => Service::count()
+            'servicesCounter' => Service::count(),
+            'rate' => Rate::first()
         ]);
     }
 }
