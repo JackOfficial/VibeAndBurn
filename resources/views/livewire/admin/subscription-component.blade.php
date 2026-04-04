@@ -31,7 +31,7 @@
         </div>
 
         {{-- The Input Field --}}
-        <input wire:model.live.debounce.300ms="search" 
+        <input wire:model="search" 
                type="text" 
                class="form-control border-0 px-5" {{-- Left padding px-5 gives room for the icon --}}
                placeholder="Search by email..."
