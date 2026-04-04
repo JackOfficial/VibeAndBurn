@@ -73,7 +73,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div style="max-width: 300px;">
+                                        <div style="max-width: 500px;">
                                             {!! Str::limit($ad->advert, 50) !!}
                                         </div>
                                     </td>
