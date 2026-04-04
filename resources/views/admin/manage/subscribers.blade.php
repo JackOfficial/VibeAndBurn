@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 @section('content')
 
-<div class="content-wrapper">
+<div class="content-wrapper" x-data="{ confirmedDelete: null }">
     {{-- Content Header --}}
     <section class="content-header">
         <div class="container-fluid">
@@ -25,22 +25,30 @@
             <div class="row">
                 <div class="col-12">
 
-                    {{-- Session Alerts --}}
+                    {{-- Session Alerts using Alpine.js for auto-hide --}}
                     @if (Session::has('deleteSubscriberSuccess'))
-                        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-3">
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <div x-data="{ show: true }" 
+                             x-show="show" 
+                             x-init="setTimeout(() => show = false, 4000)"
+                             x-transition.duration.500ms
+                             class="alert alert-success border-0 shadow-sm mb-3">
                             <i class="fas fa-check-circle mr-2"></i> {{ Session::get('deleteSubscriberSuccess') }}
                         </div>
-                    @elseif(Session::has('deleteSubscriberFail'))
-                        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-3">
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    @endif
+
+                    @if(Session::has('deleteSubscriberFail'))
+                        <div x-data="{ show: true }" 
+                             x-show="show" 
+                             x-init="setTimeout(() => show = false, 4000)"
+                             x-transition.duration.500ms
+                             class="alert alert-danger border-0 shadow-sm mb-3">
                             <i class="fas fa-exclamation-triangle mr-2"></i> {{ Session::get('deleteSubscriberFail') }}
                         </div>
                     @endif
 
                     <div class="card shadow-sm border-0" style="border-radius: 12px;">
                         <div class="card-header bg-white py-3">
-                            <h3 class="card-title font-weight-bold">
+                            <h3 class="card-title font-weight-bold text-dark">
                                 <span class="badge badge-primary px-3 py-2 mr-2" style="border-radius: 8px;">
                                     {{ number_format($subscribersCounter) }}
                                 </span> 
@@ -50,7 +58,7 @@
 
                         <div class="card-body p-0">
                             <div class="table-responsive">
-                                <table id="example1" class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0">
                                     <thead class="bg-light text-uppercase text-muted small">
                                         <tr>
                                             <th class="pl-4" style="width: 80px;">#</th>
@@ -80,10 +88,29 @@
                                                 </span>
                                             </td>
                                             <td class="text-right pr-4">
-                                                <form action="{{ route('admin.subscription.destroy', $subscriber->id) }}" method="POST" class="delete-form">
+                                                {{-- Inline Alpine.js Confirmation Logic --}}
+                                                <form action="{{ route('admin.subscription.destroy', $subscriber->id) }}" 
+                                                      method="POST" 
+                                                      id="delete-form-{{ $subscriber->id }}">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="button" class="btn btn-sm btn-outline-danger confirm-delete" title="Remove Subscriber">
+                                                    
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-outline-danger"
+                                                            @click="
+                                                                Swal.fire({
+                                                                    title: 'Remove Subscriber?',
+                                                                    text: 'This email will be permanently deleted.',
+                                                                    icon: 'warning',
+                                                                    showCancelButton: true,
+                                                                    confirmButtonColor: '#d33',
+                                                                    confirmButtonText: 'Yes, delete it!'
+                                                                }).then((result) => {
+                                                                    if (result.isConfirmed) {
+                                                                        document.getElementById('delete-form-{{ $subscriber->id }}').submit();
+                                                                    }
+                                                                })
+                                                            ">
                                                         <i class="fa fa-trash-alt"></i> Delete
                                                     </button>
                                                 </form>
@@ -92,7 +119,6 @@
                                         @empty
                                         <tr>
                                             <td colspan="4" class="text-center py-5">
-                                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80" class="mb-3 opacity-50">
                                                 <p class="text-muted">No active subscribers found.</p>
                                             </td>
                                         </tr>
@@ -107,7 +133,7 @@
                         <div class="card-footer bg-white border-top py-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="small text-muted">
-                                    Showing {{ $subscribers->firstItem() }} to {{ $subscribers->lastItem() }} of {{ $subscribers->total() }}
+                                    Showing {{ $subscribers->firstItem() }} to {{ $subscribers->lastItem() }}
                                 </span>
                                 <div>{{ $subscribers->links() }}</div>
                             </div>
@@ -120,28 +146,6 @@
     </section>
 </div>
 
-@endsection
-
-@push('scripts')
-{{-- JavaScript for Delete Confirmation --}}
+{{-- Ensure SweetAlert2 is still available for the Alpine @click call --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.querySelectorAll('.confirm-delete').forEach(button => {
-        button.addEventListener('click', function(e) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "This email will be removed from your list permanently.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    this.closest('.delete-form').submit();
-                }
-            });
-        });
-    });
-</script>
-@endpush
+@endsection
