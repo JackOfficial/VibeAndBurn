@@ -2,108 +2,58 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\subscription as Subscription; // Use Alias for consistency
 use Illuminate\Http\Request;
-use App\Models\subscription;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
-class subscriptionController extends Controller
+class SubscriptionController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Display a listing of the subscribers.
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $subscribers = subscription::orderBy('id', 'DESC')->get();
-        $subscribersCounter = subscription::count();
+        // Added pagination (15 per page) to prevent slow loading as list grows
+        $subscribers = Subscription::latest()->paginate(25);
+        $subscribersCounter = Subscription::count();
+
         return view('admin.manage.subscribers', compact('subscribers', 'subscribersCounter'));
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Store a newly created subscription.
      */
-    public function create()
+    public function store(Request $request): RedirectResponse
     {
-        //
-    }
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:subscriptions,email']
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $email = $request->email;
-        $request->validate([
-            'email'=> ['required', 'string', 'email', 'max:255', 'unique:subscriptions']
-            ]);
-         
-         $sub= subscription::create([
-             'email'=>$request->input('email')
-         ]);
-         
-         if($sub==TRUE){
-            //Mail::to($email)->send(new confirmSubscription($email));  
-           return redirect()->back()->with('successSubscription', 'You have been subscribed');
-         }
-         else{
-           return redirect()->back()->with('failSubscription', 'Your subscription could not be sent. There might be something wrong!');
-         }
-    }
+        try {
+            $sub = Subscription::create($validated);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+            // Uncomment when ready to send confirmation
+            // Mail::to($sub->email)->send(new confirmSubscription($sub->email));
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        $subscription = subscription::where('id',$id)->delete();
-
-        if($subscription){
-            return redirect()->back()->with('deleteSubscriberSuccess', 'Subscriber was deleted successfully');
+            return back()->with('successSubscription', 'You have been subscribed successfully.');
+            
+        } catch (\Exception $e) {
+            return back()->with('failSubscription', 'Something went wrong. Please try again.');
         }
-        else{
-            return redirect()->back()->with('deleteSubscriberFail', 'Subscriber could not be deleted');
+    }
+
+    /**
+     * Remove the specified subscriber from storage.
+     */
+    public function destroy(int $id): RedirectResponse
+    {
+        $deleted = Subscription::where('id', $id)->delete();
+
+        if ($deleted) {
+            return back()->with('deleteSubscriberSuccess', 'Subscriber was removed successfully.');
         }
+
+        return back()->with('deleteSubscriberFail', 'Subscriber not found or could not be deleted.');
     }
 }
