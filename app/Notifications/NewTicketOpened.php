@@ -34,7 +34,7 @@ class NewTicketOpened extends Notification
             ->line('A new support ticket has been opened by ' . Auth::user()->name)
             ->line('Subject: ' . $this->ticket->subject)
             ->line('Status: ' . ucfirst($this->ticket->status))
-            ->action('View Ticket', url('/admin/tickets/' . $this->ticket->id))
+            ->action('View Ticket', url('/admin/ticket/' . $this->ticket->id))
             ->line('Please respond to the user as soon as possible.');
     }
 
