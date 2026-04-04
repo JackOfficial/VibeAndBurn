@@ -33,7 +33,7 @@ class NewTicketOpened extends Notification
             ->greeting('Hello ' . $notifiable->name . '!')
             ->line('A new support ticket has been opened by ' . Auth::user()->name)
             ->line('Subject: ' . $this->ticket->subject)
-            ->line('Status: ' . ucfirst($this->ticket->status))
+            ->line('Status: ' . $this->ticket->status == 0 ? 'Pending': 'Closed')
             ->action('View Ticket', url('/admin/ticket/' . $this->ticket->id))
             ->line('Please respond to the user as soon as possible.');
     }
