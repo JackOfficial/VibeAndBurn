@@ -14,15 +14,23 @@
     <div class="nk-sidebar-element">
         <div class="nk-sidebar-content">
             <div class="nk-sidebar-menu" data-simplebar>
-                <div class="nk-sidebar-widget d-none d-xl-block">
-                    <div class="user-account-info">
-                        <h6 class="overline-title-alt">Current Balance</h6>
-                        <div class="user-balance text-white">${{ number_format(Auth::user()->balance, 2) }}</div>
-                    </div>
-                    <a href="{{ route('addFund.create') }}" class="btn btn-primary btn-block mt-2">
-                        <em class="icon ni ni-wallet-in"></em> <span>Add Funds</span>
-                    </a>
-                </div>
+                <div class="nk-sidebar-widget d-none d-xl-block mx-3 my-4">
+    <div class="card bg-lighter p-3 border-0" style="background: rgba(255,255,255,0.05); border-radius: 12px;">
+        <div class="user-account-info p-0">
+            <h6 class="overline-title-alt text-soft mb-1" style="font-size: 10px; letter-spacing: 1px;">AVAILABLE BALANCE</h6>
+            <div class="user-balance text-white h4 fw-bold">
+                <span class="text-primary">$</span>{{ number_format(Auth::user()->balance, 2) }}
+            </div>
+        </div>
+        <ul class="user-account-actions g-2 mt-2 list-unstyled">
+            <li>
+                <a href="{{ route('addFund.create') }}" class="btn btn-sm btn-primary btn-dim btn-block py-2" style="border-radius: 8px;">
+                    <em class="icon ni ni-wallet-in"></em> <span class="fw-medium">Deposit Funds</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
 
                 <ul class="nk-menu">
                     <li class="nk-menu-heading"><h6 class="overline-title text-primary-alt">Main Menu</h6></li>
