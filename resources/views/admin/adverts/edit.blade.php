@@ -8,7 +8,7 @@
                 <div class="col-sm-6">
                     <h1 class="m-0 text-dark">Edit Advert</h1>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 text-right">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="/admin">Home</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('admin.advert.index') }}">Adverts</a></li>
@@ -24,7 +24,6 @@
             <div class="row">
                 <div class="col-md-10 offset-md-1">
 
-                    {{-- Flash Messages --}}
                     @if (Session::has('advertSuccess'))
                         <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-3">
                             <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -32,8 +31,8 @@
                         </div>
                     @endif
 
-                    {{-- Alpine.js Logic: x-data handles the preview state --}}
-                    <div x-data="imageViewer('{{ $ad->photo ? asset('storage/' . $ad->photo) : '' }}')">
+                    {{-- Alpine Component Container --}}
+                    <div x-data="imageViewer('{{ $ad->photo ? asset('storage/' . $ad->photo) : '' }}')" x-cloak>
                         <form method="POST" action="{{ route('admin.advert.update', $ad->id) }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
@@ -46,49 +45,47 @@
                                 </div>
 
                                 <div class="card-body">
-                                    {{-- Image Preview Area --}}
+                                    {{-- Live Preview Section --}}
                                     <div class="form-group">
                                         <label class="d-block">Banner Preview</label>
                                         
-                                        {{-- Show current/new image --}}
                                         <template x-if="imageUrl">
-                                            <img :src="imageUrl" class="img-thumbnail mb-2" style="max-height: 200px; display: block;" alt="Advert Preview">
-                                        </template>
-
-                                        {{-- Show placeholder if no image exists --}}
-                                        <template x-if="!imageUrl">
-                                            <div class="bg-light border rounded d-flex align-items-center justify-content-center mb-2" style="height: 150px; width: 250px;">
-                                                <span class="text-muted">No Image Selected</span>
+                                            <div class="mb-2">
+                                                <img :src="imageUrl" class="img-thumbnail shadow-sm" style="max-height: 200px; display: block;" alt="Advert Preview">
+                                                <span class="badge mt-2" :class="fileSelected ? 'badge-success' : 'badge-info'">
+                                                    <i class="fas" :class="fileSelected ? 'fa-sync-alt' : 'fa-image'"></i>
+                                                    <span x-text="fileSelected ? 'New Image Selected' : 'Current Live Banner'"></span>
+                                                </span>
                                             </div>
                                         </template>
 
-                                        <p class="small text-muted" x-show="!fileSelected">Showing current banner. Upload a new one to change it.</p>
-                                        <p class="small text-success font-weight-bold" x-show="fileSelected" x-cloak>
-                                            <i class="fas fa-sync"></i> Previewing new file...
-                                        </p>
+                                        <template x-if="!imageUrl">
+                                            <div class="bg-light border rounded d-flex align-items-center justify-content-center mb-2" style="height: 150px; width: 250px; border-style: dashed !important;">
+                                                <span class="text-muted">No Image Available</span>
+                                            </div>
+                                        </template>
                                     </div>
 
                                     {{-- Photo Upload --}}
                                     <div class="form-group">
-                                        <label for="customFile">Upload New Photo</label>
+                                        <label for="customFile">Change Image</label>
                                         <div class="custom-file">
-                                            {{-- @change triggers Alpine to update the preview --}}
                                             <input type="file" 
                                                    name="photo" 
                                                    class="custom-file-input @error('photo') is-invalid @enderror" 
                                                    id="customFile"
                                                    @change="fileChosen">
-                                            <label class="custom-file-label" for="customFile" x-text="fileName || 'Choose new image...'">Choose new image...</label>
+                                            <label class="custom-file-label" for="customFile" x-text="fileName || 'Choose new file...'">Choose new file...</label>
                                         </div>
                                         @error('photo')
-                                            <span class="text-danger small"><strong>{{ $message }}</strong></span>
+                                            <span class="text-danger small font-weight-bold">{{ $message }}</span>
                                         @enderror
                                     </div>
 
                                     {{-- Status Dropdown --}}
                                     <div class="form-group mt-3">
                                         <label for="status">Display Status</label>
-                                        <select name="status" class="form-control @error('status') is-invalid @enderror">
+                                        <select name="status" class="form-control select2 @error('status') is-invalid @enderror">
                                             <option value="0" {{ $ad->status == 0 ? 'selected' : '' }}>Hidden (Draft)</option>
                                             <option value="1" {{ $ad->status == 1 ? 'selected' : '' }}>Active (Live on Site)</option>
                                         </select>
@@ -111,17 +108,24 @@
                                 </div>
                             </div>
                         </form>
-                    </div> {{-- End x-data --}}
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 </div>
+
+<style>
+    [x-cloak] { display: none !important; }
+    .custom-file-label::after { content: "Browse"; }
+</style>
 @endsection
 
 @section('scripts')
 <script>
-    // Alpine.js Component for Image Preview
+    /** * GLOBAL SCOPE: Define this outside of jQuery $(function) 
+     * so Alpine.js (which uses defer) can find it immediately.
+     */
     function imageViewer(initialUrl) {
         return {
             imageUrl: initialUrl,
@@ -129,21 +133,17 @@
             fileSelected: false,
             
             fileChosen(event) {
-                this.fileToDataUrl(event, src => {
-                    this.imageUrl = src;
+                const files = event.target.files;
+                if (!files.length) return;
+
+                this.fileName = files[0].name;
+                
+                const reader = new FileReader();
+                reader.onload = e => {
+                    this.imageUrl = e.target.result;
                     this.fileSelected = true;
-                });
-                this.fileName = event.target.files[0].name;
-            },
-
-            fileToDataUrl(event, callback) {
-                if (!event.target.files.length) return;
-
-                let file = event.target.files[0],
-                    reader = new FileReader();
-
-                reader.readAsDataURL(file);
-                reader.onload = e => callback(e.target.result);
+                };
+                reader.readAsDataURL(files[0]);
             }
         }
     }
@@ -162,9 +162,4 @@
         });
     });
 </script>
-
-{{-- Ensure x-cloak style exists to prevent flickering --}}
-<style>
-    [x-cloak] { display: none !important; }
-</style>
 @endsection
