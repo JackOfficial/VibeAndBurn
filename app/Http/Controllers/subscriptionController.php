@@ -18,7 +18,7 @@ class SubscriptionController extends Controller
         $subscribers = Subscription::latest()->paginate(25);
         $subscribersCounter = Subscription::count();
 
-        return view('admin.manage.subscribers', compact('subscribers', 'subscribersCounter'));
+        return view('admin.subscriptions.index', compact('subscribers', 'subscribersCounter'));
     }
 
     /**
