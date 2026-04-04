@@ -103,7 +103,7 @@
                         <div class="d-flex align-items-center">
                             {{-- Placeholder for Social Media Icon based on your previous data --}}
                             <div class="mr-2 rounded-circle bg-soft-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                <i class="fas fa-share-alt text-primary small"></i>
+                                <i class="fa fa-share-alt text-primary small"></i>
                             </div>
                             <span class="font-weight-bold text-dark">{{ $service->category->category ?? 'Uncategorized' }}</span>
                         </div>
