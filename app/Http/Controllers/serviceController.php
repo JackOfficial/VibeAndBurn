@@ -19,7 +19,7 @@ public function index(Request $request)
     // Eager load relationships and sort by the service name
     $services = Service::with(['category.socialmedia', 'source'])
         ->orderBy('service', 'asc')
-        ->paginate(25);
+        ->paginate(50);
 
     // Use total() to get the count of all records across all pages
     $servicesCounter = $services->total();
