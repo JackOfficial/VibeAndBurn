@@ -121,8 +121,8 @@
                             </div>
                         </td>
                         <td class="small">
-                            <div class="text-dark">Min: {{ number_format($service->min_order) }}</div>
-                            <div class="text-muted">Max: {{ number_format($service->max_order) }}</div>
+                            <div class="text-dark">Min: {{ number_format((float)$service->min_order) }}</div>
+                            <div class="text-muted">Max: {{ number_format((float)$service->max_order) }}</div>
                         </td>
                         <td>
                             @if($service->refill)
