@@ -21,12 +21,10 @@
                     {{-- Search Box --}}
                     <div class="col-md-6 mt-3 mt-md-0">
                         <div class="position-relative shadow-sm" style="border-radius: 10px;">
-
-                            {{-- Loading Spinner (Visible ONLY when searching) --}}
-                            <div wire:loading wire:target="search" 
-                                 class="position-absolute d-flex align-items-center justify-content-center" 
-                                 style="left: 15px; top: 0; bottom: 0; z-index: 5;">
-                                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            {{-- Search Icon (Hidden when loading) --}}
+                            <div class="position-absolute d-flex align-items-center justify-content-center" 
+                                 style="left: 15px; top: 0; bottom: 0; z-index: 5; pointer-events: none;">
+                                <i class="fas fa-search text-muted"></i>
                             </div>
 
                             <input wire:model.live.debounce.300ms="search" 
