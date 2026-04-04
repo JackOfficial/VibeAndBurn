@@ -63,7 +63,7 @@
                                             required>
                                         @foreach ($socialmedia as $platform)
                                             <option value="{{ $platform->id }}" 
-                                                {{ (old('socialmedia') ?? $category->social_media_id) == $platform->id ? 'selected' : '' }}>
+                                                {{ (old('socialmedia') ?? $category->socialmedia_id) == $platform->id ? 'selected' : '' }}>
                                                 {{ ucfirst($platform->socialmedia) }}
                                             </option> 
                                         @endforeach
