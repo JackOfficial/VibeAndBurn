@@ -33,7 +33,7 @@ class NewContactMessage extends Notification
             ->line('Email: ' . $this->contactMessage->email)
             ->line('Message: ' . $this->contactMessage->message)
             ->action('View Message', url('/admin/messages'))
-            ->line('Thank you for using Happy Family Rwanda!');
+            ->line('Thank you for choosing VibeandBurn!');
     }
 
     public function toArray($notifiable)
