@@ -3,13 +3,13 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue; // 1. Uncomment this
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
-//use Illuminate\Contracts\Queue\ShouldQueue;
 
-class NewContactMessage extends Notification
+class NewContactMessage extends Notification // 2. Add 'implements ShouldQueue'
 {
-    //use Queueable;
+    // use Queueable; // 3. Uncomment this
 
     public $contactMessage;
 
@@ -20,14 +20,14 @@ class NewContactMessage extends Notification
 
     public function via($notifiable)
     {
-        // You can use 'database' to show it in the admin panel 
-        // and 'mail' to send an email
         return ['mail', 'database'];
     }
 
     public function toMail($notifiable)
     {
         return (new MailMessage)
+            // 4. Force the 'From' header to match your authenticated SMTP user
+            ->from(config('mail.from.address'), config('mail.from.name')) 
             ->subject('New Website Message: ' . $this->contactMessage->subject)
             ->greeting('Hello ' . $notifiable->name . '!')
             ->line('You have received a new message from ' . $this->contactMessage->name)

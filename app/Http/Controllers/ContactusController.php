@@ -34,7 +34,7 @@ public function store(Request $request)
 {
     $data = $request->validate([
         'name'    => ['required', 'string', 'max:255'],
-        'email'   => ['required', 'string', 'email:rfc,dns', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255'],
         'subject' => ['required', 'string', 'max:255'],
         'message' => ['required', 'string', 'max:5000'],
     ]);
