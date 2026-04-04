@@ -73,7 +73,7 @@ class ContactController extends Controller
      */
     public function show($id)
     {
-               $message = messageModel::findOrFail($id);
+        $message = messageModel::findOrFail($id);
         $messageCounter = messageModel::count();
         return view('admin.messages.show', compact('message', 'messageCounter'));
     }
