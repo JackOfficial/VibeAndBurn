@@ -17,7 +17,7 @@ class AdvertsController extends Controller
 
     public function create()
     {
-        return view('admin.add.advert');
+        return view('admin.adverts.create');
     }
 
     public function store(Request $request)
@@ -49,7 +49,7 @@ class AdvertsController extends Controller
     public function edit($id)
     {
         $ad = Advert::findOrFail($id);
-        return view('admin.edit.advert', compact('ad'));
+        return view('admin.adverts.edit', compact('ad'));
     }
 
     public function update(Request $request, $id)
