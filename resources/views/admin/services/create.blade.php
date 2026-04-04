@@ -128,7 +128,7 @@
 
                                 <div class="form-group">
                                     <label>API Service ID</label>
-                                    <input type="text" name="serviceId" value="{{ old('serviceId') }}" class="form-control @error('serviceId') is-invalid @enderror" placeholder="Leave blank for Manual">
+                                    <input type="number" name="serviceId" value="{{ old('serviceId') }}" class="form-control @error('serviceId') is-invalid @enderror" placeholder="Leave blank for Manual">
                                     @error('serviceId') <span class="invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
 
