@@ -1,238 +1,181 @@
 @extends('admin.layouts.app')
 @section('content')
-<!-- Content Wrapper. Contains page content -->
+
 <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
     <section class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1>Service</h1>
-          </div>
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="/admin">Home</a></li>
-              <li class="breadcrumb-item active">Add Service</li>
-            </ol>
-          </div>
-        </div>
-      </div><!-- /.container-fluid -->
-    </section>
-
-    <!-- Main content -->
-    <section class="content">
-      <div class="container-fluid">
-            <!-- general form elements -->
-
-            @if (Session::has('addServiceSuccess'))
-            <div class="alert alert-success alert-dismissible mb-2" style="margin: 5px 5px 0px 5px;">
-              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> 
-          <strong><i class="fas fa-check"></i></strong> {{ Session::get('addServiceSuccess') }} </div>
-          @elseif(Session::has('addServiceFail'))
-          <div class="alert alert-danger alert-dismissible mb-2" style="margin: 5px 5px 0px 5px;">
-          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> 
-          <strong>FAILED:</strong> {{ Session::get('addServiceFail') }} </div> 
-            @endif
-
-           <div class="card card-warning">
-              <div class="card-header">
-                <h3 class="card-title"><i class="fa fa-plus"></i> Add Service</h3>
-              </div>
-              <!-- /.card-header -->
-              <!-- form start -->
-              <form method="POST" action="{{ route('admin.service.store') }}" enctype="multipart/form-data">
-                @csrf
-               
-                <div class="card-body">
-              <div class="row">
-<div class="col-md-6">
-  <div class="form-group">
-    <label for="category">Category</label>
-    <select name="category" class="form-control @error('category') is-invalid @enderror" required>
-     @foreach ($categories as $category)
-     <option value="{{ $category->id }}">{{ $category->socialmedia }} ({{ $category->category }})</option>    
-     @endforeach
-   </select>
-   @error('category')
-                   <span class="invalid-feedback" role="alert">
-                     <strong>{{ $message }}</strong>
-                      </span>
-               @enderror 
- </div>
-
-<div class="row">
-   <div class="col-md-6">
-        <div class="form-group">
-  <label for="serviceId">Service ID</label>
-  <input type="text" value="{{ old('serviceId') }}" class="form-control @error('serviceId') is-invalid @enderror" id="serviceId" name="serviceId" placeholder="Enter service ID" />
-  @error('serviceId')
-  <span class="invalid-feedback" role="alert">
-    <strong>{{ $message }}</strong>
-     </span>
-@enderror  
-</div>
-   </div> 
-   <div class="col-md-6">
-        <div class="form-group">
-  <label for="speed">rate_per_1000</label>
-  <input type="text" value="{{ old('rateper1000') }}" class="form-control @error('rateper1000') is-invalid @enderror" id="rateper1000" name="rateper1000" placeholder="Rate Per 1000" required>
-  @error('rateper1000')
-  <span class="invalid-feedback" role="alert">
-    <strong>{{ $message }}</strong>
-     </span>
-@enderror  
-</div>
-   </div> 
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-    <label for="min_order">Min Order</label>
-    <input type="text" value="{{ old('min_order') }}" class="form-control @error('min_order') is-invalid @enderror" id="min_order" name="min_order" placeholder="Set The Minimum Order">
-    @error('min_order')
-    <span class="invalid-feedback" role="alert">
-      <strong>{{ $message }}</strong>
-       </span>
-  @enderror  
-  </div>
-    </div>
-    
-     <div class="col-md-6">
-        <div class="form-group">
-    <label for="max_order">Max Order</label>
-    <input type="text" min="1" value="{{ old('max_order') }}" class="form-control @error('max_order') is-invalid @enderror" id="max_order" name="max_order" placeholder="Enter max_order" required>
-    @error('max_order')
-    <span class="invalid-feedback" role="alert">
-      <strong>{{ $message }}</strong>
-       </span>
-  @enderror  
-  </div>
-    </div>
-</div>
-
-  <div class="form-group">
-    <label for="start">Start</label>
-    <input type="text" value="{{ old('start') }}" class="form-control @error('start') is-invalid @enderror" id="start" name="start" placeholder="Start">
-    @error('start')
-    <span class="invalid-feedback" role="alert">
-      <strong>{{ $message }}</strong>
-       </span>
-  @enderror  
-  </div>
- 
-
-</div>
-<div class="col-md-6">
-  <div class="form-group">
-  <label for="service">service</label>
-  <input type="text" value="{{ old('service') }}" class="form-control @error('service') is-invalid @enderror" id="service" name="service" placeholder="Enter a service" required>
-  @error('service')
-  <span class="invalid-feedback" role="alert">
-    <strong>{{ $message }}</strong>
-     </span>
-@enderror  
-</div>
-
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-    <label for="quality">Quality</label>
-    <input type="text" value="{{ old('quality') }}" class="form-control @error('quality') is-invalid @enderror" id="quality" name="quality" placeholder="Quality">
-    @error('quality')
-    <span class="invalid-feedback" role="alert">
-      <strong>{{ $message }}</strong>
-       </span>
-  @enderror  
-  </div>
-    </div>
-     <div class="col-md-6">
-         <div class="form-group">
-    <label for="speed">Speed</label>
-    <input type="text" value="{{ old('speed') }}" class="form-control @error('speed') is-invalid @enderror" id="speed" name="speed" placeholder="Enter Speed">
-    @error('speed')
-    <span class="invalid-feedback" role="alert">
-      <strong>{{ $message }}</strong>
-       </span>
-  @enderror  
-  </div>
-         </div>
-</div>
-<div class="form-group">
-    <label for="average_completion_time">Average completition time</label>
-    <input type="text" value="{{ old('average_completion_time') }}" class="form-control @error('average_completion_time') is-invalid @enderror" id="average_completion_time" name="average_completion_time" placeholder="Enter average completion time">
-    @error('average_completion_time')
-    <span class="invalid-feedback" role="alert">
-      <strong>{{ $message }}</strong>
-       </span>
-  @enderror  
-  </div>
-
-<div class="row">
-    <div class="col-md-6">
-          <div class="form-group">
-    <label for="refill">Refill</label>
-    <input type="text" value="{{ old('refill') }}" class="form-control @error('refill') is-invalid @enderror" id="refill" name="refill" placeholder="Enter refill">
-    @error('refill')
-    <span class="invalid-feedback" role="alert">
-      <strong>{{ $message }}</strong>
-       </span>
-  @enderror  
-  </div>
-    </div>
-    <div class="col-md-6">
-        <div class="form-group">
-    <label for="source">Source</label>
-   <select class="form-control @error('source') is-invalid @enderror" id="source" name="source" required>
-       @foreach($sources as $source)
-       <option value="{{ $source->id }}">{{ $source->api_source }}</option>
-       @endforeach
-   </select>
-    @error('source')
-    <span class="invalid-feedback" role="alert">
-      <strong>{{ $message }}</strong>
-       </span>
-  @enderror  
-  </div>
-    </div>
-</div>
-</div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-12">
-
-                    
-
-                  <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea id="summernote" class="form-control @error('description') is-invalid @enderror" name="description" value="{{old('description')}}"></textarea>
-                    @error('description')
-                    <span class="invalid-feedback" role="alert">
-                      <strong>{{ $message }}</strong>
-                       </span>
-                @enderror
-                </div>    
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="font-weight-bold"><i class="fas fa-plus-circle text-success mr-2"></i>Add New Service</h1>
                 </div>
-              </div>
-            
+                <div class="col-sm-6 text-right">
+                    <a href="{{ route('admin.service.index') }}" class="btn btn-secondary btn-sm shadow-sm">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to List
+                    </a>
                 </div>
-                <!-- /.card-body -->
-
-                <div class="card-footer">
-                  <button type="submit" class="btn btn-warning"><span><i class="fa fa-plus"></i> Add</span></button>
-                </div>
-              </form>
             </div>
-            <!-- /.card -->
-
-         
-        <!-- /.row -->
-      </div>
-      <!-- /.container-fluid -->
+        </div>
     </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+
+    <section class="content">
+        <div class="container-fluid">
+            <form action="{{ route('admin.service.store') }}" method="POST">
+                @csrf
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                            <div class="card-header bg-white">
+                                <h3 class="card-title font-weight-bold text-muted">Service Details</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>Service Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="service" class="form-control @error('service') is-invalid @enderror" placeholder="e.g., Instagram Followers [Real & Active]" required>
+                                    @error('service') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Category <span class="text-danger">*</span></label>
+                                            <select name="category_id" class="form-control select2 @error('category_id') is-invalid @enderror" required>
+                                                <option value="">Select Category</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{ $category->id }}">
+                                                        {{ $category->socialmedia->socialmedia ?? 'Global' }} — {{ $category->category }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>API Source</label>
+                                            <select name="source_id" class="form-control">
+                                                @foreach($sources as $source)
+                                                    <option value="{{ $source->id }}">{{ $source->api_source }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="description" id="summernote" class="form-control" rows="4"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm border-0 mt-3" style="border-radius: 12px;">
+                            <div class="card-header bg-white">
+                                <h3 class="card-title font-weight-bold text-muted">Order Constraints</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Min Order</label>
+                                            <input type="number" name="min_order" class="form-control" value="10" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Max Order</label>
+                                            <input type="number" name="max_order" class="form-control" value="10000" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Average Time</label>
+                                            <input type="text" name="Average_completion_time" class="form-control" placeholder="e.g., 2 Hours">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                            <div class="card-header bg-white">
+                                <h3 class="card-title font-weight-bold text-muted">Pricing & Status</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>Rate per 1000 ($)</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                                        </div>
+                                        <input type="number" step="0.0001" name="rate_per_1000" class="form-control font-weight-bold text-success" placeholder="0.0000" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>API Service ID</label>
+                                    <input type="text" name="serviceId" class="form-control" placeholder="Leave blank for Manual">
+                                </div>
+
+                                <hr>
+
+                                <div class="form-group">
+                                    <label class="d-block">Service Status</label>
+                                    <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                        <input type="checkbox" name="status" value="1" class="custom-control-input" id="statusSwitch" checked>
+                                        <label class="custom-control-label" for="statusSwitch">Active / Visible</label>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary btn-block btn-lg shadow mt-4">
+                                    <i class="fas fa-save mr-2"></i> Create Service
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Technical Attributes --}}
+                        <div class="card shadow-sm border-0 mt-3" style="border-radius: 12px;">
+                            <div class="card-body py-2">
+                                <div class="form-group mb-2">
+                                    <small class="text-muted text-uppercase font-weight-bold">Attributes</small>
+                                    <div class="row mt-2">
+                                        <div class="col-6"><input type="text" name="start" class="form-control form-control-sm mb-2" placeholder="Start Time"></div>
+                                        <div class="col-6"><input type="text" name="speed" class="form-control form-control-sm mb-2" placeholder="Speed"></div>
+                                        <div class="col-6"><input type="text" name="quality" class="form-control form-control-sm mb-2" placeholder="Quality"></div>
+                                        <div class="col-6"><input type="text" name="refill" class="form-control form-control-sm mb-2" placeholder="Refill"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+
+@endsection
+
+@section('scripts')
+<script>
+    $(document).ready(function() {
+        // Initialize Select2 for the category searchable dropdown
+        $('.select2').select2({
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+
+        // Initialize Summernote for professional description editing
+        $('#summernote').summernote({
+            height: 150,
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough']],
+                ['para', ['ul', 'ol']],
+                ['insert', ['link']],
+                ['view', ['codeview']]
+            ]
+        });
+    });
+</script>
 @endsection
