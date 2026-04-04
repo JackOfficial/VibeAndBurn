@@ -80,7 +80,7 @@ class AdvertsController extends Controller
         $updated = $advert->update($data);
 
         return $updated
-            ? redirect('advert')->with('advertSuccess', 'Advert updated successfully')
+            ? redirect()->route('admin.advert.index')->with('advertSuccess', 'Advert updated successfully')
             : redirect()->back()->with('advertFail', 'Failed to update advert');
     }
 
