@@ -47,7 +47,7 @@ class ContactusController extends Controller
 
     if ($message) {
         // Fetch all Admins and Super Admins using Spatie roles
-        $admins = User::role(['admin', 'super-admin'])->get();
+        $admins = User::role(['Admin', 'Super Admin'])->get();
 
         // Send notification to all of them at once
         Notification::send($admins, new NewContactMessage($message));
