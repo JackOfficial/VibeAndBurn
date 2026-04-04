@@ -7,7 +7,7 @@ use App\Http\Controllers\categoryController;
 use App\Http\Controllers\socialmediaController;
 use App\Http\Controllers\serviceController;
 use App\Http\Controllers\ourServicesController;
-use App\Http\Controllers\contactusController;
+use App\Http\Controllers\ContactusController;
 use App\Http\Controllers\faqController;
 use App\Http\Controllers\aboutUsController;
 use App\Http\Controllers\subscriptionController;
@@ -33,6 +33,7 @@ use App\Http\Controllers\BFCurrencyController;
 use App\Http\Controllers\admin\UpdatesController;
 use App\Http\Controllers\admin\AdvertsController;
 use App\Events\PaymentProcessed;
+use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\AfriPay\ProcessPaymentController;
 use App\Http\Controllers\BinanceController;
 use App\Http\Controllers\WholesalersController;
@@ -58,7 +59,7 @@ Route::get('/', [pagesController::class, 'index']);
 Route::get('/terms-and-conditions', [pagesController::class, 'terms']);
 
 Route::resource('our-services', ourServicesController::class);
-Route::resource('contactus', contactusController::class);
+Route::resource('contactus', ContactusController::class);
 Route::resource('faq', faqController::class);
 Route::resource('aboutus', aboutUsController::class);
 
@@ -123,6 +124,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::get('/offer/bonus/{id}', [sharedlinkController::class, 'bonus'])->name('bonus');
     Route::resource('wallet', walletController::class);
     Route::resource('advert', AdvertsController::class);
+    Route::resource('messages', ContactController::class);
     Route::get('/bfcurrency', [BFCurrencyController::class, 'index'])->name('bfcurrency');
     Route::resource('sharedlink', sharedlinkController::class);
     Route::resource('update', UpdatesController::class);

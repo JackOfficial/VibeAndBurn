@@ -358,7 +358,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('contactus.index') }}" class="nav-link {{ Route::is('contactus.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.messages.index') }}" class="nav-link {{ Route::is('admin.messages.index') ? 'active' : '' }}">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Inbox </p>
                     </a>
