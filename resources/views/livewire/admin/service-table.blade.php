@@ -117,7 +117,7 @@
                             </div>
                             <div class="text-xs text-muted">
                                 <span class="badge badge-light border text-uppercase">{{ $service->category->category ?? 'General' }}</span>
-                                <span class="ml-2"><i class="fas fa-plug mr-1"></i>{{ $service->source->name ?? 'Manual' }}</span>
+                                <span class="ml-2"><i class="fas fa-plug mr-1"></i>{{ $service->source->api_source ?? 'Manual' }}</span>
                             </div>
                         </td>
                         <td class="small">
