@@ -49,7 +49,7 @@
                     <select wire:model="filterSource" class="form-control form-control-sm border-0 bg-light shadow-none" style="border-radius: 8px;">
                         <option value="">All Providers</option>
                         @foreach($sources as $src)
-                            <option value="{{ $src->id }}">{{ $src->name }}</option>
+                            <option value="{{ $src->id }}">{{ $src->api_source }}</option>
                         @endforeach
                     </select>
                 </div>
