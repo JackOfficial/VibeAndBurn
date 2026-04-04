@@ -21,6 +21,13 @@ class MentionComponent extends Component
         // 1. Determine the new status logic
         // If it's active (1) or disabled (0), set to mentioned (2). 
         // If it's already mentioned (2), set back to active (1).
+        if ($this->status == 0) {
+        $this->dispatchBrowserEvent('toastr:error', [
+            'message' => 'Cannot mention a disabled service!',
+        ]);
+        return;
+    }
+    
         $newStatus = ($this->status == 2) ? 1 : 2;
 
         // 2. Perform the update
