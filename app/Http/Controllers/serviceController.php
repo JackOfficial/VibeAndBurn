@@ -24,7 +24,7 @@ public function index(Request $request)
     // Use total() to get the count of all records across all pages
     $servicesCounter = $services->total();
 
-    return view('admin.manage.services', compact('services', 'servicesCounter'));
+    return view('admin.services.index', compact('services', 'servicesCounter'));
 }
 
     /**
@@ -32,17 +32,18 @@ public function index(Request $request)
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
-    {
-       $categories = category::join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-        ->select('categories.*', 'socialmedia.socialmedia')
-         ->orderBy('categories.category', 'ASC')
-         ->get();
-         
-          $sources = Source::all();
+public function create(Request $request)
+{
+    // Eager load social media and sort alphabetically by category name
+    $categories = category::with('socialmedia')
+        ->orderBy('category', 'asc')
+        ->get();
+    
+    // Fetch all API sources
+    $sources = Source::all();
 
-        return view('admin.add.service', compact('categories', 'sources'));
-    }
+    return view('admin.services.create', compact('categories', 'sources'));
+}
 
     /**
      * Store a newly created resource in storage.
@@ -89,12 +90,7 @@ public function index(Request $request)
     }
     
     public function toggler(Request $request, $id){
-        if($request->session()->has('adminName')){
-            
-        $name = $request->Session()->get('adminName');
-             
         $status = service::findOrFail($id);
-        
         $service = service::where('id', $id)->update([
             'state' => ($status->state == 1) ? 0 : 1
             ]);
@@ -105,11 +101,6 @@ public function index(Request $request)
             else{
                 return redirect()->back()->with('deleteServiceFail', 'the service could not be updated');
             } 
-        
-    }
-         else{
-            return view('auth.admin-login'); 
-        }
     }
 
     /**
@@ -168,7 +159,7 @@ public function index(Request $request)
          
          $sources = Source::all();
          
-        return view('admin.edit.service', compact('service', 'categories',  'sources'));
+        return view('admin.services.edit', compact('service', 'categories',  'sources'));
     }
 
     /**
