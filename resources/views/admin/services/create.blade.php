@@ -19,6 +19,14 @@
 
     <section class="content">
         <div class="container-fluid">
+
+            @if ($errors->any())
+    <div class="alert alert-danger shadow-sm border-0">
+        <i class="fas fa-exclamation-circle mr-2"></i> 
+        <strong>Whoops!</strong> There are some issues with your input. Please check the fields below.
+    </div>
+@endif
+
             <form action="{{ route('admin.service.store') }}" method="POST">
                 @csrf
                 <div class="row">
@@ -46,6 +54,7 @@
                                                     </option>
                                                 @endforeach
                                             </select>
+                                            @error('category_id') <span class="text-danger small">{{ $message }}</span> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -108,8 +117,9 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
                                         </div>
-                                        <input type="number" step="0.0001" name="rate_per_1000" class="form-control font-weight-bold text-success" placeholder="0.0000" required>
+                                        <input type="number" step="0.0001" name="rate_per_1000" class="form-control font-weight-bold text-success @error('rate_per_1000') is-invalid @enderror" placeholder="0.0000" required>
                                     </div>
+                                    @error('rate_per_1000') <span class="invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div class="form-group">
