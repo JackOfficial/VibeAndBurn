@@ -73,8 +73,8 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div class="text-truncate" style="max-width: 300px;">
-                                            {!! $ad->advert !!}
+                                        <div style="max-width: 300px;">
+                                            {!! Str::limit($ad->advert, 50) !!}
                                         </div>
                                     </td>
                                     <td>
