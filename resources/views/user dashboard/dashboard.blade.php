@@ -55,6 +55,16 @@
             font-size: 20px;
         }
     }
+
+     .user-avatar.bg-primary-dim {
+        box-shadow: 0 0 15px rgba(127, 103, 255, 0.15);
+        border: 1px solid rgba(127, 103, 255, 0.2);
+    }
+    .user-card-s2:hover {
+        background: rgba(255,255,255,0.06) !important;
+        transition: all 0.3s ease;
+    }
+    
 </style>
 
     {{-- @include('partials.crisp_chat') --}}

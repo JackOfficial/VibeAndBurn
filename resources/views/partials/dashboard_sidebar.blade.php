@@ -14,23 +14,34 @@
     <div class="nk-sidebar-element">
         <div class="nk-sidebar-content">
             <div class="nk-sidebar-menu" data-simplebar>
+                
                 <div class="nk-sidebar-widget d-none d-xl-block mx-3 my-4">
-    <div class="card bg-lighter p-3 border-0" style="background: rgba(255,255,255,0.05); border-radius: 12px;">
-        <div class="user-account-info p-0">
-            <h6 class="overline-title-alt text-soft mb-1" style="font-size: 10px; letter-spacing: 1px;">AVAILABLE BALANCE</h6>
-            <div class="user-balance text-white h4 fw-bold">
-                <span class="text-primary">$</span>{{ number_format(Auth::user()->balance, 2) }}
-            </div>
-        </div>
-        <ul class="user-account-actions g-2 mt-2 list-unstyled">
-            <li>
-                <a href="{{ route('addFund.create') }}" class="btn btn-sm btn-primary btn-dim btn-block py-2" style="border-radius: 8px;">
-                    <em class="icon ni ni-wallet-in"></em> <span class="fw-medium">Deposit Funds</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-</div>
+                    <div class="user-card user-card-s2" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 15px; padding: 1.25rem;">
+                        <div class="user-avatar lg bg-primary-dim mb-3">
+                            <span class="text-primary fw-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                            <div class="status dot dot-lg dot-success"></div>
+                        </div>
+                        <div class="user-info">
+                            <span class="lead-text text-white fw-bold">{{ Auth::user()->name }}</span>
+                            <span class="sub-text text-soft mb-2">{{ Auth::user()->email }}</span>
+                            <span class="badge badge-outline-primary badge-pill" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">VIP Member</span>
+                        </div>
+                        
+                        <div class="user-balance-card mt-3 pt-3 border-top border-light">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="overline-title-alt text-soft mb-0">Balance</h6>
+                                    <div class="user-balance text-white h4 mb-0 fw-bold">
+                                        <small class="text-primary">$</small>{{ number_format(Auth::user()->balance, 2) }}
+                                    </div>
+                                </div>
+                                <a href="{{ route('addFund.create') }}" class="btn btn-icon btn-trigger btn-tooltip" title="Quick Deposit">
+                                    <em class="icon ni ni-plus-circle-fill text-primary" style="font-size: 1.5rem;"></em>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <ul class="nk-menu">
                     <li class="nk-menu-heading"><h6 class="overline-title text-primary-alt">Main Menu</h6></li>
