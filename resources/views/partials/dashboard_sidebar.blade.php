@@ -35,6 +35,13 @@
                     </li>
 
                     <li class="nk-menu-item">
+                        <a href="#" class="nk-menu-link">
+                            <span class="nk-menu-icon"><em class="icon ni ni-reload"></em></span>
+                            <span class="nk-menu-text">Refill</span>
+                        </a>
+                    </li>
+
+                    <li class="nk-menu-item">
                         <a href="{{ route('ourservices') }}" class="nk-menu-link">
                             <span class="nk-menu-icon"><em class="icon ni ni-layers-fill"></em></span>
                             <span class="nk-menu-text">Services</span>
@@ -45,6 +52,22 @@
                         <a href="{{ route('order.index') }}" class="nk-menu-link">
                             <span class="nk-menu-icon"><em class="icon ni ni-list-check"></em></span>
                             <span class="nk-menu-text">Order History</span>
+                        </a>
+                    </li>
+
+                    <li class="nk-menu-heading"><h6 class="overline-title text-primary-alt">Account & Billing</h6></li>
+
+                    <li class="nk-menu-item">
+                        <a href="{{ route('addFund.create') }}" class="nk-menu-link">
+                            <span class="nk-menu-icon"><em class="icon ni ni-wallet-fill"></em></span>
+                            <span class="nk-menu-text">Add Funds</span>
+                        </a>
+                    </li>
+
+                    <li class="nk-menu-item">
+                        <a href="{{ route('mybonus') }}" class="nk-menu-link">
+                            <span class="nk-menu-icon"><em class="icon ni ni-gift-fill"></em></span>
+                            <span class="nk-menu-text">My Bonus</span>
                         </a>
                     </li>
 
@@ -61,6 +84,13 @@
                         <a href="/tickets" class="nk-menu-link">
                             <span class="nk-menu-icon"><em class="icon ni ni-ticket-fill"></em></span>
                             <span class="nk-menu-text">Support Tickets</span>
+                        </a>
+                    </li>
+
+                    <li class="nk-menu-item">
+                        <a href="/terms-and-conditions" class="nk-menu-link">
+                            <span class="nk-menu-icon"><em class="icon ni ni-policy-fill"></em></span>
+                            <span class="nk-menu-text">Terms of Use</span>
                         </a>
                     </li>
                 </ul>
