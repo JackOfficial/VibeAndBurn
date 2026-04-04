@@ -3,76 +3,94 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
-use App\Models\message;
+use App\Models\message; // Suggestion: Rename to Message (PascalCase)
 use App\Models\Blocklist;
+use Livewire\WithPagination;
 
 class MessageComponent extends Component
 {
-    public $checkbox = [], $selectAll = false;
-    public $search;
-    
-    public function deleteMultipleMessages(){
-        if(empty($this->checkbox)){
-             session()->flash('feedback', 'No message selected');
-        }
-        else{
-            $delete = message::whereIn('id', $this->checkbox)->delete();
-       if($delete){
-          $this->reset('checkbox');
-        }
-        }
+    use WithPagination;
+
+    // Standardizes pagination for AdminLTE/Bootstrap
+    protected $paginationTheme = 'bootstrap';
+
+    public $checkbox = [];
+    public $selectAll = false;
+    public $search = '';
+
+    /**
+     * Resets pagination to page 1 whenever the search term changes.
+     * Prevents "No results" if you search while on page 3.
+     */
+    public function updatingSearch()
+    {
+        $this->resetPage();
     }
-    
-    public function delete($id){
-        message::where('id', $id)->delete();
-    }
-    
-    public function blockEmail($email){
-        dd($email);
-        $blocklist = Blocklist::create([
-            'email' => $email,
-            'service' => 'contact'
-            ]);
-            
-            if($blocklist){
-              session()->flash('feedback', 'Email was blocked');
-            }
-            else{
-                session()->flash('feedback', 'Email could not be blocked');
-            }
-            
-    }
-    
-     public function selectAllMessages(){
-        $this->selectAll = !$this->selectAll;
-        if($this->selectAll == true){
-            $this->checkbox = message::pluck('id')->toArray();
+
+    public function deleteMultipleMessages()
+    {
+        if (empty($this->checkbox)) {
+            session()->flash('feedback', 'No message selected');
+            return;
         }
-        else{
+
+        message::whereIn('id', $this->checkbox)->delete();
+        
+        // Reset state after deletion
+        $this->reset(['checkbox', 'selectAll']);
+        session()->flash('feedback', 'Selected messages have been deleted');
+    }
+
+    public function delete($id)
+    {
+        message::findOrFail($id)->delete();
+        session()->flash('feedback', 'Message deleted successfully');
+    }
+
+    public function blockEmail($email)
+    {
+        // Removed dd($email) to allow the process to complete
+        // Using firstOrCreate to prevent duplicate block entries
+        Blocklist::firstOrCreate(
+            ['email' => $email],
+            ['service' => 'contact']
+        );
+
+        session()->flash('feedback', "Email {$email} has been added to blocklist");
+    }
+
+    public function selectAllMessages()
+    {
+        if ($this->selectAll) {
+            // Select IDs only from the filtered result set
+            $this->checkbox = message::query()
+                ->when($this->search, function($q) {
+                    $q->where('email', 'LIKE', '%' . $this->search . '%')
+                      ->orWhere('name', 'LIKE', '%' . $this->search . '%');
+                })
+                ->pluck('id')
+                ->map(fn($id) => (string)$id) // Cast to string for checkbox consistency
+                ->toArray();
+        } else {
             $this->checkbox = [];
         }
     }
-    
-    public function mount(){
-        // $this->checkbox = message::pluck('id');
-    }
-    
+
     public function render()
     {
-        if(isset($this->search)){
-              $messages = message::where('email', 'LIKE', '%' . $this->search . '%')
-              ->orWhere('name', 'LIKE', '%' . $this->search . '%')
-              ->orderBy('id', 'DESC')
-              ->get();
-              
-              $messageCounter = message::where('email', 'LIKE', '%' . $this->search . '%')
-              ->orWhere('name', 'LIKE', '%' . $this->search . '%')
-              ->count(); 
-        }
-        else{
-        $messages = message::orderBy('id', 'DESC')->get();
-        $messageCounter = message::count();   
-        }
-        return view('livewire.message-component', compact('messages', 'messageCounter'));
+        // Build a base query to reuse for both counting and results
+        $baseQuery = message::query()
+            ->when($this->search, function($q) {
+                $q->where(function($sub) {
+                    $sub->where('email', 'LIKE', '%' . $this->search . '%')
+                        ->orWhere('name', 'LIKE', '%' . $this->search . '%');
+                });
+            })
+            ->orderBy('id', 'DESC');
+
+        return view('livewire.message-component', [
+            'messages' => $baseQuery->paginate(25),
+            'messageCounter' => $baseQuery->count()
+        ]);
     }
 }
