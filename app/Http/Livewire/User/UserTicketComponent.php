@@ -9,6 +9,9 @@ use App\Models\Support;
 use App\Models\TicketCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Models\User;
+use App\Notifications\NewTicketOpened;
+use Illuminate\Support\Facades\Notification;
 
 class UserTicketComponent extends Component
 {
@@ -90,6 +93,14 @@ class UserTicketComponent extends Component
             'message' => $this->message,
             'is_admin' => false,
         ]);
+
+        $admins = User::role(['Admin', 'Super Admin'])
+            ->whereNotNull('email')
+            ->get();
+
+        if ($admins->isNotEmpty()) {
+            Notification::send($admins, new NewTicketOpened($ticket));
+        }
 
         session()->flash('success', 'Ticket opened successfully!');
         $this->toggleCreate();
