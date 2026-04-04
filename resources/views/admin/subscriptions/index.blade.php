@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 @section('content')
 <div class="content-wrapper">
-    <section class="content">
+    <section class="content mt-2">
         <div class="container-fluid">
             {{-- This calls your new Livewire component --}}
             <livewire:admin.subscription-component />
