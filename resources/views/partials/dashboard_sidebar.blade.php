@@ -66,7 +66,7 @@
 
                     <li class="nk-menu-item">
                         <a href="{{ route('mybonus') }}" class="nk-menu-link">
-                            <span class="nk-menu-icon"><em class="icon ni ni-gift-fill"></em></span>
+                            <span class="nk-menu-icon"><em class="icon ni ni-gift"></em></span>
                             <span class="nk-menu-text">My Bonus</span>
                         </a>
                     </li>
