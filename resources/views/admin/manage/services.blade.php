@@ -1,9 +1,7 @@
 @extends('admin.layouts.app')
 @section('content')
 
- <!-- Content Wrapper. Contains page content -->
  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
     <section class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
@@ -17,123 +15,133 @@
             </ol>
           </div>
         </div>
-      </div><!-- /.container-fluid -->
+      </div>
     </section>
 
-    <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
       <div class="row">
           <div class="col-12">
 
             @if (Session::has('deleteServiceSuccess'))
-            <div class="alert alert-success alert-dismissible mb-2" style="margin: 5px 5px 0px 5px;">
-              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> 
-          <strong><i class="fas fa-check"></i></strong> {{ Session::get('deleteServiceSuccess') }} </div>
-          @elseif(Session::has('deleteServiceFail'))
-          <div class="alert alert-danger alert-dismissible mb-2" style="margin: 5px 5px 0px 5px;">
-          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> 
-          <strong>FAILED:</strong> {{ Session::get('deleteServiceFail') }} </div> 
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <strong><i class="fas fa-check"></i></strong> {{ Session::get('deleteServiceSuccess') }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            @elseif(Session::has('deleteServiceFail'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>FAILED:</strong> {{ Session::get('deleteServiceFail') }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div> 
             @endif
 
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">{{ $servicesCounter }} Services <livewire:admin.refresh-price-component /></h3>
+            <div class="card shadow-sm">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title font-weight-bold">
+                    {{ number_format($servicesCounter) }} Total Services 
+                    <livewire:admin.refresh-price-component />
+                </h3>
               </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                <table id="example1" class="table table-bordered table-sm table-striped">
-                  <thead>
+              
+              <div class="card-body p-0">
+                <table class="table table-hover table-sm table-striped mb-0">
+                  <thead class="bg-light">
                   <tr>
                     <th>#</th>
                     <th>ID</th>
                     <th>Category</th>
-                     <th>Service ID</th>
-                    <th>Service</th>
-                    <th>Rate Per 1000</th>
-                    <th>Average Time</th>
+                    <th>API ID</th>
+                    <th>Service Details</th>
+                    <th>Rate</th>
+                    <th>Avg Time</th>
                     <th>Description</th>
-                    <th>Created_at</th>
                     <th>Actions</th>
                   </tr>
                   </thead>
                   <tbody>
-                 
                    @foreach ($services as $service)
                    <tr> 
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $service->id }}
-                    <livewire:admin.mention-component :serviceID="$service->id" :status="$service->status" />
+                    <td>{{ $loop->iteration + ($services->currentPage() - 1) * $services->perPage() }}</td>
+                    <td>
+                        {{ $service->id }}
+                        <livewire:admin.mention-component :serviceID="$service->id" :status="$service->status" :key="'mention-'.$service->id" />
                     </td>
-                    <td>{{ $service->category }}</td>
-                     <td>{{ $service->serviceId ?? 'No API' }}</td>
                     <td>
-                        {{ $service->service }} | {{ $service->start }} | {{ $service->speed }} | {{ $service->quality }} | {{ $service->refill }}
-                        <div>Min order: {{ $service->min_order }} &nbsp; Max order: {{ $service->max_order }}</div>
-                        <div>
-                            @if($service->source_id == 2)
-                        <span class="badge" style="background-color: #7946E9;"><a href="https://bulkfollows.org" target="_blank" style="color:white">{{ $service->api_source }}</a></span>
-                        @elseif($service->source_id == 3)
-                        <span class="badge" style="background-color: #3AE3A4;"><a href="https://amazingsmm.com" target="_blank" style="color:white">{{ $service->api_source }}</a></span>
-                        @elseif($service->source_id == 4)
-                        <span class="badge badge-primary"><a href="https://bulkmedya.org/" target="_blank" style="color:white">{{ $service->api_source }}</a></span>
-                        @else
-                        <span class="badge badge-danger">{{ $service->api_source }}</span>
-                        @endif
+                        {{-- Accessing the related category model name --}}
+                        <span class="font-weight-bold text-primary">{{ $service->category->category ?? 'Uncategorized' }}</span>
+                    </td>
+                    <td><code class="text-secondary">{{ $service->serviceId ?? 'MANUAL' }}</code></td>
+                    <td>
+                        <div class="font-weight-bold">{{ $service->service }}</div>
+                        <small class="text-muted">
+                            {{ $service->start }} | {{ $service->speed }} | {{ $service->quality }} | {{ $service->refill }}
+                        </small>
+                        <div class="small mt-1">Min: <b>{{ $service->min_order }}</b> &nbsp; Max: <b>{{ $service->max_order }}</b></div>
+                        
+                        <div class="mt-1">
+                            @php
+                                $source = $service->source;
+                                $badgeStyle = match($service->source_id) {
+                                    2 => 'background-color: #7946E9; color: white;',
+                                    3 => 'background-color: #3AE3A4; color: black;',
+                                    4 => 'background-color: #007bff; color: white;',
+                                    default => 'background-color: #dc3545; color: white;'
+                                };
+                            @endphp
+                            <span class="badge" style="{{ $badgeStyle }}">
+                                {{ $source->api_source ?? 'Unknown' }}
+                            </span>
                         </div>
-                        </td>
-                    <td class="{{ ($service->state == 0) ? 'text-danger' : '' }}">{{ $service->rate_per_1000 }}</td>
+                    </td>
+                    <td class="{{ ($service->state == 0) ? 'text-danger font-weight-bold' : '' }}">
+                        ${{ number_format($service->rate_per_1000, 4) }}
+                    </td>
                     <td>{{ $service->Average_completion_time }}</td>
-                    <td>{!! $service->description !!}</td>
-                    <td>{{ $service->created_at }}</td>
                     <td>
-                        <form method="POST" action="{{ route('admin.service.destroy', $service->id) }}">
-                          @csrf
-                            @method('DELETE')
-                            <a class="btn btn-sm btn-success m-1" href="{{ route('admin.service.edit', $service->id) }}"><i class="fa fa-edit"></i> Edit</a>&nbsp;
-                            @if($service->status == 1)
-                            <a class="btn btn-sm btn-warning m-1" href="{{ route('admin.service.show', $service->id) }}"><i class="fa fa-times"></i> Disable</a>&nbsp;
-                            @else
-                            <a class="btn btn-sm btn-warning m-1" href="{{ route('admin.service.show', $service->id) }}"><i class="fa fa-check"></i> Enable</a>&nbsp;
+                        <button type="button" class="btn btn-xs btn-outline-info" data-toggle="popover" title="Description" data-content="{{ strip_tags($service->description) }}">View</button>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a class="btn btn-xs btn-success" href="{{ route('admin.service.edit', $service->id) }}"><i class="fa fa-edit"></i></a>
+                            
+                            <a class="btn btn-xs {{ $service->status == 1 ? 'btn-warning' : 'btn-primary' }}" href="{{ route('admin.service.show', $service->id) }}">
+                                <i class="fa {{ $service->status == 1 ? 'fa-times' : 'fa-check' }}"></i>
+                            </a>
+
+                            @if($service->serviceId)
+                                <a class="btn btn-xs btn-secondary" href="{{ url('admin/toggle-service/'.$service->id) }}">
+                                    <i class="fas {{ $service->state == 1 ? 'fa-hand-paper' : 'fa-robot' }}"></i>
+                                </a>
                             @endif
-                            <a class="btn btn-sm btn-secondary m-1 {{ ($service->serviceId == "" || $service->serviceId == null) ? 'd-none' : '' }}" href="admin/toggle-service/{{$service->id}}"><i class="fa fa-edit"></i> {{ ($service->state == 1) ? "Set Manual" : "Set Auto" }} </a>
-                           <button type="submit" class="btn btn-sm btn-danger"><span><i class="fa fa-trash"></i></span> Delete</button>
-                        </form>
-                        </td>
+
+                            <form method="POST" action="{{ route('admin.service.destroy', $service->id) }}" onsubmit="return confirm('Delete this service?');" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
                   </tr>   
                    @endforeach 
-    
-                  
-              
                   </tbody>
-                  <tfoot>
-                  <tr>
-                    <th>#</th>
-                    <th>ID</th>
-                    <th>Category</th>
-                     <th>Service ID</th>
-                    <th>Service</th>
-                    <th>Rate Per 1000</th>
-                    <th>Average Time</th>
-                    <th>Description</th>
-                    <th>Created_at</th>
-                    <th>Actions</th>
-                  </tr>
-                  </tfoot>
                 </table>
               </div>
-              <!-- /.card-body -->
+
+              <div class="card-footer clearfix bg-white">
+                <div class="float-right">
+                    {{ $services->links() }}
+                </div>
+                <p class="text-muted small mt-2">Showing {{ $services->firstItem() }} to {{ $services->lastItem() }} of {{ $services->total() }} services.</p>
+              </div>
             </div>
-            <!-- /.card -->
           </div>
-          <!-- /.col -->
         </div>
-        <!-- /.row -->
       </div>
-      <!-- /.container-fluid -->
     </section>
-    <!-- /.content -->
   </div>
-  <!-- /.content-wrapper -->
 
 @endsection

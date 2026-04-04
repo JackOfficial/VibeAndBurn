@@ -14,20 +14,18 @@ class serviceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {
-        $services = service::join('categories', 'services.category_id', '=', 'categories.id')
-        ->join('sources', 'services.source_id', '=', 'sources.id')
-        ->join('socialmedia', 'categories.socialmedia_id', '=', 'socialmedia.id')
-        ->select('services.*', 'categories.category', 'sources.api_source')
-         ->orderBy('services.service', 'ASC')
-         ->get();
+public function index(Request $request)
+{
+    // Eager load relationships and sort by the service name
+    $services = Service::with(['category.socialmedia', 'source'])
+        ->orderBy('service', 'asc')
+        ->paginate(25);
 
-         $servicesCounter = service::join('categories', 'services.category_id', '=', 'categories.id')
-         ->count();
+    // Use total() to get the count of all records across all pages
+    $servicesCounter = $services->total();
 
-        return view('admin.manage.services', compact('services', 'servicesCounter'));
-    }
+    return view('admin.manage.services', compact('services', 'servicesCounter'));
+}
 
     /**
      * Show the form for creating a new resource.
