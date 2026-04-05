@@ -15,28 +15,29 @@
         <div class="nk-sidebar-content">
             <div class="nk-sidebar-menu" data-simplebar>
                 
-                <div class="nk-sidebar-widget d-none d-xl-block mx-3 my-4">
-                    <div class="user-card user-card-s2" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 15px; padding: 1.25rem;">
-                        <div class="user-avatar lg bg-primary-dim mb-3">
-                            <span class="text-primary fw-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                            <div class="status dot dot-lg dot-success"></div>
+                <div class="nk-sidebar-widget mx-3 my-2">
+                    <div class="user-card-s2 p-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="user-avatar sm bg-primary-dim">
+                                <span class="text-primary fw-bold" style="font-size: 11px;">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                <div class="status dot dot-xs dot-success"></div>
+                            </div>
+                            <div class="user-info ml-2" style="overflow: hidden;">
+                                <span class="lead-text text-white fw-bold fs-13px text-truncate" style="display: block;">{{ Auth::user()->name }}</span>
+                                <span class="badge badge-dim badge-primary badge-pill" style="font-size: 9px; padding: 0 6px;">VIP MEMBER</span>
+                            </div>
                         </div>
-                        <div class="user-info">
-                            <span class="lead-text text-white fw-bold">{{ Auth::user()->name }}</span>
-                            <span class="sub-text text-soft mb-2">{{ Auth::user()->email }}</span>
-                            <span class="badge badge-outline-primary badge-pill" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">VIP Member</span>
-                        </div>
-                        
-                        <div class="user-balance-card mt-3 pt-3 border-top border-light">
+
+                        <div class="pt-2 border-top border-light">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <h6 class="overline-title-alt text-soft mb-0">Balance</h6>
-                                    <div class="user-balance text-white h4 mb-0 fw-bold">
-                                        <small class="text-primary">$</small>{{ number_format(Auth::user()->balance, 2) }}
+                                    <h6 class="overline-title-alt text-soft mb-0" style="font-size: 9px; letter-spacing: 0.5px;">AVAILABLE BALANCE</h6>
+                                    <div class="user-balance text-white fw-bold" style="font-size: 1.15rem; line-height: 1;">
+                                        <small class="text-primary" style="font-size: 0.7em;">$</small>{{ number_format(Auth::user()->balance, 2) }}
                                     </div>
                                 </div>
-                                <a href="{{ route('addFund.create') }}" class="btn btn-icon btn-trigger btn-tooltip" title="Quick Deposit">
-                                    <em class="icon ni ni-plus-circle-fill text-primary" style="font-size: 1.5rem;"></em>
+                                <a href="{{ route('addFund.create') }}" class="btn btn-icon btn-sm btn-primary btn-round shadow-sm">
+                                    <em class="icon ni ni-plus"></em>
                                 </a>
                             </div>
                         </div>
