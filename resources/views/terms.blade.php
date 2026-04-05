@@ -2,7 +2,7 @@
 @section('title', 'Vibe and Burn | Terms & Conditions')
 
 @section('content')
-<div class="terms-page-wrapper bg-light py-5">
+<div class="terms-page-wrapper bg-light py-5 mt-2">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-xl-8 col-lg-10">
