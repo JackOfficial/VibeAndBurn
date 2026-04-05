@@ -56,94 +56,43 @@
         }
     }
 
-   /* 1. The Profile Card Glassmorphism Effect */
-    .user-card-s2 {
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        backdrop-filter: blur(4px); /* Modern glass effect */
-        transition: all 0.3s ease;
+    /* The Glass Card Effect */
+    .wallet-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .wallet-card:hover {
+        background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%) !important;
+        border-color: rgba(127, 103, 255, 0.3) !important; /* Subtle primary color glow on border */
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Balance Text Glow */
+    .user-balance {
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Button Pulse Animation */
+    .btn-round {
         position: relative;
         overflow: hidden;
     }
 
-    .user-card-s2:hover {
-        background: rgba(255, 255, 255, 0.08) !important;
-        border-color: rgba(255, 255, 255, 0.15) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    .btn-round:hover {
+        transform: rotate(90deg); /* Modern UI touch: plus rotates on hover */
+        background-color: #7f67ff !important; /* Matches your DashLite primary */
+        box-shadow: 0 0 15px rgba(127, 103, 255, 0.5) !important;
     }
 
-    /* 2. Avatar & Status Dot Styling */
-    .user-avatar.bg-primary-dim {
-        background-color: rgba(127, 103, 255, 0.15) !important;
-        box-shadow: 0 0 10px rgba(127, 103, 255, 0.1);
-    }
-
-    .dot-xs {
-        width: 8px;
-        height: 8px;
-    }
-
-    /* 3. Balance Typography & Glow */
-    .user-balance {
-        color: #ffffff;
-        letter-spacing: -0.02em;
-        text-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
-    }
-
-    .user-balance small {
-        font-weight: 500;
-        margin-right: 1px;
-    }
-
-    /* 4. Overline Titles (Labels) */
-    .overline-title-alt {
-        font-family: 'Roboto', sans-serif;
-        text-transform: uppercase;
-        font-weight: 700;
-        letter-spacing: 1.2px;
-        color: #8094ae !important; /* Soft gray-blue */
-    }
-
-    /* 5. Mobile Sidebar Specific Fixes */
+    /* Force visibility on Mobile sidebars */
     @media (max-width: 1199px) {
         .nk-sidebar-widget {
-            display: block !important; /* Forces visibility on mobile */
-            margin-top: 20px !important;
-            margin-bottom: 15px !important;
+            display: block !important;
+            margin-top: 1.5rem !important;
+            margin-bottom: 1rem !important;
         }
-
-        .user-card-s2 {
-            padding: 1rem !important; /* Slightly tighter on mobile */
-        }
-
-        .user-balance {
-            font-size: 1.1rem !important;
-        }
-    }
-
-    /* 6. Button Polish */
-    .btn-round.btn-icon {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .btn-primary.shadow-sm {
-        box-shadow: 0 4px 12px rgba(127, 103, 255, 0.3) !important;
-    }
-
-    /* 7. General Sidebar Menu Spacing */
-    .nk-menu-link {
-        padding-top: 10px !important;
-        padding-bottom: 10px !important;
-        transition: all 0.2s ease;
-    }
-
-    .nk-menu-link:hover {
-        background: rgba(127, 103, 255, 0.05);
     }
     
 </style>

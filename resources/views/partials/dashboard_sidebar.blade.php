@@ -15,34 +15,22 @@
         <div class="nk-sidebar-content">
             <div class="nk-sidebar-menu" data-simplebar>
                 
-                <div class="nk-sidebar-widget mx-3 my-2">
-                    <div class="user-card-s2 p-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="user-avatar sm bg-primary-dim">
-                                <span class="text-primary fw-bold" style="font-size: 11px;">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                                <div class="status dot dot-xs dot-success"></div>
-                            </div>
-                            <div class="user-info ml-2" style="overflow: hidden;">
-                                <span class="lead-text text-white fw-bold fs-13px text-truncate" style="display: block;">{{ Auth::user()->name }}</span>
-                                <span class="badge badge-dim badge-primary badge-pill" style="font-size: 9px; padding: 0 6px;">VIP MEMBER</span>
-                            </div>
-                        </div>
-
-                        <div class="pt-2 border-top border-light">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <h6 class="overline-title-alt text-soft mb-0" style="font-size: 9px; letter-spacing: 0.5px;">AVAILABLE BALANCE</h6>
-                                    <div class="user-balance text-white fw-bold" style="font-size: 1.15rem; line-height: 1;">
-                                        <small class="text-primary" style="font-size: 0.7em;">$</small>{{ number_format(Auth::user()->balance, 2) }}
-                                    </div>
-                                </div>
-                                <a href="{{ route('addFund.create') }}" class="btn btn-icon btn-sm btn-primary btn-round shadow-sm">
-                                    <em class="icon ni ni-plus"></em>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                <div class="nk-sidebar-widget mx-3 my-4">
+    <div class="wallet-card p-3" style="background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; backdrop-filter: blur(8px);">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="user-account-info">
+                <h6 class="overline-title-alt text-primary-alt mb-1" style="font-size: 9px; letter-spacing: 1px; opacity: 0.8;">CURRENT BALANCE</h6>
+                <div class="user-balance text-white fw-bold" style="font-size: 1.25rem; letter-spacing: -0.5px;">
+                    <span class="text-primary mr-1">$</span>{{ number_format(Auth::user()->balance, 2) }}
                 </div>
+            </div>
+            
+            <a href="{{ route('addFund.create') }}" class="btn btn-primary btn-round shadow-lg" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                <em class="icon ni ni-plus" style="font-size: 1.2rem;"></em>
+            </a>
+        </div>
+    </div>
+</div>
 
                 <ul class="nk-menu">
                     <li class="nk-menu-heading"><h6 class="overline-title text-primary-alt">Main Menu</h6></li>
