@@ -16,7 +16,7 @@
             <div class="nk-sidebar-menu" data-simplebar>
                 
                 <div class="nk-sidebar-widget mb-2">
-    <div class="wallet-card p-3" style="background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; backdrop-filter: blur(8px);">
+    <div class="wallet-card p-2" style="background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; backdrop-filter: blur(8px);">
         <div class="d-flex align-items-center justify-content-between">
             <div class="user-account-info">
                 <h6 class="overline-title-alt text-primary-alt mb-1" style="font-size: 9px; letter-spacing: 1px; opacity: 0.8;">CURRENT BALANCE</h6>
