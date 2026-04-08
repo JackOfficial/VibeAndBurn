@@ -75,7 +75,7 @@ public function create(Request $request)
         'category_id'             => $validated['category'],
         'serviceId'               => $validated['serviceId'],
         'service'                 => $validated['service'],
-        'rate_per_1000'           => $validated['rateper1000'],
+        'rate_per_1000'           => $validated['rate_per_1000'],
         'min_order'               => $validated['min_order'],
         'max_order'               => $validated['max_order'],
         'Average_completion_time' => $validated['average_completion_time'],
