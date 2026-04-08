@@ -111,13 +111,6 @@
                                         <option value="4">In Progress</option>
                                         <option value="5" selected>Partial</option>
                                     </select>
-
-                                      0 => "pending",
-                1 => "completed",
-                3 => "processing",
-                4 => "in progress",
-                5 => "partial"
-
                                 </div>
                             </div>
                         </div>
