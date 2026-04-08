@@ -106,7 +106,9 @@
                                 <div class="form-group">
                                     <label class="font-weight-bold">Status</label>
                                     <select wire:model="status" class="form-control" required>
+                                        <option value="0">Pending</option>
                                         <option value="1">Completed</option>
+                                        <option value="2">Canceled</option>
                                         <option value="3">Processing</option>
                                         <option value="4">In Progress</option>
                                         <option value="5" selected>Partial</option>
