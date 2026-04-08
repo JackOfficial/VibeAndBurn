@@ -53,25 +53,26 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Category <span class="text-danger">*</span></label>
-                                            <select name="category_id" class="form-control select2 @error('category_id') is-invalid @enderror" required>
+                                            <select name="category" class="form-control select2 @error('category') is-invalid @enderror" required>
                                                 <option value="">Select Category</option>
                                                 @foreach($categories as $category)
-                                                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                                    <option value="{{ $category->id }}" {{ old('category') == $category->id ? 'selected' : '' }}>
                                                         {{ $category->socialmedia->socialmedia ?? 'Global' }} — {{ $category->category }}
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            @error('category_id') <span class="text-danger small">{{ $message }}</span> @enderror
+                                            @error('category') <span class="text-danger small">{{ $message }}</span> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>API Source</label>
-                                            <select name="source_id" class="form-control">
+                                            <select name="source" class="form-control">
                                                 @foreach($sources as $source)
-                                                    <option value="{{ $source->id }}" {{ old('source_id') == $source->id ? 'selected' : '' }}>{{ $source->api_source }}</option>
+                                                    <option value="{{ $source->id }}" {{ old('source') == $source->id ? 'selected' : '' }}>{{ $source->api_source }}</option>
                                                 @endforeach
                                             </select>
+                                               @error('source') <span class="invalid-feedback">{{ $message }}</span> @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -79,6 +80,7 @@
                                 <div class="form-group">
                                     <label>Description</label>
                                     <textarea name="description" id="summernote" class="form-control" rows="4">{{ old('description') }}</textarea>
+                                 @error('description') <span class="invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>

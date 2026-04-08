@@ -57,7 +57,7 @@ public function create(Request $request)
     $validated = $request->validate([
         'category'                => 'required|exists:categories,id',
         'service'                 => 'required|string|max:255',
-        'rateper1000'             => 'required|numeric|min:0',
+        'rate_per_1000'             => 'required|numeric|min:0',
         'min_order'               => 'required|integer|min:1',
         'max_order'               => 'required|integer|gt:min_order',
         'average_completion_time' => 'nullable|string|max:255',
