@@ -21,13 +21,18 @@
         <div class="container-fluid">
 
             {{-- Catch-all error alert --}}
-            @if ($errors->any())
-                <div class="alert alert-danger shadow-sm border-0 alert-dismissible fade show">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    <i class="fas fa-exclamation-circle mr-2"></i> 
-                    <strong>Whoops!</strong> There are some issues with your input. Please check the fields in red.
-                </div>
-            @endif
+           @if ($errors->any())
+    <div class="alert alert-danger shadow-sm border-0 alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="fas fa-exclamation-circle mr-2"></i> 
+        <strong>Validation Error:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
             <form action="{{ route('admin.service.store') }}" method="POST">
                 @csrf
