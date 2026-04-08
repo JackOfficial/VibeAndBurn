@@ -21,9 +21,10 @@ class EditOrder extends Component
     public $description;
 
     protected $rules = [
-        'startCount' => 'nullable|numeric',
-        'remains' => 'nullable|numeric',
-        'charge' => 'required',
+       'startCount' => 'nullable|numeric|min:0',
+       'remains'    => 'nullable|numeric|min:0',
+       'charge'     => 'required|numeric|min:0',
+       'orderId'    => 'nullable|string',
     ];
 
     public function mount()
@@ -63,35 +64,27 @@ class EditOrder extends Component
 public function updateOrder()
 {
     $this->validate();
-
     try {
         $orderModel = order::findOrFail($this->orderID);
+        $wallet = wallet::where('user_id', $orderModel->user_id)->first();
+        $extraCharge = (float)$this->charge - (float)$orderModel->getOriginal('charge');
 
-        // 1. Clean the input (remove $, commas, and spaces)
-       // 2. Safety Check to prevent accidental 0.00 saves
-        if ($this->charge <= 0 && $orderModel->charge > 0) {
-            throw new \Exception("Charge cannot be zero. Please enter the amount paid.");
+        if ($extraCharge > 0 && $wallet->money < $extraCharge) {
+        session()->flash('editOrderFail', "User only has $" . $wallet->money . ". They cannot afford the extra $" . $extraCharge);
+        return;
         }
 
-        // 3. Assign values to the model
         $orderModel->start_count = $this->startCount;
         $orderModel->remains     = $this->remains;
-        $orderModel->orderId     = $this->orderId; // External API ID
-        
-        // Save as a pure decimal (8 places) to match your DB precision
+        $orderModel->orderId     = $this->orderId;
         $orderModel->charge      = $this->charge;
+        $orderModel->status      = 7; 
 
-        // 4. Update Status (This will be detected by your Observer)
-        $orderModel->status = 7; 
+        // Use saveQuietly to bypass the Observer entirely for Admin edits
+        $orderModel->saveQuietly(); 
 
-        // 5. Save the model
-        // The Observer will catch this 'updated' event
-        $orderModel->save(); 
-
-        session()->flash('editOrderSuccess', "Order #{$this->orderID} updated and synced.");
-
+        session()->flash('editOrderSuccess', "Order updated successfully (Observer bypassed).");
         return redirect()->route('admin.clientOrders.index');
-        
     } catch (\Exception $e) {
         session()->flash('editOrderFail', "Error: " . $e->getMessage());
     }
