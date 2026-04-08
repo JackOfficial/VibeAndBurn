@@ -78,7 +78,7 @@ public function updateOrder()
         $orderModel->remains     = $this->remains;
         $orderModel->orderId     = $this->orderId;
         $orderModel->charge      = $this->charge;
-        $orderModel->status      = 7; 
+        $orderModel->status      = $this->status;
 
         // Use saveQuietly to bypass the Observer entirely for Admin edits
         $orderModel->saveQuietly(); 

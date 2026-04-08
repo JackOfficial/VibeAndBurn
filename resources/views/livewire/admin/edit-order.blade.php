@@ -102,6 +102,16 @@
                                     @error('charge') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
                             </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Status</label>
+                                    <select wire:model="status">
+                                        <option value="2">Partial</option>
+                                        <option value="2">Canceled</option>
+                                        <option value="1">Completed</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
                         @if($comment)
