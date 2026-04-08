@@ -25,6 +25,7 @@ class EditOrder extends Component
        'remains'    => 'nullable|numeric|min:0',
        'charge'     => 'required|numeric|min:0',
        'orderId'    => 'nullable|string',
+       'status' => 'required|integer|in:0,1,2,3,4,5'
     ];
 
     public function mount()

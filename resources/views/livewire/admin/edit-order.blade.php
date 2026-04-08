@@ -106,10 +106,18 @@
                                 <div class="form-group">
                                     <label class="font-weight-bold">Status</label>
                                     <select wire:model="status">
-                                        <option value="2">Partial</option>
-                                        <option value="2">Canceled</option>
                                         <option value="1">Completed</option>
+                                        <option value="3">Processing</option>
+                                        <option value="4">In Progress</option>
+                                        <option value="5" selected>Partial</option>
                                     </select>
+
+                                      0 => "pending",
+                1 => "completed",
+                3 => "processing",
+                4 => "in progress",
+                5 => "partial"
+
                                 </div>
                             </div>
                         </div>
