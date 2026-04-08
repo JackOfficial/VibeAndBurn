@@ -16,65 +16,80 @@ class UpdatePrice extends Command
     protected $signature = 'update:price';
     protected $description = 'Update Services Price using efficient key-mapping';
 
-    public function handle()
-{
-    $apis = [
-        2 => new BulkfollowsController(), // Corrected ID to match your previous logic
-        3 => new AmazingController(),
-        4 => new BulkmedyaController(),
-        5 => new SmmsunController(),
+    // Property to map IDs to Names
+    public $providerNames = [
+        2 => 'Bulkfollows',
+        3 => 'Amazing',
+        4 => 'Bulkmedya',
+        5 => 'Smmsun'
     ];
 
-    // Fetch only active services that have an external ID
-    $services = our_service::where('status', 1) // Changed 'state' to 'status' if that's your column name
-        ->whereNotNull('serviceId')
-        ->where('serviceId', '!=', '')
-        ->get();
+    public function handle()
+    {
+        $apis = [
+            2 => new BulkfollowsController(),
+            3 => new AmazingController(),
+            4 => new BulkmedyaController(),
+            5 => new SmmsunController(),
+        ];
 
-    if ($services->isEmpty()) {
-        $this->warn("No active services found.");
-        return 0;
-    }
+        $services = our_service::where('status', 1)
+            ->whereNotNull('serviceId')
+            ->where('serviceId', '!=', '')
+            ->get();
 
-    $rateSetting = Rate::first();
-    $margin = $rateSetting ? $rateSetting->rate : 1;
-
-    $providerData = [];
-    foreach ($apis as $id => $api) {
-        try {
-            $response = $api->services();
-            // Ensure we have a valid collection
-            $providerData[$id] = collect($response)->keyBy('service');
-        } catch (\Exception $e) {
-            $this->error("Provider {$id} Error: " . $e->getMessage());
+        if ($services->isEmpty()) {
+            $this->warn("No active services found.");
+            return 0;
         }
-    }
 
-    $updatedCount = 0;
+        $rateSetting = Rate::first();
+        // Margin safety check
+        $margin = ($rateSetting && $rateSetting->rate > 0) ? $rateSetting->rate : 1;
 
-    foreach ($services as $service) {
-        // Skip if the provider failed to return data
-        if (!isset($providerData[$service->source_id])) continue;
+        $providerData = [];
+        foreach ($apis as $id => $api) {
+            try {
+                $response = $api->services();
+                $providerData[$id] = collect($response)->keyBy('service');
+            } catch (\Exception $e) {
+                $this->error("Provider {$id} Error: " . $e->getMessage());
+            }
+        }
 
-        $externalServices = $providerData[$service->source_id];
+        $updatedCount = 0;
 
-        if ($externalServices->has($service->serviceId)) {
-            $remote = $externalServices->get($service->serviceId);
-            $remoteRate = is_object($remote) ? ($remote->rate ?? 0) : ($remote['rate'] ?? 0);
-            
-            if ($remoteRate > 0) {
-                $newRate = (float)$remoteRate * (float)$margin;
+        foreach ($services as $service) {
+            if (!isset($providerData[$service->source_id])) continue;
 
-                if (round((float)$service->rate_per_1000, 4) !== round($newRate, 4)) {
-                    $service->update(['rate_per_1000' => $newRate]);
-                    $updatedCount++;
+            $externalServices = $providerData[$service->source_id];
+
+            if ($externalServices->has($service->serviceId)) {
+                $remote = $externalServices->get($service->serviceId);
+                $remoteRate = is_object($remote) ? ($remote->rate ?? 0) : ($remote['rate'] ?? 0);
+                
+                if ($remoteRate > 0) {
+                    $newRate = (float)$remoteRate * (float)$margin;
+
+                    if (round((float)$service->rate_per_1000, 4) !== round($newRate, 4)) {
+                        $service->update(['rate_per_1000' => $newRate]);
+                        $updatedCount++;
+                    }
+                }
+            } else {
+                // Auto-disable if missing from provider API
+                if ($service->status == 1) {
+                    $service->update(['status' => 0]); 
+                    // Added $this-> here:
+                    $pName = $this->providerNames[$service->source_id] ?? 'Unknown Provider'; 
+                    $this->warn("Service #{$service->serviceId} disabled: Not found on $pName");
+                    Log::warning("SMM Sync: Service #{$service->serviceId} was disabled because it is missing from the $pName API.");
                 }
             }
         }
-    }
 
-    $this->info("Update complete! {$updatedCount} prices modified.");
-    Log::info("Daily Price Update: {$updatedCount} services updated across " . count($providerData) . " providers.");
-    return 0;
-}
+        $this->info("Update complete! {$updatedCount} prices modified.");
+        Log::info("Daily Price Update: {$updatedCount} services updated across " . count($providerData) . " providers.");
+        return 0;
+    }
 }
