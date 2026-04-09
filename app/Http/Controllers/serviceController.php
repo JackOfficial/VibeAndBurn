@@ -59,7 +59,7 @@ public function create(Request $request)
         'service'                 => 'required|string|max:255',
         'rate_per_1000'             => 'required|numeric|min:0',
         'min_order'               => 'required|integer|min:1',
-        'max_order'               => 'required|integer|gt:min_order',
+        'max_order'               => 'required|integer',
         'average_completion_time' => 'nullable|string|max:255',
         'serviceId'               => 'nullable|string|max:255',
         'source'                  => 'required|exists:sources,id',
