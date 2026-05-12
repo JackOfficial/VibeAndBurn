@@ -11,31 +11,33 @@
             @endif
 
             <div class="card shadow-sm">
-                <div class="card-header border-0">
-                    <h3 class="card-title">
-                        <i class="fas fa-history mr-1"></i> 
-                        {{ number_format($fundsCounter) }} Transactions
-                    </h3>
+               <div class="card-header border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+    <h3 class="card-title mb-3 mb-md-0">
+        <i class="fas fa-history mr-1"></i> 
+        {{ number_format($fundsCounter) }} Transactions
+    </h3>
 
-                    <div class="card-tools d-flex align-items-center">
-                        {{-- Search Input Integrated --}}
-                        <div class="input-group input-group-sm mr-3" style="width: 250px;">
-                            <input type="text" 
-                                   wire:model.debounce.500ms="search" 
-                                   class="form-control float-right border-secondary" 
-                                   placeholder="Search user, email, or method..."
-                                   style="border-radius: 20px 0 0 20px;">
-                            <div class="input-group-append">
-                                <span class="input-group-text bg-white border-secondary" style="border-radius: 0 20px 20px 0;">
-                                    <i class="fas fa-search text-muted" wire:loading.remove wire:target="search"></i>
-                                    <i class="fas fa-spinner fa-spin text-primary" wire:loading wire:target="search"></i>
-                                </span>
-                            </div>
-                        </div>
+    <div class="d-flex flex-column flex-sm-row align-items-sm-center">
+        {{-- Search Input - Responsive Width --}}
+        <div class="input-group input-group-sm mb-2 mb-sm-0 mr-sm-3" style="min-width: 200px; width: 100%;">
+            <input type="text" 
+                   wire:model.debounce.500ms="search" 
+                   class="form-control border-secondary" 
+                   placeholder="Search..."
+                   style="border-radius: 20px 0 0 20px;">
+            <div class="input-group-append">
+                <span class="input-group-text bg-white border-secondary" style="border-radius: 0 20px 20px 0;">
+                    <i class="fas fa-search text-muted" wire:loading.remove wire:target="search"></i>
+                    <i class="fas fa-spinner fa-spin text-primary" wire:loading wire:target="search"></i>
+                </span>
+            </div>
+        </div>
 
-                        <span class="badge badge-success p-2">Total Earned: ${{ number_format($fundsTotal, 2) }}</span>
-                    </div>
-                </div>
+        <span class="badge badge-success p-2 text-center" style="height: fit-content;">
+            Total Earned: ${{ number_format($fundsTotal, 2) }}
+        </span>
+    </div>
+</div>
 
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover table-head-fixed text-nowrap">
