@@ -15,7 +15,7 @@ use App\Http\Controllers\addFundController;
 use App\Http\Controllers\newOrderController;
 use App\Http\Controllers\ajaxController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\clientOrdersController;
+use App\Http\Controllers\Admin\OrderController as ClientOrders;
 use App\Http\Controllers\approveOrderController;
 use App\Http\Controllers\faqsController;
 use App\Http\Controllers\broadcastController;
@@ -134,7 +134,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::resource('socialmedia', socialmediaController::class);
     Route::resource('category', categoryController::class);
     Route::resource('service', serviceController::class);
-    Route::resource('clientOrders', clientOrdersController::class);
+    Route::resource('orders', ClientOrders::class);
     Route::resource('users', usersController::class);
     Route::resource('subscription', subscriptionController::class);
 });
