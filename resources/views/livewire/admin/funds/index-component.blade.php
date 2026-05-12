@@ -12,18 +12,21 @@
 
             <div class="card shadow-sm">
                <div class="card-header border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+    {{-- Title stays at the start --}}
     <h3 class="card-title mb-3 mb-md-0">
         <i class="fas fa-history mr-1"></i> 
         {{ number_format($fundsCounter) }} Transactions
     </h3>
 
-    <div class="d-flex flex-column flex-sm-row align-items-sm-center">
-        {{-- Search Input - Responsive Width --}}
-        <div class="input-group input-group-sm mb-2 mb-sm-0 mr-sm-3" style="min-width: 200px; width: 100%;">
+    {{-- Tools container pushed to the end on medium+ screens --}}
+    <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-end ml-md-auto">
+        
+        {{-- Search Input --}}
+        <div class="input-group input-group-sm mb-2 mb-sm-0 mr-sm-3" style="min-width: 250px; width: 100%;">
             <input type="text" 
                    wire:model.debounce.500ms="search" 
                    class="form-control border-secondary" 
-                   placeholder="Search..."
+                   placeholder="Search user, email, or method..."
                    style="border-radius: 20px 0 0 20px;">
             <div class="input-group-append">
                 <span class="input-group-text bg-white border-secondary" style="border-radius: 0 20px 20px 0;">
@@ -33,7 +36,8 @@
             </div>
         </div>
 
-        <span class="badge badge-success p-2 text-center" style="height: fit-content;">
+        {{-- Badge --}}
+        <span class="badge badge-success p-2 text-center" style="height: fit-content; white-space: nowrap;">
             Total Earned: ${{ number_format($fundsTotal, 2) }}
         </span>
     </div>
