@@ -25,7 +25,6 @@ class CreateServicesTable extends Migration
             $table->string('start');
             $table->string('speed');
             $table->string('refill');
-            $table->string('price_per_1000');
             $table->string('description');
             $table->integer('description')->default(1);
             $table->timestamps();

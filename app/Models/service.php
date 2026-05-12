@@ -12,7 +12,7 @@ class service extends Model
     protected $fillable = ['category_id', 'source_id', 'serviceId', // Add these for API syncing
     'service', 'rate_per_1000', 'min_order', 'max_order', 
     'Average_completion_time', 'quality', 'start', 'speed', 
-    'refill', 'price_per_1000', 'description', 'status', 'state'];
+    'refill', 'description', 'status', 'state'];
 
    public function category(): BelongsTo
     {

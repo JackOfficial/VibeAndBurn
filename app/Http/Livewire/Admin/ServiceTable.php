@@ -85,7 +85,6 @@ class ServiceTable extends Component
                       ->orWhere('id', 'like', $term)
                       ->orWhere('serviceId', 'like', $term)
                       ->orWhere('rate_per_1000', 'like', $term)
-                      ->orWhere('price_per_1000', 'like', $term)
                       ->orWhere('min_order', 'like', $term)
                       ->orWhere('max_order', 'like', $term)
                       ->orWhere('quality', 'like', $term)
