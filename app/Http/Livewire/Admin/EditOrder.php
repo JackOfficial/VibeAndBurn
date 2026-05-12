@@ -28,12 +28,12 @@ class EditOrder extends Component
        'status' => 'required|integer|in:0,1,2,3,4,5'
     ];
 
-    public function mount($orderID)
+    public function mount()
     {
-   
+      dd($orderID);
         $orderData = order::with(['user', 'service.category.socialmedia'])
             ->findOrFail($this->orderID);
-      dd($orderID);
+   
         $this->loadOrderData($orderData);
        
     }
