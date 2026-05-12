@@ -27,12 +27,35 @@ class FundController extends Controller
      */
     public function create(): View
     {
-        // Select only necessary columns to save memory
-        $users = User::select('id', 'name', 'email')
-            ->orderBy('name', 'ASC')
-            ->get();
+        // Don't fetch all users here! That's what causes the lag.
+        // We only fetch the rate for Alpine.js to use for real-time math.
+        $rateRecord = BFCurency::find(1);
+        $bifRate = ($rateRecord && $rateRecord->currency > 0) ? $rateRecord->currency : 1;
 
-        return view('admin.funds.create', compact('users'));
+        return view('admin.funds.create', compact('bifRate'));
+    }
+
+    /**
+     * AJAX Search for Select2
+     */
+    public function searchUsers(Request $request)
+    {
+        $term = $request->term;
+
+        // Use a simple query to keep it fast
+        $users = User::where('name', 'LIKE', "%$term%")
+            ->orWhere('email', 'LIKE', "%$term%")
+            ->select('id', 'name', 'email')
+            ->limit(15) 
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'text' => ucfirst($user->name) . " ({$user->email})"
+                ];
+            });
+
+        return response()->json($users);
     }
 
     /**

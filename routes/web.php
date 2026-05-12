@@ -120,6 +120,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::get('/tickets', [TicketController::class, 'adminTickets'])->name('tickets');
     Route::get('/ticket/{id}', [TicketController::class, 'adminTicket'])->name('ticket.show');
     Route::resource('funds', FundController::class);
+    Route::get('users/search', [FundController::class, 'searchUsers'])->name('users.search');
     Route::get('/rate', [RateController::class, 'index']);
     Route::get('/referrals/{id}', [sharedlinkController::class, 'referral'])->name('referrals');
     Route::get('/offer/bonus/{id}', [sharedlinkController::class, 'bonus'])->name('bonus');
