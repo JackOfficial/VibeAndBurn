@@ -85,7 +85,7 @@ public function updateOrder()
         $orderModel->saveQuietly(); 
 
         session()->flash('editOrderSuccess', "Order updated successfully (Observer bypassed).");
-        return redirect()->route('admin.clientOrders.index');
+        return redirect()->route('admin.orders.index');
     } catch (\Exception $e) {
         session()->flash('editOrderFail', "Error: " . $e->getMessage());
     }

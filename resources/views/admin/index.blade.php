@@ -49,7 +49,7 @@
                             </span>
                         </div>
                         <div class="icon text-primary" style="opacity: 0.1;"><i class="fas fa-shopping-cart"></i></div>
-                        <a href="{{ route('admin.clientOrders.index') }}" class="small-box-footer bg-light text-dark border-top">Manage Orders <i class="fas fa-arrow-right ml-1"></i></a>
+                        <a href="{{ route('admin.orders.index') }}" class="small-box-footer bg-light text-dark border-top">Manage Orders <i class="fas fa-arrow-right ml-1"></i></a>
                     </div>
                 </div>
 
@@ -140,7 +140,7 @@
                                         @forelse($recentOrders as $order)
                                         <tr>
                                             <td class="pl-4 py-3">
-                                                <a href="{{ route('admin.clientOrders.show', $order->id) }}" class="text-primary font-weight-bold">#{{ $order->id }}</a>
+                                                <a href="{{ route('admin.orders.show', $order->id) }}" class="text-primary font-weight-bold">#{{ $order->id }}</a>
                                                 <div class="text-muted small">{{ $order->created_at->diffForHumans() }}</div>
                                             </td>
                                             <td>

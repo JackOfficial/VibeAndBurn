@@ -326,7 +326,7 @@
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('admin.orders.index') }}" class="nav-link {{ Route::is('admin.clientOrders.index') ? 'active' : '' }}">
+            <a href="{{ route('admin.orders.index') }}" class="nav-link {{ Route::is('admin.orders.index') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-th"></i>
                 <p>
                     Orders

@@ -22,7 +22,7 @@
          </p>
      </div>
      <div>
-         <a style="background-color:blue; color:white; padding:4px; border-radius: 4px; margin:2px;" href="https://vibeandburn.com/clientOrders">Check an order</a>
+         <a style="background-color:blue; color:white; padding:4px; border-radius: 4px; margin:2px;" href="https://vibeandburn.com/admin/orders">Check an order</a>
      </div>
   </div>
   
