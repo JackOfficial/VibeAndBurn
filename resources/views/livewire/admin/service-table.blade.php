@@ -30,7 +30,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text bg-white border-0"><i class="fas fa-search text-muted"></i></span>
                         </div>
-                        <input type="text" wire:model.debounce.400ms="search" class="form-control border-0" placeholder="Search name or ID...">
+                        <input type="text" wire:model.debounce.400ms="search" class="form-control border-0" placeholder="Search anything ...">
                     </div>
                 </div>
 

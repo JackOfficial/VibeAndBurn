@@ -74,13 +74,42 @@ class ServiceTable extends Component
 
     public function render()
     {
-        $services = Service::with(['category', 'source'])
-            // Enhanced Search: checks ID, Name, and API Service ID
+        // Eager load everything to keep the UI fast
+        $services = Service::with(['category.socialmedia', 'source'])
             ->when($this->search, function($query) {
                 $query->where(function($q) {
-                    $q->where('service', 'like', '%' . $this->search . '%')
-                      ->orWhere('id', 'like', '%' . $this->search . '%')
-                      ->orWhere('serviceId', 'like', '%' . $this->search . '%');
+                    $term = '%' . $this->search . '%';
+
+                    // --- Table Columns ---
+                    $q->where('service', 'like', $term)
+                      ->orWhere('id', 'like', $term)
+                      ->orWhere('serviceId', 'like', $term)
+                      ->orWhere('rate_per_1000', 'like', $term)
+                      ->orWhere('price_per_1000', 'like', $term)
+                      ->orWhere('min_order', 'like', $term)
+                      ->orWhere('max_order', 'like', $term)
+                      ->orWhere('quality', 'like', $term)
+                      ->orWhere('description', 'like', $term)
+                      ->orWhere('Average_completion_time', 'like', $term)
+                      ->orWhere('start', 'like', $term)
+                      ->orWhere('speed', 'like', $term)
+                      ->orWhere('refill', 'like', $term)
+                      ->orWhere('state', 'like', $term);
+
+                    // --- Relationship: Category Name ---
+                    $q->orWhereHas('category', function($cat) use ($term) {
+                        $cat->where('category', 'like', $term);
+                    });
+
+                    // --- Relationship: Social Media Platform ---
+                    $q->orWhereHas('category.socialmedia', function($sm) use ($term) {
+                        $sm->where('socialmedia', 'like', $term);
+                    });
+
+                    // --- Relationship: Source API Name ---
+                    $q->orWhereHas('source', function($src) use ($term) {
+                        $src->where('api_source', 'like', $term);
+                    });
                 });
             })
             // Category Filter
@@ -96,12 +125,12 @@ class ServiceTable extends Component
                 $query->where('status', $this->filterStatus);
             })
             ->latest()
-            ->paginate(20); // Increased per-page for better management
+            ->paginate(20);
 
         return view('livewire.admin.service-table', [
             'services' => $services,
             'categories' => Category::orderBy('category', 'asc')->get(),
-            'sources' => Source::all(), // For the provider filter dropdown
+            'sources' => Source::all(),
             'servicesCounter' => Service::count(),
             'rate' => Rate::first()
         ]);
