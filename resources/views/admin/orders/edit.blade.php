@@ -22,7 +22,7 @@
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
-            <livewire:admin.edit-order :orderID="$order" />
+            <livewire:admin.edit-order :orderID="$order->id" />
       </div>
       <!-- /.container-fluid -->
     </section>
