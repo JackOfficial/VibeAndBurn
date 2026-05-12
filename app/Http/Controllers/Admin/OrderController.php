@@ -56,12 +56,12 @@ class OrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-public function edit($id)
-{
-    $order = order::findOrFail($id);
-
-    return view('admin.orders.edit', compact('order'));
-}
+    public function edit($id)
+    {
+        dd("Hello world");
+      $order = order::findOrFail($id);
+      return view('admin.orders.edit', compact('order'));
+    }
 
     /**
      * Update the specified resource in storage.
