@@ -210,7 +210,7 @@
                                             <td class="text-right px-4">
                                                 <div class="btn-group">
                                                     <a href="{{ route('approve', $order->id) }}" class="btn btn-sm btn-outline-success border-0"><i class="fa fa-check"></i></a>
-                                                    <a href="{{ route('admin.orders.edit', $order->id) }}" class="btn btn-sm btn-outline-info border-0"><i class="fa fa-edit"></i></a>
+                                                    <a href="{{ route('admin.orders.edit', $order->id) }}" class="btn btn-sm btn-outline-info border-0"><i class="fa fa-edit"></i>edit</a>
                                                     <button onclick="confirm('Reverse money back to user?') || event.stopImmediatePropagation()" wire:click="reverseOrder({{ $order->id }})" class="btn btn-sm btn-outline-danger border-0">
                                                         <i class="fa fa-undo-alt"></i>
                                                     </button>
