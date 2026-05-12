@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\fund as Fund;
 use App\Models\User;
-use App\Models\Wallet;
+use App\Models\wallet as Wallet;
 use App\Models\BFCurency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
