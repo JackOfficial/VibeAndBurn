@@ -30,9 +30,7 @@ class EditOrder extends Component
 
     public function mount()
     {
-        $orderData = order::with(['user', 'service.category.socialmedia'])
-            ->findOrFail($this->orderID);
-        dd($orderData);
+        $orderData = order::with(['user', 'service.category.socialmedia'])->findOrFail($this->orderID);
         $this->loadOrderData($orderData);
        
     }
