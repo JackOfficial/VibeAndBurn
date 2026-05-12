@@ -56,9 +56,9 @@ class OrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-public function edit($orderID)
+public function edit($id)
 {
-    $order = order::findOrFail($orderID);
+    $order = order::findOrFail($id);
 
     return view('admin.orders.edit', compact('order'));
 }
