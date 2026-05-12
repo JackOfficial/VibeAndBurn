@@ -336,7 +336,7 @@
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('admin.clientOrders.create') }}" class="nav-link {{ Route::is('admin.clientOrders.create') ? 'active' : '' }}">
+            <a href="{{ route('admin.funds.create') }}" class="nav-link {{ Route::is('admin.funds.create') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-plus"></i>
                 <p>Add Fund</p>
             </a>
@@ -461,7 +461,7 @@
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('admin.fund') }}" class="nav-link {{ Route::is('admin.fund') ? 'active' : '' }}">
+            <a href="{{ route('admin.funds.index') }}" class="nav-link {{ Route::is('admin.funds.index') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-wallet"></i>
                 <p>
                     Earnings

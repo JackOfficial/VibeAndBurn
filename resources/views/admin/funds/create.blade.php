@@ -45,7 +45,7 @@
                             </h3>
                         </div>
 
-                        <form method="POST" action="{{ route('admin.clientOrders.store') }}" id="fundForm">
+                        <form method="POST" action="{{ route('admin.funds.store') }}" id="fundForm">
                             @csrf
                             <div class="card-body">
                                 
@@ -132,7 +132,7 @@
                                            step="0.01" 
                                            name="money" 
                                            id="moneyAmount"
-                                           class="form-control form-control-lg @error('money') is-invalid @enderror" 
+                                           class="form-control @error('money') is-invalid @enderror" 
                                            placeholder="0.00" 
                                            required />
                                     <div class="input-group-append">

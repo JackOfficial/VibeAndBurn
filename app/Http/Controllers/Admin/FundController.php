@@ -5,69 +5,103 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\fund as Fund;
 use App\Models\User;
+use App\Models\Wallet;
+use App\Models\BFCurency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class FundController extends Controller
 {
     /**
-     * Display the parent view containing the Livewire component.
+     * Display a listing of funds.
      */
-    public function index()
+    public function index(): View
     {
         return view('admin.funds.index');
     }
 
     /**
-     * Store a manual payment and update user wallet.
+     * Show the form for creating a new fund.
      */
-    public function store(Request $request)
+    public function create(): View
+    {
+        // Select only necessary columns to save memory
+        $users = User::select('id', 'name', 'email')
+            ->orderBy('name', 'ASC')
+            ->get();
+
+        return view('admin.funds.create', compact('users'));
+    }
+
+    /**
+     * Store a manual payment with BIF/USD conversion logic.
+     */
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'user_id'   => 'required|exists:users,id',
-            'amount'    => 'required|numeric|min:0',
-            'method'    => 'required|string|max:50',
-            'Payedwith' => 'nullable|string|max:100',
+            'user'     => ['required', 'exists:users,id'],
+            'currency' => ['required', 'in:BIF,USD'], 
+            'money'    => ['required', 'numeric', 'min:0.01'],
         ]);
 
-        try {
-            DB::transaction(function () use ($validated) {
-                // 1. Create the Fund record
-                Fund::create($validated);
+        // 1. Determine Conversion Rate
+        $amountInUSD = (float) $validated['money'];
 
-                // 2. Update the User's Wallet
-                $user = User::findOrFail($validated['user_id']);
+        if ($validated['currency'] === "BIF") {
+            // Ensure we don't divide by zero if the record is missing
+            $rateRecord = BFCurency::find(1);
+            $rate = ($rateRecord && $rateRecord->currency > 0) ? $rateRecord->currency : 1;
+            
+            $amountInUSD = $amountInUSD / $rate;
+        }
+
+        try {
+            return DB::transaction(function () use ($validated, $amountInUSD) {
                 
-                // Retrieve or create wallet
-                $wallet = $user->wallet ?: $user->wallet()->create(['money' => 0]);
+                // 2. Ensure Wallet exists and update balance
+                // Using firstOrCreate is safer than updateOrCreate here
+                $wallet = Wallet::firstOrCreate(
+                    ['user_id' => $validated['user']],
+                    ['money' => 0]
+                );
                 
-                // Increment triggers your 'setMoneyAttribute' mutator automatically
-                $wallet->increment('money', $validated['amount']);
+                // Atomic increment handles race conditions and triggers mutators
+                $wallet->increment('money', $amountInUSD);
+
+                // 3. Create the Fund History Record
+                Fund::create([
+                    'user_id'   => $validated['user'],
+                    'method'    => 'Manual Deposit',
+                    'amount'    => $amountInUSD,
+                    'Payedwith' => $validated['currency'], 
+                ]);
+
+                return redirect()->back()->with('adminAddFundSuccess', 'Funds successfully added to wallet.');
             });
 
-            return redirect()->back()->with('success', 'Funds added successfully and wallet updated.');
-
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
+            // Log the error if needed: Log::error($e->getMessage());
+            return redirect()->back()->with('adminAddFundFail', 'Transaction failed. Please try again.');
         }
     }
 
     /**
-     * Remove the fund record.
+     * Remove the specified fund from storage.
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         $fund = Fund::findOrFail($id);
         $fund->delete();
 
-        // Standardized session key to match your Blade alert
         return redirect()->back()->with('deleteFundSuccess', 'Transaction record has been removed.');
     }
 
     /**
-     * Helper for Admin to see specific user history
+     * Display the specified user's fund history.
      */
-    public function show($id)
+    public function show(int $id): View
     {
         $user = User::with(['funds', 'wallet'])->findOrFail($id);
         return view('admin.funds.show', compact('user'));
