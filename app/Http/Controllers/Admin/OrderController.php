@@ -58,8 +58,9 @@ class OrderController extends Controller
      */
     public function edit($id)
     {
-        dd("Hello world");
+       
       $order = order::findOrFail($id);
+       dd("Hello world");
       return view('admin.orders.edit', compact('order'));
     }
 
