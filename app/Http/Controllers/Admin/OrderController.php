@@ -58,6 +58,7 @@ class OrderController extends Controller
      */
     public function edit(order $orderID)
     {
+        dd("Hello");
       return view('admin.orders.edit', compact('orderID'));
     }
 
