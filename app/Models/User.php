@@ -75,4 +75,9 @@ public function referrer()
     return $this->belongsTo(User::class, 'linkOwner');
 }
 
+public function referrals()
+{
+    return $this->hasMany(User::class, 'linkOwner');
+}
+
 }

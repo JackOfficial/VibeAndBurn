@@ -78,25 +78,6 @@ public function payInTether(){
 public function sharelink($id){
     
    }
-   
-  public function fund(Request $request)
-{
-    // 2. Fetch funds with their related users (Eloquent Way)
-    // 'with' pulls in the user data automatically
-    $funds = fund::with('user')
-        ->latest() // Shortcut for orderBy('id', 'DESC')
-        ->paginate(25);
-
-    // 3. Simple aggregates (No joins needed here)
-    $fundsCounter = fund::count();
-    $fundsTotal = fund::sum('amount');
-
-    return view('admin.funds.index', compact(
-        'funds', 
-        'fundsCounter', 
-        'fundsTotal'
-    ));
-}
 
 public function services(){
     

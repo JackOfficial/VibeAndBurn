@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\UpdatesController;
 use App\Http\Controllers\Admin\AdvertsController;
 use App\Events\PaymentProcessed;
 use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Admin\FundController;
 use App\Http\Controllers\AfriPay\ProcessPaymentController;
 use App\Http\Controllers\BinanceController;
 use App\Http\Controllers\WholesalersController;
@@ -118,7 +119,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::resource('wholesalers', WholesalersController::class);
     Route::get('/tickets', [TicketController::class, 'adminTickets'])->name('tickets');
     Route::get('/ticket/{id}', [TicketController::class, 'adminTicket'])->name('ticket.show');
-    Route::get('/fund', [pagesController::class, 'fund'])->name('fund');
+    Route::get('/fund', [FundController::class, 'index'])->name('fund');
     Route::get('/rate', [RateController::class, 'index']);
     Route::get('/referrals/{id}', [sharedlinkController::class, 'referral'])->name('referrals');
     Route::get('/offer/bonus/{id}', [sharedlinkController::class, 'bonus'])->name('bonus');
