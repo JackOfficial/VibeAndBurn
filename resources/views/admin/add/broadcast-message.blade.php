@@ -7,23 +7,29 @@
     <title>Broadcast Message</title>
 </head>
 <body>
-  <div><img src="{{ asset('front/images/logo.png') }}" style="width: 100px; height:auto; text-align:center;"></div>  
-  <div>
-      <p>
-          Hi {{ $name }},
-          {!! $messages !!}
-      </p>
-      <p>
-          This email was sent to {{$email}}. If it is not yours, kindly desregard it.
-      </p>
-      </div>
-      <div>
-          <b>Vibe&Burn Team,</b>
-          Best regard
-      </div>
-      <footer>
-          <p class="text-white text-center mb-0">{{date('Y')}} © VibeAndBurn</p>
-      </footer>
-  
+    <div>
+        <img src="{{ url('front/images/logo.png') }}" style="width: 100px; height:auto; display:block; margin: 0 auto;" alt="VibeAndBurn Logo">
+    </div>  
+    
+    <div>
+        <p>Hi {{ $name }},</p>
+        
+        <div>
+            {!! $body !!}
+        </div>
+        
+        <p style="font-size: 12px; color: #666;">
+            This email was sent to {{ $email }}. If this was sent to you by mistake, kindly disregard it.
+        </p>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <b>Vibe&Burn Team</b><br>
+        Best regards
+    </div>
+    
+    <footer style="margin-top: 30px;">
+        <p class="text-white text-center mb-0">{{ date('Y') }} © VibeAndBurn</p>
+    </footer>
 </body>
 </html>

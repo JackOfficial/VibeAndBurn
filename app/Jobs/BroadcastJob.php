@@ -18,6 +18,7 @@ class BroadcastJob implements ShouldQueue
 
     public $subject;
     public $message;
+
     /**
      * Create a new job instance.
      *
@@ -36,14 +37,18 @@ class BroadcastJob implements ShouldQueue
      */
     public function handle()
     {
-        
-        // $name = "Jack";
-        // $myemail = "musengimanajacques@gmail.com";
-        // Mail::to($myemail)->send(new broadcastMail($name, $myemail, $this->subject, $this->message)); 
-        $users = User::all();
-        foreach($users as $user)
-        {  
-          Mail::bcc($user->email)->send(new broadcastMail($user->name, $user->email, $this->subject, $this->message)); 
-        }
+        // Chunking by 200 items protects server RAM on vibeandburn.com
+        User::query()->chunkById(200, function ($users) {
+            foreach ($users as $user) {  
+                Mail::to($user->email)->send(
+                    new broadcastMail(
+                        $user->name, 
+                        $user->email, 
+                        $this->subject, 
+                        $this->message
+                    )
+                ); 
+            }
+        });
     }
 }
