@@ -16,7 +16,7 @@
             <div class="card">
               <div class="card-header d-flex justify-content-between">
               <div> {{ count($myupdates) }} {{ (count($myupdates)<1) ? 'Update' : 'Updates' }}</div>
-               <div><a href="{{ route('update.create') }}"><i class="fa fa-plus"></i> Add Update</a></div>
+               <div><a href="{{ route('admin.updates.create') }}"><i class="fa fa-plus"></i> Add Update</a></div>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
@@ -46,12 +46,12 @@
                 </td>
                     <td>{{ $myupdate->created_at }}</td>
                     <td>
-                        <form method="POST" action="{{ route('update.destroy', $myupdate->id) }}">
+                        <form method="POST" action="{{ route('admin.updates.destroy', $myupdate->id) }}">
                             @csrf
                             @method('DELETE')
                             <button onclick="return confirm('Are you sure you want to delete?')" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Delete</button>
                         </form>
-                        <a href="{{ route('update.edit', $myupdate->id) }}" class="btn btn-success btn-sm"><i class="fa fa-edit"></i> Edit</a>
+                        <a href="{{ route('admin.updates.edit', $myupdate->id) }}" class="btn btn-success btn-sm"><i class="fa fa-edit"></i> Edit</a>
                     </td>
                   </tr>  
                   @empty
