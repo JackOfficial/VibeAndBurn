@@ -485,7 +485,7 @@
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('admin.update.index') }}" class="nav-link {{ Route::is('admin.update.index') ? 'active' : '' }}">
+            <a href="{{ route('admin.updates.index') }}" class="nav-link {{ Route::is('admin.updates.index') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-th"></i>
                 <p>Updates</p>
             </a>

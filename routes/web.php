@@ -129,7 +129,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::resource('messages', ContactController::class);
     Route::get('/bfcurrency', [BFCurrencyController::class, 'index'])->name('bfcurrency');
     Route::resource('sharedlink', sharedlinkController::class);
-    Route::resource('update', UpdatesController::class);
+    Route::resource('updates', UpdatesController::class);
     Route::resource('terms', TermsController::class);
     Route::resource('socialmedia', socialmediaController::class);
     Route::resource('category', CategoryController::class);
