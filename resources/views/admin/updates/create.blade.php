@@ -42,7 +42,7 @@
               </div>
               <!-- /.card-header -->
               <!-- form start -->
-              <form method="POST" action="{{ route('update.store') }}">
+              <form method="POST" action="{{ route('admin.updates.store') }}">
                 @csrf
                 <div class="card-body">
 
