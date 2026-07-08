@@ -10,7 +10,7 @@
                 <div class="text-center mb-5">
                     <h1 class="display-4 fw-bold text-dark">Terms and Conditions</h1>
                     <p class="lead text-muted">Please review our rules and guidelines for using the Vibe & Burn platform.</p>
-                    <div class="d-inline-block bg-white px-3 py-1 rounded-pill shadow-sm border">
+                    <div class="d-inline-block bg-white px-3 py-1 rounded-pill shadow-sm border d-none">
                         <small class="text-primary fw-bold">Effective Date: {{ date('F d, Y') }}</small>
                     </div>
                 </div>
