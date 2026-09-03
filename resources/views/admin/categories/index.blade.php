@@ -37,14 +37,14 @@
                     </div>
 
                     {{-- Alerts (Alpine-powered) --}}
-                    @if (Session::has('deleteCategorySuccess') || Session::has('updateCategorySuccess') || Session::has('addCategorySuccess'))
+                    @if (Session::has('deleteCategorySuccess') || Session::has('updateCategorySuccess') || Session::has('addCategorySuccess') || Session::has('statusCategorySuccess'))
                         <div x-data="{ show: true }" 
                              x-show="show" 
                              x-init="setTimeout(() => show = false, 5000)"
                              x-transition.duration.500ms
                              class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
                             <i class="fas fa-check-circle mr-2"></i>
-                            {{ Session::get('deleteCategorySuccess') ?? Session::get('updateCategorySuccess') ?? Session::get('addCategorySuccess') }}
+                            {{ Session::get('deleteCategorySuccess') ?? Session::get('updateCategorySuccess') ?? Session::get('addCategorySuccess') ?? Session::get('statusCategorySuccess') }}
                             <button type="button" class="close" @click="show = false">&times;</button>
                         </div>
                     @endif
@@ -62,6 +62,7 @@
                                         <th>#</th>
                                         <th>Platform</th>
                                         <th>Category Name</th>
+                                        <th class="text-center">Status</th>
                                         <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
@@ -69,8 +70,8 @@
                                     @foreach ($categories as $category)
                                     {{-- 3. Added x-show logic to filter rows based on Platform or Category Name --}}
                                     <tr x-show="search === '' || 
-                                               '{{ strtolower($category->socialmedia->socialmedia ?? '') }}'.includes(search.toLowerCase()) || 
-                                               '{{ strtolower($category->category) }}'.includes(search.toLowerCase())"
+                                                '{{ strtolower($category->socialmedia->socialmedia ?? '') }}'.includes(search.toLowerCase()) || 
+                                                '{{ strtolower($category->category) }}'.includes(search.toLowerCase())"
                                         x-transition:enter.duration.300ms>
                                         
                                         <td class="align-middle text-muted small">{{ $loop->iteration }}</td>
@@ -78,8 +79,33 @@
                                             {{ $category->socialmedia->socialmedia ?? 'N/A' }}
                                         </td>
                                         <td class="align-middle text-primary">{{ $category->category }}</td>
+                                        
+                                        {{-- Category Status Badge --}}
+                                        <td class="text-center align-middle">
+                                            @if($category->status)
+                                                <span class="badge badge-success px-2 py-1">Enabled</span>
+                                            @else
+                                                <span class="badge badge-secondary px-2 py-1">Disabled</span>
+                                            @endif
+                                        </td>
+
                                         <td class="text-center align-middle">
                                             <div class="btn-group">
+                                                {{-- Toggle Enable/Disable Button --}}
+                                                <form action="{{ route('admin.category.toggle-status', $category->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    @if($category->status)
+                                                        <button type="submit" class="btn btn-sm btn-outline-warning mr-2" title="Disable Category">
+                                                            <i class="fa fa-ban"></i> Disable
+                                                        </button>
+                                                    @else
+                                                        <button type="submit" class="btn btn-sm btn-outline-info mr-2" title="Enable Category">
+                                                            <i class="fa fa-check-circle"></i> Enable
+                                                        </button>
+                                                    @endif
+                                                </form>
+
                                                 <a class="btn btn-sm btn-outline-success mr-2" 
                                                    href="{{ route('admin.category.edit', $category->id) }}">
                                                     <i class="fa fa-edit"></i> Edit
@@ -98,7 +124,7 @@
                                     {{-- 4. No Results Message --}}
                                     <template x-if="search !== '' && $el.closest('tbody').querySelectorAll('tr[style*=\'display: none\']').length === {{ count($categories) }}">
                                         <tr>
-                                            <td colspan="4" class="text-center py-4 text-muted">
+                                            <td colspan="5" class="text-center py-4 text-muted">
                                                 No categories found matching "<span x-text="search"></span>"
                                             </td>
                                         </tr>
@@ -112,8 +138,8 @@
         </div>
     </section>
 
-    {{-- Delete Modal (remains same) --}}
-    <div x-show="showDeleteModal" ...> </div>
+    {{-- Delete Modal --}}
+    <div x-show="showDeleteModal" style="display: none;"></div>
 </div>
 
 @endsection
@@ -121,12 +147,10 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        // NOTE: If you use Alpine Live Search, you should disable 
-        // the default DataTables search box to avoid confusion.
         $("#example1").DataTable({
             "responsive": true,
             "autoWidth": false,
-            "searching": false, // Set to false if using Alpine search
+            "searching": false,
         });
     });
 </script>
