@@ -215,7 +215,7 @@ class NewOrderComponent extends Component
         $money = $user->wallet ? $user->wallet->money : 0;
 
         return view('livewire.orders.new-order-component', [
-            'categories' => category::orderBy('category', 'ASC')->get(),
+            'categories' => category::where('status', 1)->orderBy('category', 'ASC')->get(),
             'accountSpending' => $accountSpending,
             'money' => $money,
             'advert' => Advert::where('status', 1)->first()
