@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class category extends Model
 {
     use HasFactory;
-    protected $fillable = ['socialmedia_id', 'category'];
+    protected $fillable = ['socialmedia_id', 'category', 'status'];
 
     public function socialmedia(): BelongsTo
     {
