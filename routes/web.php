@@ -133,6 +133,7 @@ Route::middleware(['auth', 'role:Admin|Super Admin'])->prefix('admin')->name('ad
     Route::resource('terms', TermsController::class);
     Route::resource('socialmedia', socialmediaController::class);
     Route::resource('category', CategoryController::class);
+    Route::patch('/category/{id}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('category.toggle-status');
     Route::resource('service', serviceController::class);
     Route::resource('orders', ClientOrders::class);
     Route::resource('users', usersController::class);

@@ -45,6 +45,7 @@ class CategoryController extends Controller
         $category = Category::create([
             'socialmedia_id' => $validated['socialmedia'],
             'category'       => $validated['category'],
+            'status'         => 1, // Defaults to active/enabled on creation
         ]);
 
         if ($category) {
@@ -101,5 +102,23 @@ class CategoryController extends Controller
         }
 
         return redirect()->back()->with('deleteCategoryFail', 'Category could not be deleted');
+    }
+
+    /**
+     * Toggle the enabled/disabled status of the category.
+     */
+    public function toggleStatus($id)
+    {
+        $category = Category::findOrFail($id);
+
+        // Toggle the boolean value (1/0 or true/false)
+        $category->status = !$category->status;
+
+        if ($category->save()) {
+            $statusText = $category->status ? 'enabled' : 'disabled';
+            return redirect()->back()->with('statusCategorySuccess', "Category has been {$statusText} successfully.");
+        }
+
+        return redirect()->back()->with('statusCategoryFail', 'Could not update category status.');
     }
 }
