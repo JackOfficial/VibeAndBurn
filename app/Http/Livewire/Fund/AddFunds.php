@@ -3,10 +3,12 @@
 namespace App\Http\Livewire\Fund;
 
 use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\{Auth, DB, LOG};
 use App\Models\User;
 use App\Models\BFCurency;
 use App\Models\Currencies;
+use App\Services\InTouchPaymentService;
+use Illuminate\Support\Str;
 
 class AddFunds extends Component
 {
@@ -322,6 +324,50 @@ class AddFunds extends Component
         //     $this->toggleSubmit = 1; 
         // }
       }}
+
+      
+    public function placeOrder(InTouchPaymentService $inTouch)
+    {
+
+        $rules = [
+            'payment_method' => 'required|in:momo,cod',
+        ];
+
+        $this->validate($rules);
+
+        DB::beginTransaction();
+        try {
+            $paymentPhone = '';
+
+            $localTransactionId = 'AST-' . strtoupper(Str::random(10));
+            
+            $order = $this->createOrder($final_address_id, $totalOrderAmount, $shippingFee, $orderStatus, $localTransactionId, $city);
+        
+            $response = $inTouch->requestPayment($paymentPhone, $payableNow, $localTransactionId);
+            
+            if ($response && isset($response['success']) && $response['success'] == true) {
+                $order->update(['transaction_id' => $response['transactionid'] ?? null]);
+
+                DB::commit();
+
+                $message = ($this->payment_method === 'cod') 
+                    ? "Please pay the delivery fee of " . number_format($payableNow) . " RWF on your phone to confirm delivery."
+                    : "Payment request sent. Please check your phone.";
+
+                session()->flash('message', $message);
+                return redirect()->route('order.success', ['order' => $order->id]);
+            } else {
+                throw new \Exception($response['message'] ?? "Gateway Connection Failed");
+            }
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            dd($e->getMessage(), $e->getFile(), $e->getLine());
+            Log::error('Checkout API Error: ' . $e->getMessage());
+            $this->dispatch('notify', message: 'Payment Error: ' . $e->getMessage());
+        }
+    }
+
     public function render()
     {
         return view('livewire.fund.add-funds');
