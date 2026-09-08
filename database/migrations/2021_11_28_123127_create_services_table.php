@@ -26,7 +26,6 @@ class CreateServicesTable extends Migration
             $table->string('speed');
             $table->string('refill');
             $table->string('description');
-            $table->integer('description')->default(1);
             $table->timestamps();
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
         });
