@@ -78,13 +78,13 @@ class UpdatePrice extends Command
                 }
             } else {
                 // Auto-disable if missing from provider API
-                if ($service->status == 1) {
-                    $service->update(['status' => 0]); 
-                    // Added $this-> here:
-                    $pName = $this->providerNames[$service->source_id] ?? 'Unknown Provider'; 
-                    $this->warn("Service #{$service->serviceId} disabled: Not found on $pName");
-                    Log::warning("SMM Sync: Service #{$service->serviceId} was disabled because it is missing from the $pName API.");
-                }
+                // if ($service->status == 1) {
+                //     $service->update(['status' => 0]); 
+                //     // Added $this-> here:
+                //     $pName = $this->providerNames[$service->source_id] ?? 'Unknown Provider'; 
+                //     $this->warn("Service #{$service->serviceId} disabled: Not found on $pName");
+                //     Log::warning("SMM Sync: Service #{$service->serviceId} was disabled because it is missing from the $pName API.");
+                // }
             }
         }
 
