@@ -100,7 +100,7 @@
                     @forelse ($services as $service)
                     <tr class="align-middle" wire:key="service-row-{{ $service->id }}">
                         <td class="pl-4 text-muted small">
-                            #{{ $service->serviceId ?? $service->id }}
+                            #{{ $loop->iteration }}
                         </td>
                         <td>
                             <div class="d-flex align-items-center mb-1">
@@ -117,7 +117,9 @@
                             </div>
                             <div class="text-xs text-muted">
                                 <span class="badge badge-light border text-uppercase">{{ $service->category->category ?? 'General' }}</span>
-                                <span class="ml-2"><i class="fas fa-plug mr-1"></i>{{ $service->source->api_source ?? 'Manual' }} ({{$service->serviceId}})</span>
+                                <span class="ml-2"><i class="fas fa-plug mr-1"></i>{{ $service->source->api_source ?? 'Manual' }} @if ($service->serviceId)
+                                        ({{$service->serviceId}})
+                                @endif</span>
                             </div>
                         </td>
                         <td class="small">
