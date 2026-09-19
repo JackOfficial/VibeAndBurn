@@ -135,66 +135,65 @@ class NewOrderComponent extends Component
         $this->calculateCharge();
     }
 
-  public function store()
+public function store()
 {
     // 1. Validation
     $this->validate([
         'category' => 'required',
-        'service' => 'required|exists:services,id',
-        'link' => 'required|url',
+        'service'  => 'required|exists:services,id',
+        'link'     => 'required|url',
         'quantity' => "required|integer|min:{$this->min_order}|max:{$this->max_order}",
     ]);
 
-    $service = service::findOrFail($this->service);
+    $service = Service::findOrFail($this->service);
 
     try {
-        // Use the transaction return value
-        return DB::transaction(function () use ($service) {
-            
-            // 2. Security: Recalculate charge based on DB rate, not frontend variable
+        // Step A: Save local order & charge customer wallet safely inside the transaction
+        $order = DB::transaction(function () use ($service) {
             $finalCharge = ($service->rate_per_1000 * $this->quantity) / 1000;
 
-            // 3. Double check balance (Locking is handled by the Observer re-fetching)
             if (Auth::user()->wallet->money < $finalCharge) {
                 throw new \Exception('Insufficient funds.');
             }
 
-            // 4. Create Order (Observer handles wallet deduction automatically)
-            $order = order::create([
+            // Status '0' represents Pending/Manual processing
+            return Order::create([
                 'user_id'    => Auth::id(),
                 'service_id' => $this->service,
                 'source_id'  => $service->source_id,
                 'link'       => $this->link,
                 'quantity'   => $this->quantity,
-                'comment'    => $this->comment, // Added this back for custom comments
+                'comment'    => $this->comment,
                 'charge'     => $finalCharge,
-                'status'     => 0,
+                'status'     => 0, 
             ]);
-
-            // 5. API Logic
-            if ($service->serviceId) {
-                $apiController = new OrderController();
-                
-                /**
-                 * We pass 'this' because the Controller's sendApiOrder 
-                 * can read properties from it if we treat it as an object.
-                 */
-                $apiResponse = $apiController->sendApiOrder($service, $this);
-
-                if ($apiResponse && isset($apiResponse->order)) {
-                    $order->update(['orderId' => $apiResponse->order]);
-                } else {
-                    $errorReason = $apiResponse->error ?? $apiResponse->message ?? "Provider API Error";
-                    throw new \Exception($errorReason);
-                }
-            }
-
-            session()->flash('addOrderSuccess', 'Order placed successfully!');
-            // dd("Done!");
-            return redirect()->to('/order');
         });
+
+        // Step B: Call Provider API outside the transaction
+        if ($service->serviceId) {
+            $apiController = new OrderController();
+            $apiResponse   = $apiController->sendApiOrder($service, $this);
+
+            if ($apiResponse && isset($apiResponse->order)) {
+                // Provider success: attach API order ID and mark active/processing
+                $order->update([
+                    'orderId' => $apiResponse->order,
+                    // 'status' => 1, // Optional: set to active status if applicable
+                ]);
+            } else {
+                // Provider failed (e.g. out of funds): Order remains in DB at status = 0
+                // Log failure internally if needed: \Log::error("Provider API Error: " . json_encode($apiResponse));
+                
+                session()->flash('addOrderSuccess', 'Order placed! It is pending manual processing.');
+                return redirect()->to('/order');
+            }
+        }
+
+        session()->flash('addOrderSuccess', 'Order placed successfully!');
+        return redirect()->to('/order');
+
     } catch (\Exception $e) {
-        // This keeps the user on the page and shows the error via Toastr
+        // Triggered only for user validation errors (e.g., Insufficient user wallet balance)
         $this->dispatchBrowserEvent('toastr:error', ['message' => $e->getMessage()]);
     }
 }
