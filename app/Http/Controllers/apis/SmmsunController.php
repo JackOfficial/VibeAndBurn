@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 class SmmsunController extends Controller
 {
     /** API Configuration */
-    public $api_url = 'https://smmsun.com/api/v2';
+    public $api_url = 'https://my.smmsun.com/api/v2';
     public $api_key;
 
     public function __construct() 
@@ -19,7 +19,7 @@ class SmmsunController extends Controller
     /** Add order */
     public function order($data)
     {
-        dd($data);
+        // dd($data);
         return $this->request(['action' => 'add'] + $data);
     }
 
