@@ -19,6 +19,7 @@ class SmmsunController extends Controller
     /** Add order */
     public function order($data)
     {
+        dd($data);
         return $this->request(['action' => 'add'] + $data);
     }
 
