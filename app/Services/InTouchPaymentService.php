@@ -22,7 +22,7 @@ class InTouchPaymentService
         $this->accountNo = config('services.intouch.account_no');
         $this->partnerPassword = config('services.intouch.partner_password');
         // Centralize whitelisted IP context
-        $this->outgoingIp = '198.54.114.176'; 
+        $this->outgoingIp = '162.0.235.45'; 
     }
 
     /**

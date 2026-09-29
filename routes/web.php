@@ -156,3 +156,7 @@ echo "Event has been broadcast";
 Route::get('/listener', function(){
     return view('listener');
     });
+
+Route::get('/intouch-sample-checkout', function () {
+    return view('intouch-sample');
+})->name('intouch.sample.checkout');    
