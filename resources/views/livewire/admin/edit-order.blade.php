@@ -2,19 +2,19 @@
     <div class="row">
         <div class="col-lg-8 col-md-12">
             {{-- Flash Messages & Validation Errors Alert --}}
-            @if (Session::has('editOrderSuccess') || Session::has('editOrderFail') || $errors->any())
-                <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 8000)" x-show="show" x-transition.opacity>
-                    @if (Session::has('editOrderSuccess'))
+            @if (session('editOrderSuccess') || session('editOrderFail') || $errors->any())
+                <div x-data="{ show: true }" x-effect="show = true" x-init="setTimeout(() => show = false, 8000)" x-show="show" x-transition.opacity>
+                    @if (session('editOrderSuccess'))
                         <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4">
                             <i class="fas fa-check-circle mr-2"></i>
-                            <div>{{ Session::get('editOrderSuccess') }}</div>
+                            <div>{{ session('editOrderSuccess') }}</div>
                         </div>
                     @endif
 
-                    @if (Session::has('editOrderFail'))
+                    @if (session('editOrderFail'))
                         <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4">
                             <i class="fas fa-exclamation-triangle mr-2"></i>
-                            <div>{{ Session::get('editOrderFail') }}</div>
+                            <div>{{ session('editOrderFail') }}</div>
                         </div>
                     @endif
 
@@ -37,7 +37,8 @@
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="card-title font-weight-bold mb-0">
                         <i class="fas fa-shopping-cart text-primary mr-2"></i>
-                        Order #{{ $orderID }} </h5>
+                        Order #{{ $orderID }}
+                    </h5>
                     <span class="badge badge-soft-info p-2 px-3">{{ strtoupper($status) }}</span>
                 </div>
 
@@ -48,14 +49,14 @@
                                 <div class="col-md-4 mb-3">
                                     <label class="small font-weight-bold text-muted uppercase d-block">Category</label>
                                     <span class="text-dark font-weight-600">
-                                        {{ $categories->where('id', $category)->first()->category ?? 'N/A' }}
+                                        {{ optional($categories->firstWhere('id', $category))->category ?? 'N/A' }}
                                     </span>
                                 </div>
 
                                 <div class="col-md-8 mb-3">
                                     <label class="small font-weight-bold text-muted uppercase d-block">Service Name</label>
                                     <span class="text-primary font-weight-bold">
-                                        {{ $services->where('id', $service)->first()->service ?? 'Unknown Service' }}
+                                        {{ optional($services->firstWhere('id', $service))->service ?? 'Unknown Service' }}
                                     </span>
                                 </div>
 
@@ -69,7 +70,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6 mb-3" x-data="{ copyLink() { navigator.clipboard.writeText('{{ $link }}'); } }">
+                                <div class="col-md-6 mb-3" x-data="{ copyLink() { navigator.clipboard.writeText(@js($link)); } }">
                                     <label class="small font-weight-bold text-muted uppercase d-block">Target Link</label>
                                     <div class="input-group input-group-sm mt-1">
                                         <input type="text" class="form-control bg-white shadow-none" value="{{ $link }}" readonly>
@@ -77,7 +78,7 @@
                                             <button type="button" @click="copyLink(); $el.innerHTML = '<i class=\'fas fa-check\'></i>'; setTimeout(() => $el.innerHTML = '<i class=\'fas fa-copy\'></i>', 2000)" class="btn btn-outline-primary" title="Copy Link">
                                                 <i class="fas fa-copy"></i>
                                             </button>
-                                            <a href="{{ $link }}" target="_blank" class="btn btn-primary shadow-none">
+                                            <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary shadow-none">
                                                 <i class="fas fa-external-link-alt"></i>
                                             </a>
                                         </div>
@@ -90,14 +91,14 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="font-weight-bold">Start Count</label>
-                                    <input type="number" wire:model="startCount" class="form-control shadow-none @error('startCount') is-invalid @enderror"> 
+                                    <input type="number" wire:model="startCount" class="form-control shadow-none @error('startCount') is-invalid @enderror">
                                     @error('startCount') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="font-weight-bold">Remains</label>
-                                    <input type="number" wire:model="remains" class="form-control shadow-none @error('remains') is-invalid @enderror"> 
+                                    <input type="number" wire:model="remains" class="form-control shadow-none @error('remains') is-invalid @enderror">
                                     @error('remains') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
                             </div>
@@ -117,7 +118,7 @@
                                         <div class="input-group-prepend"><span class="input-group-text bg-white border-right-0">$</span></div>
                                         <input type="number" step="any" wire:model="charge" class="form-control shadow-none border-left-0 @error('charge') is-invalid @enderror">
                                     </div>
-                                    @error('charge') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
+                                    @error('charge') <span class="invalid-feedback d-block"><strong>{{ $message }}</strong></span> @enderror
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -129,7 +130,7 @@
                                         <option value="2">Canceled</option>
                                         <option value="3">Processing</option>
                                         <option value="4">In Progress</option>
-                                        <option value="5" selected>Partial</option>
+                                        <option value="5">Partial</option>
                                     </select>
                                 </div>
                             </div>
@@ -164,7 +165,7 @@
                             @if($avatar)
                                 <img src="{{ $avatar }}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
                             @else
-                                <span class="h5 text-primary font-weight-bold mb-0">{{ strtoupper(substr($username, 0, 1)) }}</span>
+                                <span class="h5 text-primary font-weight-bold mb-0">{{ strtoupper(substr($username ?? 'U', 0, 1)) }}</span>
                             @endif
                         </div>
                         <div>

@@ -6,8 +6,8 @@ use Livewire\Component;
 use App\Models\order; 
 use App\Models\service; 
 use App\Models\category; 
-use App\Models\wallet; // Added
-use App\Models\fund;   // Added
+use App\Models\wallet;
+use App\Models\fund;
 use Illuminate\Support\Facades\DB;
 
 class EditOrder extends Component
@@ -25,19 +25,17 @@ class EditOrder extends Component
        'remains'    => 'nullable|numeric|min:0',
        'charge'     => 'required|numeric|min:0',
        'orderId'    => 'nullable|string',
-       'status' => 'required|integer|in:0,1,2,3,4,5'
+       'status'     => 'required|integer|in:0,1,2,3,4,5'
     ];
 
     public function mount()
     {
         $orderData = order::with(['user', 'service.category.socialmedia'])->findOrFail($this->orderID);
         $this->loadOrderData($orderData);
-       
     }
 
     public function loadOrderData($orderData)
     {
-
         $this->category = $orderData->service->category_id ?? null;
         $this->service  = $orderData->service_id;
         $this->quantity = $orderData->quantity;
@@ -55,41 +53,42 @@ class EditOrder extends Component
         $this->avatar      = $orderData->user->avatar ?? '';
         $this->description = $orderData->service->description ?? '';
 
-        $statuses = [
-            0 => "Pending", 1 => "Completed", 2 => "Canceled", 3 => "Processing", 
-            4 => "In progress", 5 => "Partial", 7 => "Updated"
-        ];
-        $this->status = $statuses[$orderData->status] ?? "Unknown";
+        // Store the raw integer status directly so it matches <select> values and passes validation
+        $this->status = (int) $orderData->status;
     }
 
-public function updateOrder()
-{
-    $this->validate();
-    try {
-        $orderModel = order::findOrFail($this->orderID);
-        $wallet = wallet::where('user_id', $orderModel->user_id)->first();
-        $extraCharge = (float)$this->charge - (float)$orderModel->getOriginal('charge');
+    public function updateOrder()
+    {
+        // Cast status to integer before validation in case Livewire bound it as a string
+        $this->status = (int) $this->status;
 
-        if ($extraCharge > 0 && $wallet->money < $extraCharge) {
-        session()->flash('editOrderFail', "User only has $" . $wallet->money . ". They cannot afford the extra $" . $extraCharge);
-        return;
+        $this->validate();
+        
+        try {
+            $orderModel = order::findOrFail($this->orderID);
+            $wallet = wallet::where('user_id', $orderModel->user_id)->first();
+            $extraCharge = (float)$this->charge - (float)$orderModel->getOriginal('charge');
+
+            if ($extraCharge > 0 && $wallet->money < $extraCharge) {
+                session()->flash('editOrderFail', "User only has $" . $wallet->money . ". They cannot afford the extra $" . $extraCharge);
+                return;
+            }
+
+            $orderModel->start_count = $this->startCount;
+            $orderModel->remains     = $this->remains;
+            $orderModel->orderId     = $this->orderId;
+            $orderModel->charge      = $this->charge;
+            $orderModel->status      = $this->status;
+
+            // Use saveQuietly to bypass the Observer entirely for Admin edits
+            $orderModel->saveQuietly(); 
+
+            session()->flash('editOrderSuccess', "Order updated successfully (Observer bypassed).");
+            return redirect()->route('admin.orders.index');
+        } catch (\Exception $e) {
+            session()->flash('editOrderFail', "Error: " . $e->getMessage());
         }
-
-        $orderModel->start_count = $this->startCount;
-        $orderModel->remains     = $this->remains;
-        $orderModel->orderId     = $this->orderId;
-        $orderModel->charge      = $this->charge;
-        $orderModel->status      = $this->status;
-
-        // Use saveQuietly to bypass the Observer entirely for Admin edits
-        $orderModel->saveQuietly(); 
-
-        session()->flash('editOrderSuccess', "Order updated successfully (Observer bypassed).");
-        return redirect()->route('admin.orders.index');
-    } catch (\Exception $e) {
-        session()->flash('editOrderFail', "Error: " . $e->getMessage());
     }
-}
 
     public function manualRefund()
     {
@@ -104,11 +103,11 @@ public function updateOrder()
 
                 $refundAmount = (float) str_replace('$', '', $this->charge);
                 
-                // 1. Update Wallet (Not User->balance)
+                // 1. Update Wallet
                 $wallet = wallet::where('user_id', $orderModel->user_id)->firstOrFail();
                 $wallet->increment('money', $refundAmount);
 
-                // 2. Create Fund record for the "Total Profit" math we built earlier
+                // 2. Create Fund record
                 fund::create([
                     'user_id'   => $orderModel->user_id,
                     'method'    => 'Refund',
@@ -116,7 +115,7 @@ public function updateOrder()
                     'Payedwith' => 'Manual Refund Order #' . $orderModel->id,
                 ]);
 
-                // 3. Update Order Status
+                // 3. Update Order Status to Canceled (2)
                 $orderModel->status = 2; 
                 $orderModel->save();
 
