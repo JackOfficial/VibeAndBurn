@@ -1,19 +1,37 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-8 col-md-12">
-            <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 5000)" x-show="show" x-transition.opacity>
-                @if (Session::has('editOrderSuccess'))
-                    <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4">
-                        <i class="fas fa-check-circle mr-2"></i>
-                        {{ Session::get('editOrderSuccess') }}
-                    </div>
-                @elseif(Session::has('editOrderFail'))
-                    <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        {{ Session::get('editOrderFail') }}
-                    </div>
-                @endif
-            </div>
+            {{-- Flash Messages & Validation Errors Alert --}}
+            @if (Session::has('editOrderSuccess') || Session::has('editOrderFail') || $errors->any())
+                <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 8000)" x-show="show" x-transition.opacity>
+                    @if (Session::has('editOrderSuccess'))
+                        <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <div>{{ Session::get('editOrderSuccess') }}</div>
+                        </div>
+                    @endif
+
+                    @if (Session::has('editOrderFail'))
+                        <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <div>{{ Session::get('editOrderFail') }}</div>
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger border-0 shadow-sm mb-4">
+                            <div class="d-flex align-items-center mb-1 font-weight-bold">
+                                <i class="fas fa-exclamation-circle mr-2"></i> Please fix the following errors:
+                            </div>
+                            <ul class="mb-0 pl-4">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                </div>
+            @endif
 
             <div class="card card-outline card-primary shadow-sm border-0">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
@@ -25,48 +43,48 @@
 
                 <form wire:submit.prevent="updateOrder">
                     <div class="card-body">
-                      <div class="bg-light p-4 rounded mb-4 border-left-primary">
-    <div class="row">
-        <div class="col-md-4 mb-3">
-            <label class="small font-weight-bold text-muted uppercase d-block">Category</label>
-            <span class="text-dark font-weight-600">
-                {{ $categories->where('id', $category)->first()->category ?? 'N/A' }}
-            </span>
-        </div>
+                        <div class="bg-light p-4 rounded mb-4 border-left-primary">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="small font-weight-bold text-muted uppercase d-block">Category</label>
+                                    <span class="text-dark font-weight-600">
+                                        {{ $categories->where('id', $category)->first()->category ?? 'N/A' }}
+                                    </span>
+                                </div>
 
-        <div class="col-md-8 mb-3">
-            <label class="small font-weight-bold text-muted uppercase d-block">Service Name</label>
-            <span class="text-primary font-weight-bold">
-                {{ $services->where('id', $service)->first()->service ?? 'Unknown Service' }}
-            </span>
-        </div>
+                                <div class="col-md-8 mb-3">
+                                    <label class="small font-weight-bold text-muted uppercase d-block">Service Name</label>
+                                    <span class="text-primary font-weight-bold">
+                                        {{ $services->where('id', $service)->first()->service ?? 'Unknown Service' }}
+                                    </span>
+                                </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="small font-weight-bold text-muted uppercase d-block">API Provider ID</label>
-            <div class="input-group input-group-sm mt-1">
-                <input type="text" wire:model="orderId" class="form-control bg-white shadow-none" placeholder="External ID">
-                <div class="input-group-append">
-                    <span class="input-group-text badge-secondary border-0 text-white">ID: {{ $service }}</span>
-                </div>
-            </div>
-        </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="small font-weight-bold text-muted uppercase d-block">API Provider ID</label>
+                                    <div class="input-group input-group-sm mt-1">
+                                        <input type="text" wire:model="orderId" class="form-control bg-white shadow-none" placeholder="External ID">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text badge-secondary border-0 text-white">ID: {{ $service }}</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-        <div class="col-md-6 mb-3" x-data="{ copyLink() { navigator.clipboard.writeText('{{ $link }}'); } }">
-            <label class="small font-weight-bold text-muted uppercase d-block">Target Link</label>
-            <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control bg-white shadow-none" value="{{ $link }}" readonly>
-                <div class="input-group-append">
-                    <button type="button" @click="copyLink(); $el.innerHTML = '<i class=\'fas fa-check\'></i>'; setTimeout(() => $el.innerHTML = '<i class=\'fas fa-copy\'></i>', 2000)" class="btn btn-outline-primary" title="Copy Link">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                    <a href="{{ $link }}" target="_blank" class="btn btn-primary shadow-none">
-                        <i class="fas fa-external-link-alt"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                                <div class="col-md-6 mb-3" x-data="{ copyLink() { navigator.clipboard.writeText('{{ $link }}'); } }">
+                                    <label class="small font-weight-bold text-muted uppercase d-block">Target Link</label>
+                                    <div class="input-group input-group-sm mt-1">
+                                        <input type="text" class="form-control bg-white shadow-none" value="{{ $link }}" readonly>
+                                        <div class="input-group-append">
+                                            <button type="button" @click="copyLink(); $el.innerHTML = '<i class=\'fas fa-check\'></i>'; setTimeout(() => $el.innerHTML = '<i class=\'fas fa-copy\'></i>', 2000)" class="btn btn-outline-primary" title="Copy Link">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                            <a href="{{ $link }}" target="_blank" class="btn btn-primary shadow-none">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="row">
                             <div class="col-md-6">
