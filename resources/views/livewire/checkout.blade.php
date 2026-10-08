@@ -84,7 +84,7 @@
                 <span wire:loading.remove>Pay Now!</span>
             </button>
             <div class="text-center mt-2">
-                <small class="text-muted"><i class="fas fa-lock mr-1"></i> Secure payment processed via {{ $toggler }}</small>
+                <small class="text-muted"><i class="fas fa-lock mr-1"></i> Secure payment processed</small>
             </div>
         </div>
     </div>
