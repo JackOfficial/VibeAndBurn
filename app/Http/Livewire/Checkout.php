@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 class Checkout extends Component
 {
     public $payment_method = 'momo'; // Options: 'momo' or 'cod'
+    public $toggleSubmit = 0;
 
     public function mount()
     {
