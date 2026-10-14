@@ -53,9 +53,9 @@ class InTouchPaymentService
             $response = Http::asForm()
                 ->withOptions([
                     'curl' => [CURLOPT_INTERFACE => $this->outgoingIp],
+                    'connect_timeout' => 30,
                 ])
                 ->timeout(60)
-                ->connectTimeout(30)
                 ->post($url, $data);
 
             return $response->json() ?? ['success' => false, 'message' => 'Malformed or empty JSON response from gateway'];
@@ -97,9 +97,9 @@ class InTouchPaymentService
             $response = Http::asForm()
                 ->withOptions([
                     'curl' => [CURLOPT_INTERFACE => $this->outgoingIp],
+                    'connect_timeout' => 30,
                 ])
                 ->timeout(60)
-                ->connectTimeout(30)
                 ->post($url, $data);
 
             return $response->json() ?? ['success' => false, 'message' => 'Malformed response signature during deposit request'];
@@ -130,9 +130,9 @@ class InTouchPaymentService
             $response = Http::asForm()
                 ->withOptions([
                     'curl' => [CURLOPT_INTERFACE => $this->outgoingIp],
+                    'connect_timeout' => 20,
                 ])
                 ->timeout(45)
-                ->connectTimeout(20)
                 ->post($url, $data);
 
             return $response->json() ?? ['success' => false, 'message' => 'Invalid balance schema context'];
@@ -163,9 +163,9 @@ class InTouchPaymentService
             $response = Http::asForm()
                 ->withOptions([
                     'curl' => [CURLOPT_INTERFACE => $this->outgoingIp],
+                    'connect_timeout' => 20,
                 ])
                 ->timeout(45)
-                ->connectTimeout(20)
                 ->post($url, $data);
 
             return $response->json() ?? ['success' => false, 'message' => 'Invalid status schema context'];
