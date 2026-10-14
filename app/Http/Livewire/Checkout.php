@@ -45,7 +45,7 @@ class Checkout extends Component
             $user = Auth::user();
             $localTransactionId = 'VBN-' . strtoupper(Str::random(10));
             $converted_amount = $this->money;
-            $fullPhone = '250' . $this->phone; // Assuming Rwandan prefix (+250) based on your view
+            $fullPhone = '250' . $this->phone;
 
             Log::info('[InTouch Payment Requesting]', [
                 'phone' => $fullPhone,
@@ -86,7 +86,7 @@ class Checkout extends Component
                     'transaction_ref' => $transactionRef,
                     'user_id' => $user->id,
                     'amount' => $converted_amount,
-                    'currency' => 'RWF', // Or your default currency
+                    'currency' => 'RWF',
                     'payment_method' => $this->payment_method,
                     'status' => "Success",
                 ]);
@@ -118,10 +118,11 @@ class Checkout extends Component
                 Log::info("[Wallet Fund Successful & Transaction Committed] User ID: {$user->id}");
 
                 session()->flash('message', "Payment request sent to your phone. Please authorize to complete.");
-                return redirect()->route('wallet.success'); // Adjust to your success route
+                return redirect()->route('wallet.success');
 
             } else {
-                throw new \Exception($response['message'] ?? "Gateway Connection Failed");
+                $gatewayMessage = $response['message'] ?? $response['error'] ?? 'Gateway Connection Failed';
+                throw new \Exception($gatewayMessage);
             }
 
         } catch (\Exception $e) {
