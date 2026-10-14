@@ -2,83 +2,124 @@
 
 namespace App\Http\Livewire;
 
-use App\Mail\{OrderCallbackAdmin, OrderCallbackClient};
 use Livewire\Component;
-use Gloudemans\Shoppingcart\Facades\Cart;
-use App\Models\{Order, OrderItem, Address, Commission, Part, Shipping};
-use Illuminate\Support\Facades\{Auth, DB, Mail, Log, Cookie};
+use Illuminate\Support\Facades\{Auth, DB, Log};
 use App\Services\InTouchPaymentService;
+use App\Models\{Wallet, Fund, UserPayment, SharedLink, Bonus};
 use Illuminate\Support\Str;
 
 class Checkout extends Component
 {
-    public $payment_method = 'momo'; // Options: 'momo' or 'cod'
+    public $money;
+    public $phone;
+    public $payment_method = 'momo';
     public $toggleSubmit = 0;
 
     public function mount()
     {
-        
+        // Initialization if needed
     }
 
     public function updated($propertyName)
     {
-
-    }
-
-    private function createOrder($totalOrderAmount, $orderStatus, $localTransactionId)
-    {
-       // 1. Create the base Order record
-        $order = Order::create([
-            'user_id'                 => Auth::id(),
-            'total_amount'            => $totalOrderAmount,
-            'net_total_amount'        => 0, 
-            'status'                  => $orderStatus,
-            'order_number'            => $localTransactionId, 
-        ]);
-
-        return $order;
+        if ($propertyName === 'money' || $propertyName === 'phone') {
+            // Enable submit only if money is provided and phone looks valid
+            $this->toggleSubmit = (!empty($this->money) && $this->money >= 1 && !empty($this->phone)) ? 1 : 0;
+        }
     }
 
     public function placeOrder(InTouchPaymentService $inTouch)
     {
-        $rules = [
-            'payment_method' => 'required|in:momo,cod',
-        ];
-
-        $this->validate($rules);
+        $this->validate([
+            'money' => 'required|numeric|min:1',
+            'phone' => 'required|string|min:9|max:9',
+        ], [
+            'money.min' => 'The amount cannot be below $1 (or equivalent minimum).',
+            'phone.required' => 'Please enter your mobile money phone number.',
+            'phone.min' => 'The phone number must be 9 digits.',
+            'phone.max' => 'The phone number must be 9 digits.',
+        ]);
 
         DB::beginTransaction();
         try {
-            $paymentPhone = '';
-            $orderStatus = 'pending';
+            $user = Auth::user();
+            $localTransactionId = 'VBN-' . strtoupper(Str::random(10));
+            $converted_amount = $this->money;
+            $fullPhone = '250' . $this->phone; // Assuming Rwandan prefix (+250) based on your view
 
-            $localTransactionId = 'AST-' . strtoupper(Str::random(10));
-            
-            $order = $this->createOrder(500, $orderStatus, $localTransactionId);
-        
             Log::info('[InTouch Payment Requesting]', [
-                'phone' => $paymentPhone,
-                'amount' => 500,
+                'phone' => $fullPhone,
+                'amount' => $converted_amount,
                 'transaction_id' => $localTransactionId
             ]);
 
-            $response = $inTouch->requestPayment($paymentPhone, 500, $localTransactionId);
+            $response = $inTouch->requestPayment($fullPhone, $converted_amount, $localTransactionId);
             
             Log::info('[InTouch Payment Response Received]', ['response' => $response]);
 
             if ($response && isset($response['success']) && $response['success'] == true) {
-                $order->update(['transaction_id' => $response['transactionid'] ?? null]);
+                $transactionRef = $response['transactionid'] ?? $localTransactionId;
+
+                // Calculate final amount with your 5% bonus rule if applicable (> 100)
+                $finalCreditedAmount = ($converted_amount > 100) ? $converted_amount + ($converted_amount * 5) / 100 : $converted_amount;
+
+                // 1. Credit or Create Wallet
+                $wallet = Wallet::where('user_id', $user->id)->first();
+                if (!$wallet) {
+                    Wallet::create([
+                        'user_id' => $user->id,
+                        'money' => $finalCreditedAmount,
+                    ]);
+                } else {
+                    $wallet->increment('money', $finalCreditedAmount);
+                }
+
+                // 2. Record Fund & User Payment
+                Fund::create([
+                    'user_id' => $user->id,
+                    'method' => $this->payment_method,
+                    'amount' => $finalCreditedAmount,
+                    'Payedwith' => 'InTouch'
+                ]);
+
+                UserPayment::create([
+                    'transaction_ref' => $transactionRef,
+                    'user_id' => $user->id,
+                    'amount' => $converted_amount,
+                    'currency' => 'RWF', // Or your default currency
+                    'payment_method' => $this->payment_method,
+                    'status' => "Success",
+                ]);
+
+                // 3. Handle Referral Bonus if applicable
+                $linkOwner = $user->linkOwner ?? null;
+                if ($linkOwner && $user->id != $linkOwner) {
+                    $bonus = ($finalCreditedAmount * 5) / 100;
+
+                    SharedLink::create([
+                        'user_id' => $user->id,
+                        'amount' => $bonus,
+                        'descendant' => $linkOwner,
+                    ]);
+
+                    $existingBonus = Bonus::where('user_id', $linkOwner)->first();
+                    if (!$existingBonus) {
+                        Bonus::create([
+                            'user_id' => $linkOwner,
+                            'bonus' => $bonus,
+                            'status' => 3,
+                        ]);
+                    } else {
+                        $existingBonus->increment('bonus', $bonus);
+                    }
+                }
 
                 DB::commit();
-                Log::info("[Order Successful & Transaction Committed] Order ID: {$order->id}");
+                Log::info("[Wallet Fund Successful & Transaction Committed] User ID: {$user->id}");
 
+                session()->flash('message', "Payment request sent to your phone. Please authorize to complete.");
+                return redirect()->route('wallet.success'); // Adjust to your success route
 
-                $message = ($this->payment_method === 'cod') 
-                    ? "Please pay the delivery fee of " . number_format(500) . " RWF on your phone to confirm delivery."
-                    : "Payment request sent. Please check your phone.";
-
-                session()->flash('message', $message);
-                return redirect()->route('order.success', ['order' => $order->id]);
             } else {
                 throw new \Exception($response['message'] ?? "Gateway Connection Failed");
             }
@@ -90,8 +131,8 @@ class Checkout extends Component
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
-            dd($e->getMessage(), $e->getFile(), $e->getLine());
-            $this->dispatch('notify', message: 'Payment Error: ' . $e->getMessage());
+            
+            session()->flash('minimunAmount', 'Payment Error: ' . $e->getMessage());
         }
     }
 
