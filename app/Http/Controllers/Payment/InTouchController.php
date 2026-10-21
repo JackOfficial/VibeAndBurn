@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Order};
-use App\Mail\OrderPaidInvoice;
-use Illuminate\Support\Facades\{DB, Log, Mail};
+use App\Models\{wallet, fund, UserPayment, sharedlink, bonus};
+use Illuminate\Support\Facades\{DB, Log};
 
 class InTouchController extends Controller
 {
@@ -18,8 +17,6 @@ class InTouchController extends Controller
 
         /**
          * 2. Handle the "jsonpayload" Wrapper
-         * Based on Beeceptor testing, the real server wraps data in 'jsonpayload'.
-         * If it's missing, we fallback to the flat $rawData.
          */
         $data = isset($rawData['jsonpayload']) ? $rawData['jsonpayload'] : $rawData;
 
@@ -42,118 +39,109 @@ class InTouchController extends Controller
 
         /**
          * 4. Success Logic
-         * Using strtolower to catch 'Successfull' (two l's) or 'success'
          */
         if (in_array(strtolower($status), ['successfull', 'success'])) {
             
-            // Find order by order_number (localRequestId)
-            $order = Order::where('order_number', $localRequestId) 
-                          ->orWhere('transaction_id', $gatewayTransactionId)
-                          ->with(['orderItems.part', 'user'])
-                          ->first();
+            // Find fund or payment record by request transaction ID / reference
+            $userPayment = UserPayment::where('transaction_ref', $localRequestId)
+                            ->orWhere('transaction_ref', $gatewayTransactionId)
+                            ->first();
 
-            if (!$order) {
-                Log::error("InTouch Callback: Order not found for reference {$localRequestId}");
+            $userId = $userPayment ? $userPayment->user_id : null;
+
+            if (!$userId) {
+                Log::error("InTouch Callback: User payment not found for reference {$localRequestId}");
                 return response()->json([
-                    'message' => 'Order not found',
+                    'message' => 'Transaction reference not found',
                     'success' => false,
                     'request_id' => $localRequestId
                 ], 404);
             }
 
-            // 5. Audit Trail - Log everything for troubleshooting
-            // PaymentLog::create([
-            //     'user_id'        => $order->user_id, 
-            //     'tx_ref'         => $localRequestId,
-            //     'transaction_id' => $gatewayTransactionId,
-            //     'amount'         => $data['amount'] ?? $order->total_amount,
-            //     'currency'       => $data['currency'] ?? 'RWF',
-            //     'status'         => $status,
-            //     'error_message'  => null,
-            //     'raw_response'   => json_encode($rawData)
-            // ]);
-
-            // 6. Process Business Logic (Idempotency check included)
-            if (!in_array($order->status, ['completed', 'processing'])) {
+            // Prevent double-crediting if payment is already marked success
+            if ($userPayment->status !== 'Success') {
                 DB::beginTransaction();
                 try {
-                    $order = Order::where('id', $order->id)
-                                  ->lockForUpdate()
-                                  ->first();
+                    $converted_amount = $userPayment->amount;
 
-                    // A. Update Main Order
-                    $order->update([
-                        'total_amount' => $data['amount'] ?? $order->total_amount,
-                        'status' => 'processing',
+                    // Calculate final amount with 5% bonus if amount > 100
+                    $finalCreditedAmount = ($converted_amount > 100) 
+                        ? $converted_amount + ($converted_amount * 5) / 100 
+                        : $converted_amount;
+
+                    // 1. Credit or Create Wallet
+                    $walletRecord = wallet::where('user_id', $userId)->first();
+                    if (!$walletRecord) {
+                        wallet::create([
+                            'user_id' => $userId,
+                            'money' => $finalCreditedAmount,
+                        ]);
+                    } else {
+                        $walletRecord->increment('money', $finalCreditedAmount);
+                    }
+
+                    // 2. Record Fund & Update User Payment status
+                    fund::create([
+                        'user_id' => $userId,
+                        'method' => $userPayment->payment_method ?? 'momo',
+                        'amount' => $finalCreditedAmount,
+                        'Payedwith' => 'InTouch'
                     ]);
 
-                    // B. Finalize Payment Record
-                    // Payment::updateOrCreate(
-                    //     ['order_id' => $order->id],
-                    //     [
-                    //         'amount' => $order->total_amount,
-                    //         'method' => $order->method ?? 'momo',
-                    //         'gateway' => 'intouchpay',
-                    //         'transaction_reference' => $gatewayTransactionId,
-                    //         'status' => 'successful',
-                    //         'paid_at' => now()
-                    //     ]
-                    // );
+                    $userPayment->update([
+                        'transaction_ref' => $gatewayTransactionId,
+                        'status' => 'Success'
+                    ]);
+
+                    // 3. Handle Referral Bonus if applicable
+                    $user = \App\Models\User::find($userId);
+                    $linkOwner = $user->linkOwner ?? null;
+                    if ($linkOwner && $user->id != $linkOwner) {
+                        $referralBonus = ($finalCreditedAmount * 5) / 100;
+
+                        sharedlink::create([
+                            'user_id' => $userId,
+                            'amount' => $referralBonus,
+                            'descendant' => $linkOwner,
+                        ]);
+
+                        $existingBonus = bonus::where('user_id', $linkOwner)->first();
+                        if (!$existingBonus) {
+                            bonus::create([
+                                'user_id' => $linkOwner,
+                                'bonus' => $referralBonus,
+                                'status' => 3,
+                            ]);
+                        } else {
+                            $existingBonus->increment('bonus', $referralBonus);
+                        }
+                    }
 
                     DB::commit();
+                    Log::info("[InTouch Callback] Wallet successfully credited for User ID: {$userId}");
 
                 } catch (\Exception $e) {
                     DB::rollBack();
-                    Log::error("InTouch Callback Fatal Error: " . $e->getMessage());
-                    return response()->json([
-                        'message' => 'Internal processing error',
-                        'success' => false,
-                        'request_id' => $localRequestId
-                    ], 500);
+                    Log::error('InTouch Callback Processing Exception: ' . $e->getMessage());
+                    return "Something went wrong. Please try again!";
                 }
-            } else {
-                Log::info("InTouch Callback: Order #{$localRequestId} already processed.");
-                // Ensure context is loaded even if transaction branch was skipped
-                $order->load(['orderItems.part', 'user']);
             }
 
-            /**
-             * FIX LOCATION: 
-             * Executed outside of the state modifier blocks. Regardless of whether this thread 
-             * changes the state or an alternate checkout redirection handles it first, the invoice is sent.
-             */
-            // $this->sendInvoice($order);
-
-            return response()->json([
-                'message' => 'success',
-                'success' => true,
-                'request_id' => $localRequestId
-            ], 200);
+            // Retrieve updated wallet balance
+            $walletCounter = wallet::where('user_id', '=', $userId)->count();
+            $wallet = ($walletCounter == 0) ? 0 : wallet::where('user_id', '=', $userId)->value('money');
+            
+            $message = $data['statusdesc'] ?? "Transaction has been completed successfully";
+            
+            return view('payment.pay-with-afripay', compact('message', 'wallet')); 
         }
 
         // 7. Handle Failed/Canceled Payments
-        Log::warning("InTouch Payment failed for Order: {$localRequestId}. Status: {$status}");
+        Log::warning("InTouch Payment failed for Request ID: {$localRequestId}. Status: {$status}");
         return response()->json([
             'message' => $errorMessage,
             'success' => false,
             'request_id' => $localRequestId
         ], 200); 
     }
-
-    // private function sendInvoice($order)
-    // {
-    //     try {
-    //         // Check user relation safely or cleanly default down to guest field values
-    //         $recipientEmail = ($order->user && !empty($order->user->email)) ? $order->user->email : $order->guest_email;
-
-    //         if ($recipientEmail) {
-    //             Mail::to($recipientEmail)->send(new OrderPaidInvoice($order));
-    //             Log::info("InTouch Invoice sent successfully to: {$recipientEmail}");
-    //         } else {
-    //             Log::error("InTouch Invoice Failed: No valid email address located for Order ID #{$order->id}");
-    //         }
-    //     } catch (\Exception $e) {
-    //         Log::error('InTouch Invoice Email Failed: ' . $e->getMessage());
-    //     }
-    // }
 }
