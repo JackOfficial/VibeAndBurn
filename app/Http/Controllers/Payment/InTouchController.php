@@ -132,8 +132,13 @@ class InTouchController extends Controller
             $wallet = ($walletCounter == 0) ? 0 : wallet::where('user_id', '=', $userId)->value('money');
             
             $message = $data['statusdesc'] ?? "Transaction has been completed successfully";
-            
-            return view('payment.pay-with-afripay', compact('message', 'wallet')); 
+             
+            // Instead of rendering a dashboard view which crashes for webhook requests:
+            return response()->json([
+                'message' => 'Callback processed successfully',
+                'success' => true,
+                'request_id' => $localRequestId
+            ], 200);
         }
 
         // 7. Handle Failed/Canceled Payments
