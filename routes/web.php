@@ -160,3 +160,7 @@ Route::get('/listener', function(){
 Route::get('/intouch-sample-checkout', function () {
     return view('intouch-sample');
 })->name('intouch.sample.checkout');    
+
+Route::get('/wallet/success', function () {
+    return view('wallet.success'); // Point to your success view
+})->name('wallet.success');
