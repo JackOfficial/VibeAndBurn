@@ -38,6 +38,38 @@ class InTouchController extends Controller
         }
 
         /**
+         * 4. Handle Insufficient Funds or Explicit Failures
+         */
+        if (str_contains($lowerError, 'insufficient') || str_contains($lowerError, 'balance') || in_array(strtolower($status), ['failed', 'cancelled', 'canceled'])) {
+            Log::warning("InTouch Payment Failed / Insufficient Funds for Request ID: {$localRequestId}. Reason: {$errorMessage}");
+            
+            if ($userPayment) {
+                $userPayment->update(['status' => 'Failed']);
+            }
+
+            return response()->json([
+                'message' => 'Payment failed: Insufficient funds or transaction canceled.',
+                'success' => false,
+                'request_id' => $localRequestId
+            ], 200);
+        }
+
+        /**
+         * 5. Handle Delayed Success / Pending state with 15-second check
+         */
+        if (in_array(strtolower($status), ['pending', 'processing'])) {
+            // Check if the payment request was created within the last 15 seconds
+            if ($userPayment && $userPayment->created_at->diffInSeconds(now()) < 15) {
+                Log::info("InTouch Callback: Transaction {$localRequestId} is delayed/pending. Holding off for 15s window.");
+                return response()->json([
+                    'message' => 'Transaction is processing, please wait...',
+                    'success' => false,
+                    'request_id' => $localRequestId
+                ], 200);
+            }
+        }
+
+        /**
          * 4. Success Logic
          */
         if (in_array(strtolower($status), ['successfull', 'success'])) {
@@ -132,7 +164,7 @@ class InTouchController extends Controller
             $wallet = ($walletCounter == 0) ? 0 : wallet::where('user_id', '=', $userId)->value('money');
             
             $message = $data['statusdesc'] ?? "Transaction has been completed successfully";
-             
+
             // Instead of rendering a dashboard view which crashes for webhook requests:
             return response()->json([
                 'message' => 'Callback processed successfully',
