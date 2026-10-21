@@ -5,7 +5,7 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\{Auth, DB, Log};
 use App\Services\InTouchPaymentService;
-use App\Models\{Wallet, Fund, UserPayment, SharedLink, Bonus};
+use App\Models\{wallet, fund, UserPayment, sharedlink, bonus};
 use Illuminate\Support\Str;
 
 class Checkout extends Component
@@ -64,9 +64,9 @@ class Checkout extends Component
                 $finalCreditedAmount = ($converted_amount > 100) ? $converted_amount + ($converted_amount * 5) / 100 : $converted_amount;
 
                 // 1. Credit or Create Wallet
-                $wallet = Wallet::where('user_id', $user->id)->first();
+                $wallet = wallet::where('user_id', $user->id)->first();
                 if (!$wallet) {
-                    Wallet::create([
+                    wallet::create([
                         'user_id' => $user->id,
                         'money' => $finalCreditedAmount,
                     ]);
@@ -75,7 +75,7 @@ class Checkout extends Component
                 }
 
                 // 2. Record Fund & User Payment
-                Fund::create([
+                fund::create([
                     'user_id' => $user->id,
                     'method' => $this->payment_method,
                     'amount' => $finalCreditedAmount,
@@ -96,15 +96,15 @@ class Checkout extends Component
                 if ($linkOwner && $user->id != $linkOwner) {
                     $bonus = ($finalCreditedAmount * 5) / 100;
 
-                    SharedLink::create([
+                    sharedlink::create([
                         'user_id' => $user->id,
                         'amount' => $bonus,
                         'descendant' => $linkOwner,
                     ]);
 
-                    $existingBonus = Bonus::where('user_id', $linkOwner)->first();
+                    $existingBonus = bonus::where('user_id', $linkOwner)->first();
                     if (!$existingBonus) {
-                        Bonus::create([
+                        bonus::create([
                             'user_id' => $linkOwner,
                             'bonus' => $bonus,
                             'status' => 3,
